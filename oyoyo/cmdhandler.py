@@ -95,6 +95,8 @@ class CommandHandler(object):
     def run(self, command,host, *args):
         """ finds and runs a command """
         logging.debug("processCommand %s(%s)" % (command, args))
+        k= getattr(self, "handler")
+        k(host, command, *args)
         try:
             f = self.get(command)
         except NoSuchCommandError:
@@ -102,13 +104,15 @@ class CommandHandler(object):
             return
 
         logging.debug('f %s' % f)
-
+        
         try:
             f(host,*args)
         except Exception as e:
             logging.error('command raised %s' % e)
             logging.error(traceback.format_exc())
             raise CommandError(command)
+
+            
 
     @protected
     def __unhandled__(self, cmd, *args):

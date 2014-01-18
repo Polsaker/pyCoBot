@@ -9,23 +9,60 @@ import json
 import pprint
 
 servers = {}
-modules = []
+modules = {}
+conf = {}
+handlers = {}
 
 class NativeHandler(DefaultCommandHandler):
-	
-	def n001(self, server, nick, chan, msg):
-		for i, val in enumerate(servers[server]['autojoin']):
+	def __init__(self, cli):
+		self.client = cli
+		for i, val in enumerate(servers[cli.host]['modules']):
+			self.loadmod(servers[cli.host]['modules'][i], cli)
 			
-			helpers.join(self.client,servers[server]['autojoin'][i])
+	def handler(self, server, numeric, *kw):
+		for i, val in enumerate(handlers[server]):
+			if handlers[server][i]['numeric'] == numeric:
+				getattr(modules[servers[server]['client'].host][handlers[server][i]['mod']]['module'], handlers[server][i]['func'])(self.client, server, *kw)
 	
-def loadmod(module):
-	logging.info('Loading module %s' % module)
-	try:
-		with open('modules/%s/%s' % module, module):
-			pass # TODO: cargar el módulo aqui!!
-	except IOError:
-		logging.error('No se pudo cargar el módulo "%s". No se ha encontrado el archivo.' % module)
-		
+	def addHandler(self, server, numeric, modulo, func):
+		pprint.pprint(handlers)
+		h = {}
+		h['numeric'] = numeric
+		h['mod'] = modulo
+		h['func'] = func
+		handlers[server].append(h)
+	
+	# autojoin
+	def welcome(self, server, *kw):
+		print("-------------------------___WTF!")
+		for i, val in enumerate(servers[server]['autojoin']):
+			helpers.join(self.client,servers[server]['autojoin'][i])
+			
+	# carga de modulos
+	def loadmod(self, module, cli):
+		logging.info('Cargando modulo "%s" en %s' % (module, cli.host))
+		try:
+			# D:
+			modulef = open('modules/%s/%s.py' % (module, module)).read()
+			nclassname = "m" + str(int(time.time())) + "x" + module
+			mod = re.sub(r".*class (.*):", "class " + nclassname + ":", modulef)
+			open('tmp/%s.py' % module, 'w').write(mod)
+			
+			modules[cli.host] = {}
+			modules[cli.host][module] = {}
+			modules[cli.host][module]['importd'] = __import__("tmp." + module, fromlist=[nclassname])
+			modules[cli.host][module]['mainclass'] = nclassname
+			modules[cli.host][module]['module'] = my_import("tmp."+module+"."+nclassname)(self, cli)
+			
+		except IOError:
+			logging.error("No se pudo cargar el modulo '%s'. No se ha encontrado el archivo." % module)
+
+def my_import(cl):
+    d = cl.rfind(".")
+    classname = cl[d+1:len(cl)]
+    m = __import__(cl[0:d], globals(), locals(), [classname])
+    return getattr(m, classname)
+
 def main():
 	logging.basicConfig(level=logging.DEBUG) # Logging
 	try:
@@ -36,16 +73,17 @@ def main():
 
 	
 	conf = json.loads(jsonConf)
-	
 	ircapp = oyoyo.client.IRCApp()
 	
+	# Cargamos los servidores...
 	for i, val in enumerate(conf['irc']):
+		handlers[conf['irc'][i]['server']] = []
 		servers[conf['irc'][i]['server']] =conf['irc'][i]
 		servers[conf['irc'][i]['server']]['client'] = oyoyo.client.IRCClient(NativeHandler, host=conf['irc'][i]['server'], port=conf['irc'][i]['port'],
 		nick=conf['irc'][i]['nick'])
-		ircapp.addClient(servers[conf['irc'][i]['server']]['client'])
+		ircapp.addClient(servers[conf['irc'][i]['server']]['client'])	
 		
-	ircapp.run()
+	ircapp.run() # Comenzamos a conectar y a procesar..
 	
 
 #	cli = IRCClient(NativeHandler, host=HOST, port=PORT, nick=NICK,
