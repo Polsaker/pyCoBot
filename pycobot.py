@@ -22,17 +22,14 @@ def loadmod(module):
 	logging.info('Loading module %s' % module)
 	try:
 		with open('modules/%s/%s' % module, module):
-			process()
-			# TODO: cargar el módulo aqui!!
+			pass # TODO: cargar el módulo aqui!!
 	except IOError:
 		logging.error('No se pudo cargar el módulo "%s". No se ha encontrado el archivo.' % module)
 		
 def main():
 	logging.basicConfig(level=logging.DEBUG) # Logging
 	try:
-		with open("pycobot.conf"):
-			process()
-			jsonConf = read()
+		jsonConf = open("pycobot.conf").read()
 	except IOError:
 		logging.error('No se ha podido abrir el archivo de configuración')
 		sys.exit("Missing config file!")
