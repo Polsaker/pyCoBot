@@ -139,6 +139,7 @@ class IRCClient:
         """
         try:
             logging.info('connecting to %s:%s' % (self.host, self.port))
+            host = str(self.host)
             self.socket.connect(("%s" % self.host, self.port))
             if not self.blocking:
                 self.socket.setblocking(0)
@@ -169,7 +170,7 @@ class IRCClient:
                     for el in data:
                         prefix, command, args = parse_raw_irc_command(el)
                         try:
-                            self.command_handler.run(command, prefix, *args)
+                            self.command_handler.run(command,host, prefix, *args)
                         except CommandError:
                             # error will of already been loggingged by the handler
                             pass 

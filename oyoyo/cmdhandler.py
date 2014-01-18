@@ -21,6 +21,7 @@ import sys
 import traceback
 
 from oyoyo import helpers
+from oyoyo import ircevents
 from oyoyo.parse import parse_nick
 
 # Python < 3 compatibility
@@ -74,7 +75,8 @@ class CommandHandler(object):
             cmd = command_parts.pop(0).decode('ascii')
             if cmd.startswith('_'):
                 raise ProtectedCommandError(in_command_parts)
-
+            if cmd.isnumeric():
+                cmd = "n%s" % cmd
             try:
                 f = getattr(p, cmd)
             except AttributeError:
@@ -90,10 +92,9 @@ class CommandHandler(object):
         return f
 
     @protected
-    def run(self, command, *args):
+    def run(self, command,host, *args):
         """ finds and runs a command """
         logging.debug("processCommand %s(%s)" % (command, args))
-
         try:
             f = self.get(command)
         except NoSuchCommandError:
@@ -103,7 +104,7 @@ class CommandHandler(object):
         logging.debug('f %s' % f)
 
         try:
-            f(*args)
+            f(host,*args)
         except Exception as e:
             logging.error('command raised %s' % e)
             logging.error(traceback.format_exc())
