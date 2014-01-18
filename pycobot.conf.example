@@ -15,7 +15,10 @@
             "nick": "pyCoBot-dev",
             "autojoin":[
                 "#cobot",
-                "##wikijuegos"
+                "#algo"
+            ],
+            "modules":[
+                "test"
             ]
         }
     
