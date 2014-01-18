@@ -93,5 +93,5 @@ def parse_nick(name):
     except ValueError:
         return (name, mode, rest, None)
 
-    return (name, mode, user, host)
+    return (name, nick, mode, user, host)
  
