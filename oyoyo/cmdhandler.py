@@ -53,9 +53,6 @@ class ProtectedCommandError(CommandError):
 class CommandHandler(object):
     """ The most basic CommandHandler """
 
-    def __init__(self, client):
-        self.client = client
-
     @protected
     def get(self, in_command_parts):
         """ finds a command 

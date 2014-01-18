@@ -11,26 +11,26 @@ import pprint
 servers = {}
 modules = {}
 conf = {}
-handlers = {}
 
 class NativeHandler(DefaultCommandHandler):
 	def __init__(self, cli):
 		self.client = cli
+		self.handlers = {}
+		self.handlers[cli.host] = []
 		for i, val in enumerate(servers[cli.host]['modules']):
 			self.loadmod(servers[cli.host]['modules'][i], cli)
 			
 	def handler(self, server, numeric, *kw):
-		for i, val in enumerate(handlers[server]):
-			if handlers[server][i]['numeric'] == numeric:
-				getattr(modules[servers[server]['client'].host][handlers[server][i]['mod']]['module'], handlers[server][i]['func'])(self.client, server, *kw)
+		for i, val in enumerate(self.handlers[server]):
+			if self.handlers[server][i]['numeric'] == numeric:
+				getattr(modules[servers[server]['client'].host][self.handlers[server][i]['mod']]['module'], self.handlers[server][i]['func'])(self.client, server, *kw)
 	
 	def addHandler(self, server, numeric, modulo, func):
-		pprint.pprint(handlers)
 		h = {}
 		h['numeric'] = numeric
 		h['mod'] = modulo
 		h['func'] = func
-		handlers[server].append(h)
+		self.handlers[server].append(h)
 	
 	# autojoin
 	def welcome(self, server, *kw):
@@ -77,7 +77,7 @@ def main():
 	
 	# Cargamos los servidores...
 	for i, val in enumerate(conf['irc']):
-		handlers[conf['irc'][i]['server']] = []
+		
 		servers[conf['irc'][i]['server']] =conf['irc'][i]
 		servers[conf['irc'][i]['server']]['client'] = oyoyo.client.IRCClient(NativeHandler, host=conf['irc'][i]['server'], port=conf['irc'][i]['port'],
 		nick=conf['irc'][i]['nick'])
