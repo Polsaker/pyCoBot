@@ -110,7 +110,7 @@ class pyCoBot:
                 arguments = arguments[1:]
 
             if command == "mode":
-                if not is_channel(target):
+                if not irc.client.is_channel(target):
                     command = "umode"
 
             return irc.client.Event(command, prefix, target, arguments)
