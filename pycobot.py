@@ -3,7 +3,7 @@
 
 import irc.client
 from irc import events
-import sys, json, logging, re, time
+import sys, json, logging, re, time, shutil, os
 from pprint import pprint
 # Variables globales:
 conf = {} # Configuración
@@ -22,11 +22,12 @@ class pyCoBot:
         servers[server] = conf
         servers[server]['servobj'] = server  
         self.modules = {}
+        self.modinfo = {}
         self.commandhandlers = {}
         self.conf = conf
         
         for i, val in enumerate(conf['modules']):
-            self.loadmod(conf['modules'][i], conf['server'], self)
+            self.loadmod(conf['modules'][i], conf['server'])
         
     
     def allraw(self, con, event):
@@ -37,14 +38,14 @@ class pyCoBot:
         
         if ev.type == "privmsg" or ev.type == "pubmsg":
             p = re.compile("(?:"+re.escape(self.conf['prefix'])+"|"+re.escape(self.conf['nick'])+"[:, ]? )(.*)(?!\w+)")
-            m = p.search(ev.arguments[0])
+            m = p.search(ev.splitd[0])
             if not m == None:
                 com = m.group(1)
                 try:
                     self.commandhandlers[com]
-                except NameError:
+                except KeyError:
                     return 0
-                getattr(self.commandhandlers[com]['mod'], self.commandhandlers[com]['func'])(self.server, ev)
+                getattr(self.commandhandlers[com]['mod'], self.commandhandlers[com]['func'])(self, self.server, ev)
         if ev.type == "welcome":
             for i, val in enumerate(servers[event.realserv]['autojoin']):
                 con.join(servers[event.realserv]['autojoin'][i])
@@ -130,6 +131,7 @@ class pyCoBot:
         h['func'] = func
 
         self.handlers.append(h)
+        
         logging.debug("Registrado handler en '%s' ('%s')" % (self.conf['server'], numeric))
         
         
@@ -147,22 +149,47 @@ class pyCoBot:
         h['mod'] = module
         h['func'] = func
         self.commandhandlers[command] = h
+        
         logging.debug("Registrado commandHandler en '%s' ('%s')" % (self.conf['server'], command))
         
     # carga de modulos
-    def loadmod(self, module, cli, bot):
+    def loadmod(self, module, cli):
         logging.info('Cargando modulo "%s" en %s' % (module, self.conf['server']))
         try:
             # D:
             modulef = open('modules/%s/%s.py' % (module, module)).read()
             nclassname = "m" + str(int(time.time())) + "x" + module
             mod = re.sub(r".*class (.*):", "class " + nclassname + ":", modulef)
-            open('tmp/%s.py' % module, 'w').write(mod)
+            open('tmp/%s/%s.py' % (self.conf['pserver'], nclassname), 'w').write(mod)
 
-            self.modules[module] = my_import("tmp."+module+"."+nclassname)(bot, cli)
-
+            self.modules[module] = my_import("tmp."+self.conf['pserver']+"."+nclassname+"."+nclassname)(self, cli)
+            self.modinfo[module] = nclassname
         except IOError:
             logging.error("No se pudo cargar el modulo '%s'. No se ha encontrado el archivo." % module)
+            
+    def unloadmod(self, module):
+        logging.info('Des-cargando modulo "%s" en %s' % (module, self.conf['server']))
+        try:
+            self.modules[module]
+        except NameError:
+            logging.error("El modulo %s no existe o no esta cargado" % module)
+            return 1
+        os.remove("tmp/%s/%s.py" % (self.conf['pserver'], self.modinfo[module]))
+        # Eliminamos los handlers..
+        for i, val in enumerate(self.handlers):
+            if self.modules[module] == self.handlers[i]['mod']:
+                logging.debug('Eliminando handler "%s" del modulo %s en %s' % (self.handlers[i]['numeric'], module, self.conf['server']))
+                del self.handlers[i]
+        
+        l = []
+        # Eliminamos los commandhandlers
+        for i in self.commandhandlers.keys():
+            if self.modules[module] == self.commandhandlers[i]['mod']:
+                l.append(i)
+                
+        for q in enumerate(l):
+                logging.debug('Eliminando commandhandler "%s" del modulo %s en %s' % (i, module, self.conf['server']))
+                del self.commandhandlers[ q[1] ]
 
 # :P
 def isset(variable):
@@ -179,11 +206,30 @@ def main():
 
     conf = json.loads(jsonConf) # Cargar la configuración
     
+    # Al iniciar borramos todo lo que hay en tmp/
+    folder = 'tmp'
+    for the_file in os.listdir(folder):
+        file_path = os.path.join(folder, the_file)
+        try:
+            if not file_path == "tmp/__init__.py":
+                if os.path.isfile(file_path):
+                    os.unlink(file_path)
+                else:
+                    shutil.rmtree(file_path)
+        except Exception:
+            pass
+    
+    
     client= irc.client.IRC()
     
     # Añadir servidores
     for i, val in enumerate(conf['irc']):
-        pycobot = pyCoBot(conf['irc'][i]['server'], client, conf['irc'][i])        
+        conf['irc'][i]['pserver'] = conf['irc'][i]['server'].replace(".", "") # Para que las carpetas no tengan puntos en sus
+                                                                            # nombres, asi no confundimos a python... o no?
+        if not os.path.exists("tmp/"+conf['irc'][i]['pserver']): # Creamos un tmp/ para cada servidor
+            os.makedirs("tmp/"+conf['irc'][i]['pserver'])
+            open("tmp/"+conf['irc'][i]['pserver']+"/__init__.py", "w").write("# :P") # Con un __init__.py
+        pycobot = pyCoBot(conf['irc'][i]['server'], client, conf['irc'][i])
         
     client.process_forever()
 

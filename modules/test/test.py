@@ -7,5 +7,5 @@ class test:
     def welcomecatch(self, client):
         print("Esto funciona :O")
     
-    def helloworld(self, cli, event):
+    def helloworld(self, bot, cli, event):
         cli.privmsg(event.target, cli.parse_nick(event.source)[1] + ": Esto es una prueba!")

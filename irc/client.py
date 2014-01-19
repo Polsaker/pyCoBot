@@ -1268,7 +1268,7 @@ class Event(object):
             arguments = []
         self.arguments = arguments
         self.realserv = realserv
-        if type == "privmsg":
+        if type == "privmsg" or type == "pubmsg":
             self.splitd = arguments[0].split()
 
 _LOW_LEVEL_QUOTE = "\020"
