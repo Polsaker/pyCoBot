@@ -41,6 +41,12 @@ class pyCoBot:
             m = p.search(ev.splitd[0])
             if not m == None:
                 com = m.group(1)
+                if com == "help" or com == "ayuda":
+                    comlist = "help auth "
+                    for i in self.commandhandlers.keys():
+                        comlist = comlist + i + " "
+                    con.privmsg(ev.target, "\2pyCoBot alpha\2. Comandos empezar con \2"+self.conf["prefix"]+"\2. Escriba "+self.conf["prefix"]+"help \2<comando>\2 para mas información sobre un comando")
+                    con.privmsg(ev.target, "Comandos: " + comlist)
                 try:
                     self.commandhandlers[com]
                 except KeyError:

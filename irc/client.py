@@ -963,26 +963,6 @@ class ServerConnection(Connection):
         pinger = functools.partial(self.ping, 'keep-alive')
         self.irclibobj.execute_every(period=interval, function=pinger)
 
-    def parse_nick(self, name):
-        """ parse a nickname and return a tuple of (nick, mode, user, host)
-
-        <nick> [ '!' [<mode> = ] <user> ] [ '@' <host> ]
-        """
-
-        try:
-            nick, rest = name.split('!')
-        except ValueError:
-            return (name, None, None, None)
-        try:
-            mode, rest = rest.split('=')
-        except ValueError:
-            mode, rest = None, rest
-        try:
-            user, host = rest.split('@')
-        except ValueError:
-            return (name, mode, rest, None)
-
-        return (name, nick, mode, user, host)
 class Throttler(object):
     """
     Rate-limit a function (or other callable)
@@ -1269,6 +1249,8 @@ class Event(object):
         self.arguments = arguments
         self.realserv = realserv
         if type == "privmsg" or type == "pubmsg":
+            if not is_channel(target):
+                self.target = parse_nick(source)[1] # >:D
             self.splitd = arguments[0].split()
 
 _LOW_LEVEL_QUOTE = "\020"
@@ -1283,6 +1265,26 @@ _low_level_mapping = {
 }
 
 _low_level_regexp = re.compile(_LOW_LEVEL_QUOTE + "(.)")
+def parse_nick(name):
+    """ parse a nickname and return a tuple of (nick, mode, user, host)
+
+    <nick> [ '!' [<mode> = ] <user> ] [ '@' <host> ]
+    """
+
+    try:
+        nick, rest = name.split('!')
+    except ValueError:
+        return (name, None, None, None)
+    try:
+        mode, rest = rest.split('=')
+    except ValueError:
+        mode, rest = None, rest
+    try:
+        user, host = rest.split('@')
+    except ValueError:
+        return (name, mode, rest, None)
+
+    return (name, nick, mode, user, host)
 
 def mask_matches(nick, mask):
     """Check if a nick matches a mask.
