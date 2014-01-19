@@ -1,23 +1,5 @@
-# Copyright (c) 2008 Duncan Fordyce
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-# The above copyright notice and this permission notice shall be included in
-#  all copies or substantial portions of the Software.
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
-
-# taken from python irclib.. who took it from...
-# Numeric table mostly stolen from the Perl IRC module (Net::IRC).
-numeric_events = {
+# Numeric table based on the Perl's Net::IRC.
+numeric = {
     "001": "welcome",
     "002": "yourhost",
     "003": "created",
@@ -132,6 +114,7 @@ numeric_events = {
     "406": "wasnosuchnick",
     "407": "toomanytargets",
     "409": "noorigin",
+    "410": "invalidcapcmd",
     "411": "norecipient",
     "412": "notexttosend",
     "413": "notoplevel",
@@ -141,7 +124,7 @@ numeric_events = {
     "423": "noadmininfo",
     "424": "fileerror",
     "431": "nonicknamegiven",
-    "432": "erroneusnickname", # Thiss iz how its speld in thee RFC.
+    "432": "erroneusnickname",  # Thiss iz how its speld in thee RFC.
     "433": "nicknameinuse",
     "436": "nickcollision",
     "437": "unavailresource",  # "Nick temporally unavailable"
@@ -156,7 +139,7 @@ numeric_events = {
     "462": "alreadyregistered",
     "463": "nopermforhost",
     "464": "passwdmismatch",
-    "465": "yourebannedcreep", # I love this one...
+    "465": "yourebannedcreep",  # I love this one...
     "466": "youwillbebanned",
     "467": "keyset",
     "471": "channelisfull",
@@ -178,8 +161,9 @@ numeric_events = {
     "502": "usersdontmatch",
 }
 
-generated_events = [
-    # Generated events
+codes = dict((v, k) for k, v in numeric.items())
+
+generated = [
     "dcc_connect",
     "dcc_disconnect",
     "dccmsg",
@@ -188,8 +172,7 @@ generated_events = [
     "ctcpreply",
 ]
 
-protocol_events = [
-    # IRC protocol events
+protocol = [
     "error",
     "join",
     "kick",
@@ -203,7 +186,9 @@ protocol_events = [
     "quit",
     "invite",
     "pong",
+    "action",
+    "topic",
+    "nick",
 ]
 
-all_events = generated_events + protocol_events + list(numeric_events.values())
-
+all = generated + protocol + list(numeric.values())
