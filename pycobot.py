@@ -8,36 +8,43 @@ from pprint import pprint
 # Variables globales:
 conf = {} # Configuración
 servers = {} # Servidores
-modules = {} # Módulos
-handlers = {} # 
-commandhandlers = {} # 
 
 client = None
 
 _rfc_1459_command_regexp = re.compile("^(:(?P<prefix>[^ ]+) +)?(?P<command>[^ ]+)( *(?P<argument> .+))?")
 class pyCoBot:
     def __init__(self, server, client, conf):
-        handlers[server] = []
+        self.handlers = []
         self.server = client.server()
         self.server.connect(server, conf['port'], conf['nick'],
             username = conf['nick'], ircname = "pyCoBot")
         self.server.add_global_handler("all_raw_messages", self.allraw)
         servers[server] = conf
         servers[server]['servobj'] = server  
-        modules[server] = {}
-        
+        self.modules = {}
+        self.commandhandlers = {}
         self.conf = conf
         
         for i, val in enumerate(conf['modules']):
-            loadmod(conf['modules'][i], self.server, conf['server'], self)
+            self.loadmod(conf['modules'][i], conf['server'], self)
         
     
     def allraw(self, con, event):
         ev = self.processline(event.arguments[0], con) 
-        for i, val in enumerate(handlers[self.conf['server']]): # TODO: hacer esto es feo, cambiarlo por algo mejor!
-            if ev.type == handlers[self.conf['server']][i]['numeric']:
-                getattr(handlers[self.conf['server']][i]['mod'], handlers[self.conf['server']][i]['func'])(self.conf['server'], self.server)
+        for i, val in enumerate(self.handlers): # TODO: hacer esto es feo, cambiarlo por algo mejor!
+            if ev.type == self.handlers[i]['numeric']:
+                getattr(self.handlers[i]['mod'], self.handlers[i]['func'])(self.server)
         
+        if ev.type == "privmsg" or ev.type == "pubmsg":
+            p = re.compile("(?:"+re.escape(self.conf['prefix'])+"|"+re.escape(self.conf['nick'])+"[:, ]? )(.*)(?!\w+)")
+            m = p.search(ev.arguments[0])
+            if not m == None:
+                com = m.group(1)
+                try:
+                    self.commandhandlers[com]
+                except NameError:
+                    return 0
+                getattr(self.commandhandlers[com]['mod'], self.commandhandlers[com]['func'])(self.server, ev)
         if ev.type == "welcome":
             for i, val in enumerate(servers[event.realserv]['autojoin']):
                 con.join(servers[event.realserv]['autojoin'][i])
@@ -108,7 +115,7 @@ class pyCoBot:
             return irc.client.Event(command, prefix, target, arguments)
         
 
-    def addHandler(self, server, numeric, modulo, func):
+    def addHandler(self, numeric, modulo, func):
         """ Registra un handler con el bot.
         Parametros:
             - server: Nombre (dirección) del servidor en el que se registra el handler (la misma
@@ -122,23 +129,44 @@ class pyCoBot:
         h['mod'] = modulo
         h['func'] = func
 
-        handlers[server].append(h)
-        logging.debug("Registrado handler en '%s' ('%s')" % (server, numeric))
+        self.handlers.append(h)
+        logging.debug("Registrado handler en '%s' ('%s')" % (self.conf['server'], numeric))
+        
+        
+    def addCommandHandler(self, command, module, func):
+        """ Registra un commandHandler con el bot (un comando, bah)
+        Parametros:
+            - server: Nombre (dirección) del servidor en el que se registra el handler (la misma
+            que aparece en la configuración)
+            - command: Nombre del comando que se va a registrar
+            - módulo: 'self' del módulo donde se registra el handler
+            - fund; la función que se llamara en el módulo en cuestión.
+        Los comandos se accionan al escribir <prefijo>comando; <nickdelbot>, comando;
+        <nickdelbot>: comando y <nickdelbot> comando """
+        h = {}
+        h['mod'] = module
+        h['func'] = func
+        self.commandhandlers[command] = h
+        logging.debug("Registrado commandHandler en '%s' ('%s')" % (self.conf['server'], command))
+        
+    # carga de modulos
+    def loadmod(self, module, cli, bot):
+        logging.info('Cargando modulo "%s" en %s' % (module, self.conf['server']))
+        try:
+            # D:
+            modulef = open('modules/%s/%s.py' % (module, module)).read()
+            nclassname = "m" + str(int(time.time())) + "x" + module
+            mod = re.sub(r".*class (.*):", "class " + nclassname + ":", modulef)
+            open('tmp/%s.py' % module, 'w').write(mod)
 
-# carga de modulos
-def loadmod(module, cli, server, bot):
-    logging.info('Cargando modulo "%s" en %s' % (module, server))
-    try:
-        # D:
-        modulef = open('modules/%s/%s.py' % (module, module)).read()
-        nclassname = "m" + str(int(time.time())) + "x" + module
-        mod = re.sub(r".*class (.*):", "class " + nclassname + ":", modulef)
-        open('tmp/%s.py' % module, 'w').write(mod)
+            self.modules[module] = my_import("tmp."+module+"."+nclassname)(bot, cli)
 
-        modules[server][module] = my_import("tmp."+module+"."+nclassname)(server, bot, cli)
+        except IOError:
+            logging.error("No se pudo cargar el modulo '%s'. No se ha encontrado el archivo." % module)
 
-    except IOError:
-        logging.error("No se pudo cargar el modulo '%s'. No se ha encontrado el archivo." % module)
+# :P
+def isset(variable):
+	return variable in locals() or variable in globals()
 
 def main():
     logging.basicConfig(level=logging.DEBUG)
@@ -155,22 +183,7 @@ def main():
     
     # Añadir servidores
     for i, val in enumerate(conf['irc']):
-        pycobot = pyCoBot(conf['irc'][i]['server'], client, conf['irc'][i])
-        """handlers[conf['irc'][i]['server']] = []
-        server = client.server()
-        server.connect(conf['irc'][i]['server'], conf['irc'][i]['port'],
-        conf['irc'][i]['nick'], username = conf['irc'][i]['nick'], ircname = "pyCoBot")
-        server.add_global_handler("all_raw_messages", allraw)
-        servers[conf['irc'][i]['server']] = conf['irc'][i]   
-        servers[conf['irc'][i]['server']]['servobj'] = server  
-        modules[conf['irc'][i]['server']] = {}
-        
-        pprint(handlers)
-        commandhandlers[conf['irc'][i]['server']] = {} 
-        
-        for i, val in enumerate(conf['irc'][i]['modules']):
-            loadmod(conf['irc'][i]['modules'][i], server, conf['irc'][i]['server']) """
-        
+        pycobot = pyCoBot(conf['irc'][i]['server'], client, conf['irc'][i])        
         
     client.process_forever()
 
