@@ -443,7 +443,7 @@ class ServerConnection(Connection):
         super(ServerConnection, self).__init__(irclibobj)
         self.connected = False
         self.features = features.FeatureSet()
-    
+
 
     # save the method args to allow for easier reconnection.
     @irc_functools.save_method_args
@@ -876,17 +876,17 @@ class ServerConnection(Connection):
         if '\n' in string:
             raise InvalidCharacters(
                 "Carriage returns not allowed in privmsg(text)")
-        bytes = string.encode('utf-8') + b'\r\n'
+        bytes_ = string.encode('utf-8') + b'\r\n'
         # According to the RFC http://tools.ietf.org/html/rfc2812#page-6,
         # clients should not transmit more than 512 bytes.
-        if len(bytes) > 512:
+        if len(bytes_) > 512:
             raise MessageTooLong(
                 "Messages limited to 512 bytes including CR/LF")
         if self.socket is None:
             raise ServerNotConnectedError("Not connected.")
         sender = getattr(self.socket, 'write', self.socket.send)
         try:
-            sender(bytes)
+            sender(bytes_)
             log.debug("TO SERVER: %s", string)
         except socket.error:
             # Ouch!
@@ -1135,8 +1135,8 @@ class DCCConnection(Connection):
         """
         if self.dcctype == 'chat':
             text += '\n'
-        bytes = text.encode('utf-8')
-        return self.send_bytes(bytes)
+        bytes_ = text.encode('utf-8')
+        return self.send_bytes(bytes_)
 
     def send_bytes(self, bytes):
         """
@@ -1358,12 +1358,14 @@ def _ctcp_dequote(message):
 
         return messages
 
+
 def is_channel(string):
     """Check if a string is a channel name.
 
     Returns true if the argument is a channel name, otherwise false.
     """
     return string and string[0] in "#&+!"
+
 
 def ip_numstr_to_quad(num):
     """
@@ -1377,8 +1379,9 @@ def ip_numstr_to_quad(num):
     """
     n = int(num)
     packed = struct.pack('>L', n)
-    bytes = struct.unpack('BBBB', packed)
-    return ".".join(map(str, bytes))
+    qbytes = struct.unpack('BBBB', packed)
+    return ".".join(map(str, qbytes))
+
 
 def ip_quad_to_numstr(quad):
     """
@@ -1388,8 +1391,8 @@ def ip_quad_to_numstr(quad):
     >>> ip_quad_to_numstr('192.168.0.1')
     '3232235521'
     """
-    bytes = map(int, quad.split("."))
-    packed = struct.pack('BBBB', *bytes)
+    qbytes = map(int, quad.split("."))
+    packed = struct.pack('BBBB', *qbytes)
     return str(struct.unpack('>L', packed)[0])
 
 class NickMask(six.text_type):
@@ -1435,6 +1438,7 @@ class NickMask(six.text_type):
     @property
     def user(self):
         return self.userhost.split("@")[0]
+
 
 def _ping_ponger(connection, event):
     "A global handler for the 'ping' event"

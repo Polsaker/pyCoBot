@@ -181,7 +181,7 @@ class SingleServerIRCBot(irc.client.SimpleIRCClient):
     def _on_nick(self, c, e):
         before = e.source.nick
         after = e.target
-        for ch in self.channels.values():
+        for ch in list(self.channels.values()):
             if ch.has_user(before):
                 ch.change_nick(before, after)
 
@@ -196,7 +196,7 @@ class SingleServerIRCBot(irc.client.SimpleIRCClient):
 
     def _on_quit(self, c, e):
         nick = e.source.nick
-        for ch in self.channels.values():
+        for ch in list(self.channels.values()):
             if ch.has_user(nick):
                 ch.remove_user(nick)
 
@@ -254,8 +254,9 @@ class SingleServerIRCBot(irc.client.SimpleIRCClient):
         elif e.arguments[0] == "PING":
             if len(e.arguments) > 1:
                 c.ctcp_reply(nick, "PING " + e.arguments[1])
-        elif e.arguments[0] == "DCC" and e.arguments[1].split(" ", 1)[0] == "CHAT":
-            self.on_dccchat(c, e)
+        elif e.arguments[0] == "DCC":
+            if e.arguments[1].split(" ", 1)[0] == "CHAT":
+                self.on_dccchat(c, e)
 
     def on_dccchat(self, c, e):
         pass
@@ -282,24 +283,24 @@ class Channel(object):
 
     def users(self):
         """Returns an unsorted list of the channel's users."""
-        return self.userdict.keys()
+        return list(self.userdict.keys())
 
     def opers(self):
         """Returns an unsorted list of the channel's operators."""
-        return self.operdict.keys()
+        return list(self.operdict.keys())
 
     def voiced(self):
         """Returns an unsorted list of the persons that have voice
         mode set in the channel."""
-        return self.voiceddict.keys()
+        return list(self.voiceddict.keys())
 
     def owners(self):
         """Returns an unsorted list of the channel's owners."""
-        return self.ownerdict.keys()
+        return list(self.ownerdict.keys())
 
     def halfops(self):
         """Returns an unsorted list of the channel's half-operators."""
-        return self.halfopdict.keys()
+        return list(self.halfopdict.keys())
 
     def has_user(self, nick):
         """Check whether the channel has a user."""
