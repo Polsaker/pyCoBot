@@ -10,7 +10,13 @@ import re
 import time
 import shutil
 import os
-#from pprint import pprint
+import hashlib
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine, MetaData, Table
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import Column, Integer, String
+
+from pprint import pprint
 # Variables globales:
 conf = {}  # Configuración
 servers = {}  # Servidores
@@ -20,9 +26,41 @@ client = None
 _rfc_1459_command_regexp = re.compile("^(:(?P<prefix>[^ ]+) +)?" +
     "(?P<command>[^ ]+)( *(?P<argument> .+))?")
 
+engine = create_engine("sqlite:///db/cobot.db")
+Base = declarative_base()
+
+
+class User(Base):
+    __tablename__ = 'users'
+
+    uid = Column(Integer, primary_key=True)
+    name = Column(String(30))
+    password = Column(String(60))
+
+    def __repr__(self):
+        return "<User(uid='%s', name='%s', password='%s')>" % (
+                             self.uid, self.name, self.password)
+
+
+class UserPriv(Base):
+    __tablename__ = 'userprivs'
+
+    tid = Column(Integer, primary_key=True)
+    uid = Column(Integer)
+    priv = Column(Integer)
+    sec = Column(String(30))
+
+    def __repr__(self):
+        return "<User(uid='%s', priv='%s', sec='%s')>" % (
+                             self.uid, self.priv, self.sec)
+
+Base.metadata.create_all(engine)
+Session = sessionmaker(bind=engine)
+
 
 class pyCoBot:
     def __init__(self, server, client, conf):
+        self.session = Session
         self.handlers = []
         self.server = client.server()
         self.server.connect(server, conf['port'], conf['nick'],
@@ -34,26 +72,42 @@ class pyCoBot:
         self.modinfo = {}
         self.commandhandlers = {}
         self.conf = conf
-
+        self.authd = {}  # Usuarios autenticados..
         for i, val in enumerate(conf['modules']):
             self.loadmod(conf['modules'][i], conf['server'])
 
     def allraw(self, con, event):
         ev = self.processline(event.arguments[0], con)
-        # TODO: hacer esto es feo, cambiarlo por algo mejor!
+        # OPTIMIZE: hacer esto es feo, cambiarlo por algo mejor!
         for i, val in enumerate(self.handlers):
             if ev.type == self.handlers[i]['numeric']:
                 m = getattr(self.handlers[i]['mod'], self.handlers[i]['func'])
                 m(self.server)
 
         if ev.type == "privmsg" or ev.type == "pubmsg":
-            p = re.compile("(?:" + re.escape(self.conf['prefix']) + "|" +
-                re.escape(self.conf['nick']) + "[:, ]? )(.*)(?!\w+)")
-            m = p.search(ev.splitd[0])
-            if not m is None:
-                com = m.group(1)
+            #p = re.compile("(?:" + re.escape(self.conf['prefix']) + "|" +
+            #    re.escape(self.conf['nick']) + "[:, ]? )(.*)(?!\w+)")
+            # Buscamos por el prefijo..
+            p1 = re.compile(re.escape(self.conf['prefix']) +
+                "(\S{1,52})[ ]?(.*)")
+            m1 = p1.search(ev.arguments[0])
+
+            # Buscamos por el nick como prefijo..
+            p2 = re.compile(re.escape(self.conf['nick']) +
+                "[:, ]? (\S{1,52})[ ]?(.*)")
+            m2 = p2.search(ev.arguments[0])
+            if not m1 is None:
+                del ev.splitd[0]
+                com = m1.group(1)
+            elif not m2 is None:
+                del ev.splitd[0]
+                del ev.splitd[0]
+                com = m2.group(1)
+
+            if not m1 is None or not m2 is None:
                 if com == "help" or com == "ayuda":
-                    if not len(ev.splitd) > 1:
+                    r = False
+                    if not len(ev.splitd) > 0:
                         comlist = "help auth "
                         for i in list(self.commandhandlers.keys()):
                             comlist = comlist + i + " "
@@ -65,24 +119,61 @@ class pyCoBot:
 
                         con.privmsg(ev.target, "Comandos: " + comlist)
                     else:
-                        if ev.splitd[1] == "help":  # Harcoded help :P
+                        if ev.splitd[0] == "help":  # Harcoded help :P
                             r = "Muestra la ayuda de un comando, o, si no " + \
                              " tiene parametros, la lista de comandos." + \
                              " Sintaxis: help [comando]"
-                        elif ev.splitd[1] == "auth":
+                        elif ev.splitd[0] == "auth":
                             r = "Identifica a un usuario registrado con el " + \
                              " Bot. Sintaxis" + \
                              " Sintaxis: help [comando]"
                         else:
-                            pass
-                        con.privmsg(ev.target, "Ayuda de \2" + ev.splitd[1] +
-                         "\2: " + r)
-                try:
-                    self.commandhandlers[com]
-                except KeyError:
-                    return 0
-                getattr(self.commandhandlers[com]['mod'],
-                  self.commandhandlers[com]['func'])(self, self.server, ev)
+                            pass  # TODO: la ayuda de los comandos que fueron
+                                    # añadidos por modulos
+                        if not r:
+                            con.privmsg(ev.target, "No se ha encontrado el " +
+                             "comando")
+                        else:
+                            con.privmsg(ev.target, "Ayuda de \2" + ev.splitd[0]
+                             + "\2: " + r)
+                elif com == "auth" and ev.type == "privmsg":
+                    self.auth(ev)
+                elif com == "update":
+                    pass  # TODO: actualizador!!
+                else:
+                    try:
+                        self.commandhandlers[com]
+                    except KeyError:
+                        return 0
+                    # Verificación de autenticación
+                    if not self.commandhandlers[com]['cpriv'] == -1:
+                        try:
+                            uid = self.authd[ev.source]
+                            continua = False
+                            session = self.session()
+                            for row in session.query(UserPriv) \
+                            .filter(UserPriv.uid == uid):
+                                # priv >= cpriv && privsec == "*"
+                                if row.sec == "*" and row.priv >= self \
+                                 .commandhandlers[com]['cpriv']:
+                                    continua = True
+                                # priv >= cpriv && privsec == cprivsec
+                                elif row.sec == self.\
+                                 commandhandlers[com]['cprivsect'] \
+                                 and row.priv >= self \
+                                 .commandhandlers[com]['cpriv']:
+                                    continua = True
+                        except KeyError:
+                            self.server.privmsg(ev.target,
+                            "\00304Error\003: No autorizado")
+                            return 1
+                        if not continua is True:
+                            self.server.privmsg(ev.target,
+                            "\00304Error\003: No autorizado")
+                            return 1
+                    getattr(self.commandhandlers[com]['mod'],
+                      self.commandhandlers[com]['func'])(self, self.server, ev)
+
         if ev.type == "welcome":
             for i, val in enumerate(servers[event.realserv]['autojoin']):
                 con.join(servers[event.realserv]['autojoin'][i])
@@ -155,6 +246,20 @@ class pyCoBot:
 
             return irc.client.Event(command, prefix, target, arguments)
 
+    def auth(self, event):
+        session = self.session()
+        passw = hashlib.sha1(event.splitd[1].encode('utf-8')).hexdigest()
+
+        try:
+            row = session.query(User).filter(User.name == event.splitd[0]) \
+             .filter(User.password == passw).one()
+            self.authd[event.source] = row.uid
+            self.server.privmsg(event.target, "Autenticado exitosamente como" +
+             row.name)
+        except:
+            self.server.privmsg(event.target, "\00304Error\003: Usuario o " +
+            "contraseña incorrectos")
+
     def addHandler(self, numeric, modulo, func):
         """ Registra un handler con el bot.
         Parametros:
@@ -175,7 +280,8 @@ class pyCoBot:
         logging.debug("Registrado handler en '%s' ('%s')"
            % (self.conf['server'], numeric))
 
-    def addCommandHandler(self, command, module, func):
+    def addCommandHandler(self, command, module, func, chelp="", cpriv=-1,
+         cprivsect="*", privmsgonly=False):
         """ Registra un commandHandler con el bot (un comando, bah)
         Parametros:
             - server: Nombre (dirección) del servidor en el que se registra el
@@ -183,11 +289,17 @@ class pyCoBot:
             - command: Nombre del comando que se va a registrar
             - módulo: 'self' del módulo donde se registra el handler
             - fund; la función que se llamara en el módulo en cuestión.
+            - chelp: La ayuda del comando
+            - cpriv y cprivsect: Privilegios requeridos para usar el comando
+            - privmsgonly: si el comando solo debe ser ejecutado por privmsg
         Los comandos se accionan al escribir <prefijo>comando;
          <nickdelbot>, comando; <nickdelbot>: comando y <nickdelbot> comando """
         h = {}
         h['mod'] = module
         h['func'] = func
+        h['cpriv'] = cpriv
+        h['cprivsect'] = cprivsect
+        h['privmsgonly'] = privmsgonly
         self.commandhandlers[command] = h
 
         logging.debug("Registrado commandHandler en '%s' ('%s')"
@@ -233,10 +345,9 @@ class pyCoBot:
         for i in list(self.commandhandlers.keys()):
             if self.modules[module] == self.commandhandlers[i]['mod']:
                 l.append(i)
-
         for q in enumerate(l):
-                logging.debug('Eliminando commandhandler "%s" del modulo %s' +
-                ' en %s' % (i, module, self.conf['server']))
+                logging.debug('Eliminando commandhandler "%s" del modulo %s'
+                 % (q[1], module))
                 del self.commandhandlers[q[1]]
 
 
@@ -289,5 +400,15 @@ def my_import(cl):
         classname = cl[d + 1:len(cl)]
         m = __import__(cl[0:d], globals(), locals(), [classname])
         return getattr(m, classname)
+
+
+def DBGetTableByName(table_name):
+        metadata = MetaData(engine)
+        try:
+            Table(table_name, metadata, autoload=True)
+            return True
+        except:
+            return False
+
 if __name__ == "__main__":
     main()
