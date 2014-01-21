@@ -2,3 +2,4 @@
 *.conf
 tmp/*
 *.nja
+*.db
