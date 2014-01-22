@@ -118,16 +118,12 @@ class pyCoBot:
                             session = self.session()
                             for row in session.query(UserPriv) \
                             .filter(UserPriv.uid == uid):
-                                # priv >= cpriv && privsec == "*"
-                                if row.sec == "*" and row.priv >= self \
-                                 .commandhandlers[com]['cpriv']:
+                                if (row.priv >= self.commandhandlers[com]
+                                 ['cpriv']) and (row.secmod == "*" or row.secmod
+                                 == self.commandhandlers[com]['mod'].__class__
+                                 .__name__):
                                     continua = True
-                                # priv >= cpriv && privsec == cprivsec
-                                elif row.sec == self.\
-                                 commandhandlers[com]['cprivsect'] \
-                                 and row.priv >= self \
-                                 .commandhandlers[com]['cpriv']:
-                                    continua = True
+                                    # TODO: Implementar privilegios por canal.
                         except KeyError:
                             self.server.privmsg(ev.target,
                             "\00304Error\003: No autorizado")
@@ -246,7 +242,7 @@ class pyCoBot:
            % (self.conf['server'], numeric))
 
     def addCommandHandler(self, command, module, func, chelp="", cpriv=-1,
-         cprivsect="*", privmsgonly=False):
+         cprivchan=False, privmsgonly=False):
         """ Registra un commandHandler con el bot (un comando, bah)
         Parametros:
             - server: Nombre (dirección) del servidor en el que se registra el
@@ -263,8 +259,9 @@ class pyCoBot:
         h['mod'] = module
         h['func'] = func
         h['cpriv'] = cpriv
-        h['cprivsect'] = cprivsect
+        h['cprivchan'] = cprivchan
         h['privmsgonly'] = privmsgonly
+        h['chelp'] = chelp
         self.commandhandlers[command] = h
 
         logging.debug("Registrado commandHandler en '%s' ('%s')"
