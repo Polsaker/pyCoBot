@@ -33,6 +33,7 @@ class pyCoBot:
 
         self.modules = {}
         self.modinfo = {}
+        self.modname = {}
         self.commandhandlers = {}
         self.conf = conf
         self.authd = {}  # Usuarios autenticados..
@@ -120,10 +121,21 @@ class pyCoBot:
                             .filter(UserPriv.uid == uid):
                                 if (row.priv >= self.commandhandlers[com]
                                  ['cpriv']) and (row.secmod == "*" or row.secmod
-                                 == self.commandhandlers[com]['mod'].__class__
-                                 .__name__):
-                                    continua = True
-                                    # TODO: Implementar privilegios por canal.
+                                 == self.modname[self.commandhandlers[com]
+                                 ['mod']]):
+                                    if self.commandhandlers[com]['cprivchan'] \
+                                     is False:
+                                        continua = True
+                                    else:
+                                        try:
+                                            c = getattr(self.commandhandlers
+                                             [com]['mod'], com + "_p")(self,
+                                             self.server, ev)
+                                        except AttributeError:
+                                            c = ev.target
+                                        if row.secchan == "*" or row.secchan ==\
+                                         c:
+                                            continua = True
                         except KeyError:
                             self.server.privmsg(ev.target,
                             "\00304Error\003: No autorizado")
@@ -282,6 +294,7 @@ class pyCoBot:
             self.modules[module] = my_import("tmp." + self.conf['pserver'] +
             "." + nclassname + "." + nclassname)(self, cli)
             self.modinfo[module] = nclassname
+            self.modname[self.modules[module]] = module
         except IOError:
             logging.error("No se pudo cargar el modulo '%s'. No se ha" +
             " encontrado el archivo." % module)
