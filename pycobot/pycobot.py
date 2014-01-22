@@ -74,6 +74,8 @@ class pyCoBot:
                     if not len(ev.splitd) > 0:
                         comlist = "help auth "
                         for i in list(self.commandhandlers.keys()):
+                            # TODO: Solo mostrar los comandos que el usuario \
+                             # puede usar
                             comlist = comlist + i + " "
 
                         con.privmsg(ev.target, "\2pyCoBot alpha\2. Comandos " +
@@ -112,44 +114,51 @@ class pyCoBot:
                     except KeyError:
                         return 0
                     # Verificación de autenticación
-                    if not self.commandhandlers[com]['cpriv'] == -1:
-                        try:
-                            uid = self.authd[ev.source]
-                            continua = False
-                            session = self.session()
-                            for row in session.query(UserPriv) \
-                            .filter(UserPriv.uid == uid):
-                                if (row.priv >= self.commandhandlers[com]
-                                 ['cpriv']) and (row.secmod == "*" or row.secmod
-                                 == self.modname[self.commandhandlers[com]
-                                 ['mod']]):
-                                    if self.commandhandlers[com]['cprivchan'] \
-                                     is False:
-                                        continua = True
-                                    else:
-                                        try:
-                                            c = getattr(self.commandhandlers
-                                             [com]['mod'], com + "_p")(self,
-                                             self.server, ev)
-                                        except AttributeError:
-                                            c = ev.target
-                                        if row.secchan == "*" or row.secchan ==\
-                                         c:
-                                            continua = True
-                        except KeyError:
-                            self.server.privmsg(ev.target,
-                            "\00304Error\003: No autorizado")
-                            return 1
-                        if not continua is True:
-                            self.server.privmsg(ev.target,
-                            "\00304Error\003: No autorizado")
-                            return 1
-                    getattr(self.commandhandlers[com]['mod'],
-                      self.commandhandlers[com]['func'])(self, self.server, ev)
+                    authd = self.authchk(ev.source, self.commandhandlers[com]
+                    ['cpriv'], self.modname[self.commandhandlers[com]['mod']],
+                    self.commandhandlers[com]['cprivchan'], ev.target, com, ev)
+
+                    if authd is True:
+                        getattr(self.commandhandlers[com]['mod'], self.
+                         commandhandlers[com]['func'])(self, self.server, ev)
+                    else:
+                        self.server.privmsg(ev.target, "\00304Error\003: No a" +
+                        "utorizado")
 
         if ev.type == "welcome":
             for i, val in enumerate(self.conf['autojoin']):
                 con.join(self.conf['autojoin'][i])
+
+    def authchk(self, host, cpriv, modsec, chansec=False, chan="", comm="", evn=
+    None):
+        # Verificación de autenticación
+        if not cpriv == -1:
+            try:
+                uid = self.authd[host]
+                continua = False
+                session = self.session()
+                for row in session.query(UserPriv) \
+                .filter(UserPriv.uid == uid):
+                    if (row.priv >= cpriv) and (row.secmod == "*" or row.secmod
+                     == modsec):
+                        if chansec is False:
+                            continua = True
+                        else:
+                            try:
+                                c = getattr(self.commandhandlers
+                                 [comm]['mod'], comm + "_p")(self,
+                                 self.server, evn)
+                            except AttributeError:
+                                c = chan
+                            if row.secchan == "*" or row.secchan ==\
+                             c:
+                                continua = True
+            except KeyError:
+                return False
+            if not continua is True:
+                return False
+            else:
+                return True
 
     # Procesa una linea y retorna un Event
     def processline(self, line, c):
