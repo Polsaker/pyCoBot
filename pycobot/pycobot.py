@@ -20,7 +20,7 @@ from .tables import User, UserPriv
 
 Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
-#kvack
+
 
 class pyCoBot:
     def __init__(self, server, client, conf):
@@ -76,7 +76,10 @@ class pyCoBot:
                         for i in list(self.commandhandlers.keys()):
                             # TODO: Solo mostrar los comandos que el usuario \
                              # puede usar
-                            comlist = comlist + i + " "
+                            if self.authchk(ev.source, self.commandhandlers[i]
+                             ['cpriv'], self.modname[self.commandhandlers[i]
+                             ['mod']], ev.target) is True:
+                                comlist = comlist + i + " "
 
                         con.privmsg(ev.target, "\2pyCoBot alpha\2. Comandos " +
                         "empezar con \2" + self.conf["prefix"] + "\2. " +
@@ -157,6 +160,8 @@ class pyCoBot:
                 return False
             else:
                 return True
+        else:
+            return True
 
     # Procesa una linea y retorna un Event
     def processline(self, line, c):
