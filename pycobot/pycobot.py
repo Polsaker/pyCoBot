@@ -20,7 +20,7 @@ from .tables import User, UserPriv
 
 Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
-
+#kvack
 
 class pyCoBot:
     def __init__(self, server, client, conf):
@@ -114,9 +114,15 @@ class pyCoBot:
                     except KeyError:
                         return 0
                     # Verificación de autenticación
+                    try:
+                        c = getattr(self.commandhandlers
+                         [com]['mod'], com + "_p")(self,
+                         self.server, ev)
+                    except AttributeError:
+                        c = ev.target
                     authd = self.authchk(ev.source, self.commandhandlers[com]
                     ['cpriv'], self.modname[self.commandhandlers[com]['mod']],
-                    self.commandhandlers[com]['cprivchan'], ev.target, com, ev)
+                    c)
 
                     if authd is True:
                         getattr(self.commandhandlers[com]['mod'], self.
@@ -129,8 +135,7 @@ class pyCoBot:
             for i, val in enumerate(self.conf['autojoin']):
                 con.join(self.conf['autojoin'][i])
 
-    def authchk(self, host, cpriv, modsec, chansec=False, chan="", comm="", evn=
-    None):
+    def authchk(self, host, cpriv, modsec, chan=False):
         # Verificación de autenticación
         if not cpriv == -1:
             try:
@@ -141,17 +146,10 @@ class pyCoBot:
                 .filter(UserPriv.uid == uid):
                     if (row.priv >= cpriv) and (row.secmod == "*" or row.secmod
                      == modsec):
-                        if chansec is False:
+                        if chan is False:
                             continua = True
                         else:
-                            try:
-                                c = getattr(self.commandhandlers
-                                 [comm]['mod'], comm + "_p")(self,
-                                 self.server, evn)
-                            except AttributeError:
-                                c = chan
-                            if row.secchan == "*" or row.secchan ==\
-                             c:
+                            if row.secchan == "*" or row.secchan == chan:
                                 continua = True
             except KeyError:
                 return False
