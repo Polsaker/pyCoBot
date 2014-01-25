@@ -46,6 +46,9 @@ class pyCoBot:
             self.loadmod(conf['modules'][i], conf['server'])
 
     def allraw(self, con, event):
+        _thread.start_new_thread(self.cproc, (con, event))
+
+    def cproc(self, con, event):
         ev = self.processline(event.arguments[0], con)
         # OPTIMIZE: hacer esto es feo, cambiarlo por algo mejor!
         for i, val in enumerate(self.handlers):
