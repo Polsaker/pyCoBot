@@ -11,8 +11,7 @@ from pycobot.pycobot import pyCoBot
 #from pprint import pprint
 # Variables globales:
 conf = {}  # Configuración
-servers = {}  # Servidores
-
+servers = []  # Servidores
 client = None
 
 
@@ -50,8 +49,9 @@ def main():
             os.makedirs("tmp/" + conf['irc'][i]['pserver'])
             l = open("tmp/" + conf['irc'][i]['pserver'] + "/__init__.py", "w")
             l.write("# :P")  # Con un __init__.py
-        pyCoBot(conf['irc'][i]['server'], client, conf['irc'][i])
-
+        servers.append(pyCoBot(conf['irc'][i]['server'], client,
+         conf['irc'][i]))
+    client.boservers = servers
     client.process_forever()
 
 if __name__ == "__main__":

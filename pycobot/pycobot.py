@@ -8,10 +8,12 @@ import logging
 import os
 import json
 import _thread
+import sys
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from . import updater
+import pprint
 _rfc_1459_command_regexp = re.compile("^(:(?P<prefix>[^ ]+) +)?" +
     "(?P<command>[^ ]+)( *(?P<argument> .+))?")
 
@@ -27,6 +29,7 @@ Session = sessionmaker(bind=engine)
 class pyCoBot:
     def __init__(self, server, client, conf):
         self.session = Session
+        self.botcli = client
         self.handlers = []
         self.server = client.server()
         self.server.connect(server, conf['port'], conf['nick'],
@@ -165,7 +168,7 @@ class pyCoBot:
             return True
 
     def updater(self, cli, event):
-        upd = updater.pyCoUpdater(cli, event)
+        """upd = updater.pyCoUpdater(cli, event)
         for key in list(self.modname.keys()):
             try:
                 val = self.modname[key]
@@ -175,8 +178,8 @@ class pyCoBot:
                  url=j['url'])
             except IOError:
                 pass
-        if upd.update() is True:
-            pass # Reiniciar el bot!!
+        if upd.update() is True:"""
+        self.restart_program("[UPDATE] Aplicando actualizaciones")
 
     # Procesa una linea y retorna un Event
     def processline(self, line, c):
@@ -351,6 +354,12 @@ class pyCoBot:
                 logging.debug('Eliminando commandhandler "%s" del modulo %s'
                  % (q[1], module))
                 del self.commandhandlers[q[1]]
+
+    def restart_program(self, quitmsg):
+        for i in enumerate(self.botcli.boservers):
+            i[1].server.quit(quitmsg)
+        python = sys.executable
+        os.execl(python, python, * sys.argv)
 
 
 def my_import(cl):
