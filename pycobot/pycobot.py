@@ -175,7 +175,8 @@ class pyCoBot:
                  url=j['url'])
             except IOError:
                 pass
-        upd.update()
+        if upd.update() is True:
+            pass # Reiniciar el bot!!
 
     # Procesa una linea y retorna un Event
     def processline(self, line, c):

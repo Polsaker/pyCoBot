@@ -4,6 +4,8 @@ import json
 import logging
 import pprint
 import hashlib
+from os import listdir
+from os.path import isfile, join
 
 
 class pyCoUpdater:
@@ -13,6 +15,7 @@ class pyCoUpdater:
         self.ev = ev
         self.githttpupd = {}
         self.upd = False
+        self.restartupd = False
 
     def addfile(self, utype, module, user="", repo="", url=""):
         print(utype)
@@ -34,7 +37,19 @@ class pyCoUpdater:
 
     def update(self):
         self.preprocessgithttp()
-        return self.upd
+        self.coreupdate()
+        if self.upd is False:
+            self.cli.privmsg(self.ev.target, "No hay actualizaciones " +
+             " disponibles")
+        return self.restartupd
+
+    def coreupdate(self):
+        for f in listdir("pycobot"):
+            if isfile(join("pycobot", f)):
+                p = join("pycobot", f)
+                if self.processgigithttp("irc-CoBot/pyCoBot", p) is True:
+                    self.upd = True
+                    self.restartupd = True
 
     def preprocessgithttp(self):
         pprint.pprint(self.githttpupd)
@@ -46,26 +61,26 @@ class pyCoUpdater:
              '/master/index.json').read()  # Obtenemos el indice de modulos..
             index = json.loads(ix.decode('utf-8'))
             for k, val in enumerate(self.githttpupd[i]):
-                print("------------007")
                 for x, xval in enumerate(index['modules']):
-                    print("------------008")
                     if val == xval:
-                        if self.processgithttp(i, val) is True:
+                        if self.processgithttp(i, "modules/" + val + ".py") is \
+                         True:
+                            self.cli.privmsg(self.ev.target,
+                             "\2Actualizando \00303%s" % "modules/" + val)
                             self.upd = True
 
-    def processgithttp(self, repo, module):
+    def processgithttp(self, repo, path):
         response = urllib.request.urlopen('https://github.com/%s/raw' % (repo) +
-        '/master/modules/%s/%s.py' % (module, module)).read()
-        f = open("modules/%s/%s.py" % (module, module))
+        '/master/%s' % path).read()
+        f = open(path)
         fh = hashlib.sha1(f.read().encode('utf-8')).hexdigest()
         f.close()
         oh = hashlib.sha1(response).hexdigest()
         if not fh == oh:
             logging.info("Actualizando %s. Hash local: %s. Hash remoto: %s" % (
-             module, fh, oh))
-            self.cli.privmsg(self.ev.target, "\2Actualizando \00303%s" % module)
-            f = open("modules/%s/%s.py" % (module, module), "w")
-            f.write(response)
+             path, fh, oh))
+            f = open(path, "w")
+            f.write(response.decode('utf-8'))
             f.close()
             return True
         else:
