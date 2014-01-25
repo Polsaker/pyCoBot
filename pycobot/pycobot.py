@@ -26,10 +26,11 @@ Session = sessionmaker(bind=engine)
 
 
 class pyCoBot:
-    def __init__(self, server, client, conf):
+    def __init__(self, server, client, conf, mconf):
         self.session = Session
         self.botcli = client
         self.handlers = []
+        self.mconf = mconf
         self.server = client.server()
         self.server.connect(server, conf['port'], conf['nick'],
             username=conf['nick'], ircname="pyCoBot")
@@ -167,7 +168,7 @@ class pyCoBot:
             return True
 
     def updater(self, cli, event):
-        upd = updater.pyCoUpdater(cli, event)
+        upd = updater.pyCoUpdater(cli, event, self.mconf)
         for key in list(self.modname.keys()):
             try:
                 val = self.modname[key]

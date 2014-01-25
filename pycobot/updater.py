@@ -2,16 +2,14 @@
 import urllib.request
 import json
 import logging
-import pprint
 import hashlib
-from os import listdir
-from os.path import isfile, join
 
 
 class pyCoUpdater:
 
-    def __init__(self, cli, ev):
+    def __init__(self, cli, ev, conf):
         self.cli = cli
+        self.conf = conf
         self.ev = ev
         self.githttpupd = {}
         self.upd = False
@@ -37,22 +35,41 @@ class pyCoUpdater:
 
     def update(self):
         self.preprocessgithttp()
+        # self.preprocessgithub()
+        # self.preprocesshttp()
+        self.modrepos()
         self.coreupdate()
+
         if self.upd is False:
             self.cli.privmsg(self.ev.target, "No hay actualizaciones " +
              " disponibles")
         return self.restartupd
 
+    def modrepos(self):
+        for x, xval in enumerate(self.conf['modulerepos']):
+            if xval['autodownload'] is True:
+                ix = urllib.request.urlopen('https://github.com/%s/ra' % (xval[
+                 'location']) + 'w/master/index.json').read()
+                index = json.loads(ix.decode('utf-8'))
+                for x, val in enumerate(index):
+                    try:
+                        open("modules/%s/%s.py" % (val, val))
+                    except:
+                        self.processgithttp(xval['location'], val)
+
     def coreupdate(self):
-        for f in listdir("pycobot"):
-            if isfile(join("pycobot", f)):
-                p = join("pycobot", f)
-                if self.processgigithttp("irc-CoBot/pyCoBot", p) is True:
-                    self.upd = True
-                    self.restartupd = True
+        # TODO: Descargar archivos nuevos
+        logging.info("Descargando índice de archivos del nucleo...")
+        ix = urllib.request.urlopen('https://github.com/irc-CoBot/pyCoBot/ra' +
+         'w/master/pycobot/index.json').read()
+        index = json.loads(ix.decode('utf-8'))
+        for x, xval in enumerate(index):
+            if self.processgigithttp("irc-CoBot/pyCoBot", xval) is True:
+                self.upd = True
+                self.restartupd = True
 
     def preprocessgithttp(self):
-        pprint.pprint(self.githttpupd)
+        # TODO: Auto-descarga de módulos no encontrados localmente
         for i in enumerate(self.githttpupd):
             i = i[1]
             logging.info("Descargando indice de modulos github-http para el " +
@@ -72,9 +89,13 @@ class pyCoUpdater:
     def processgithttp(self, repo, path):
         response = urllib.request.urlopen('https://github.com/%s/raw' % (repo) +
         '/master/%s' % path).read()
-        f = open(path)
-        fh = hashlib.sha1(f.read().encode('utf-8')).hexdigest()
-        f.close()
+        try:
+            f = open(path)
+            fh = hashlib.sha1(f.read().encode('utf-8')).hexdigest()
+            f.close()
+        except:
+            fh = 0
+
         oh = hashlib.sha1(response).hexdigest()
         if not fh == oh:
             logging.info("Actualizando %s. Hash local: %s. Hash remoto: %s" % (
