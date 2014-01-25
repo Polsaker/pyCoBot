@@ -28,5 +28,8 @@
             ]
         }
     
-    ]
+    ],
+    "db":{
+        "uri": "sqlite://db/cobot.db"
+    }
 }
