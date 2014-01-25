@@ -6,10 +6,12 @@ import time
 import hashlib
 import logging
 import os
+import json
+import _thread
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
+from . import updater
 _rfc_1459_command_regexp = re.compile("^(:(?P<prefix>[^ ]+) +)?" +
     "(?P<command>[^ ]+)( *(?P<argument> .+))?")
 
@@ -74,8 +76,6 @@ class pyCoBot:
                     if not len(ev.splitd) > 0:
                         comlist = "help auth "
                         for i in list(self.commandhandlers.keys()):
-                            # TODO: Solo mostrar los comandos que el usuario \
-                             # puede usar
                             if self.authchk(ev.source, self.commandhandlers[i]
                              ['cpriv'], self.modname[self.commandhandlers[i]
                              ['mod']], ev.target) is True:
@@ -110,7 +110,8 @@ class pyCoBot:
                 elif com == "auth" and ev.type == "privmsg":
                     self.auth(ev)
                 elif com == "update":
-                    pass  # TODO: actualizador!!
+                    # >:D
+                    _thread.start_new_thread(self.updater, (self.server, ev))
                 else:
                     try:
                         self.commandhandlers[com]
@@ -162,6 +163,19 @@ class pyCoBot:
                 return True
         else:
             return True
+
+    def updater(self, cli, event):
+        upd = updater.pyCoUpdater(cli, event)
+        for key in list(self.modname.keys()):
+            try:
+                val = self.modname[key]
+                f = open('modules/%s/%s.json' % (val, val))
+                j = json.load(f)
+                upd.addfile(j['type'], val, user=j['user'], repo=j['repo'],
+                 url=j['url'])
+            except IOError:
+                pass
+        upd.update()
 
     # Procesa una linea y retorna un Event
     def processline(self, line, c):
