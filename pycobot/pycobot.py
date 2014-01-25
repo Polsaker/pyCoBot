@@ -13,7 +13,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from . import updater
-import pprint
 _rfc_1459_command_regexp = re.compile("^(:(?P<prefix>[^ ]+) +)?" +
     "(?P<command>[^ ]+)( *(?P<argument> .+))?")
 
@@ -168,7 +167,7 @@ class pyCoBot:
             return True
 
     def updater(self, cli, event):
-        """upd = updater.pyCoUpdater(cli, event)
+        upd = updater.pyCoUpdater(cli, event)
         for key in list(self.modname.keys()):
             try:
                 val = self.modname[key]
@@ -178,8 +177,8 @@ class pyCoBot:
                  url=j['url'])
             except IOError:
                 pass
-        if upd.update() is True:"""
-        self.restart_program("[UPDATE] Aplicando actualizaciones")
+        if upd.update() is True:
+            self.restart_program("[UPDATE] Aplicando actualizaciones")
 
     # Procesa una linea y retorna un Event
     def processline(self, line, c):
