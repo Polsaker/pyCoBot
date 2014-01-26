@@ -83,10 +83,11 @@ class pyCoUpdater:
                         if self.processgithttp(i, "modules/" + val + ".py") is \
                          True:
                             self.cli.privmsg(self.ev.target,
-                             "\2Actualizando \00303%s" % "modules/" + val)
+                             "\2Actualizando \00303%s" % "modules/" + val + val)
                             self.upd = True
 
     def processgithttp(self, repo, path):
+        print("---" + repo + "---" + path)
         response = urllib.request.urlopen('https://github.com/%s/raw' % (repo) +
         '/master/%s' % path).read()
         try:
