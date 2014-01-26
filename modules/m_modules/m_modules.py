@@ -1,8 +1,8 @@
 class m_modules:
     def __init__(self, core, client):
-        core.addCommandHandler("loadmod", self, "loadmod", cpriv=9, chelp=
+        core.addCommandHandler("loadmod", self, cpriv=9, chelp=
         "Carga un módulo. Sintaxis: loadmod <módulo>")
-        core.addCommandHandler("unloadmod", self, "unloadmod", cpriv=9, chelp=
+        core.addCommandHandler("unloadmod", self, cpriv=9, chelp=
         "Descarga un módulo. Sintaxis: unloadmod <módulo>")
 
     def loadmod(self, bot, cli, event):

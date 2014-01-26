@@ -136,8 +136,8 @@ class pyCoBot:
                     c)
 
                     if authd is True:
-                        getattr(self.commandhandlers[com]['mod'], self.
-                         commandhandlers[com]['func'])(self, self.server, ev)
+                        getattr(self.commandhandlers[com]['mod'], com)(self,
+                         self.server, ev)
                     else:
                         self.server.privmsg(ev.target, "\00304Error\003: No a" +
                         "utorizado")
@@ -286,7 +286,7 @@ class pyCoBot:
         logging.debug("Registrado handler en '%s' ('%s')"
            % (self.conf['server'], numeric))
 
-    def addCommandHandler(self, command, module, func, chelp="", cpriv=-1,
+    def addCommandHandler(self, command, module, chelp="", cpriv=-1,
          cprivchan=False, privmsgonly=False):
         """ Registra un commandHandler con el bot (un comando, bah)
         Parametros:
@@ -294,7 +294,6 @@ class pyCoBot:
              handler (la misma que aparece en la configuración)
             - command: Nombre del comando que se va a registrar
             - módulo: 'self' del módulo donde se registra el handler
-            - fund; la función que se llamara en el módulo en cuestión.
             - chelp: La ayuda del comando
             - cpriv y cprivsect: Privilegios requeridos para usar el comando
             - privmsgonly: si el comando solo debe ser ejecutado por privmsg
@@ -302,7 +301,6 @@ class pyCoBot:
          <nickdelbot>, comando; <nickdelbot>: comando y <nickdelbot> comando """
         h = {}
         h['mod'] = module
-        h['func'] = func
         h['cpriv'] = cpriv
         h['cprivchan'] = cprivchan
         h['privmsgonly'] = privmsgonly
