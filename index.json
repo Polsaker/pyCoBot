@@ -1,6 +1,7 @@
 {
     "notice": "Este es el indice de módulos. Es escencial para que el actualizador considere este repositorio como almacen de módulos. MODIFICAR UNICAMENTE CUANDO SE AÑADE UN NUEVO MODULO!!!",
     "modules": [
-        "m_modules"
+        "m_modules",
+        "joinpart"
     ]
 }
