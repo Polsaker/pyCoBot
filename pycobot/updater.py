@@ -64,7 +64,7 @@ class pyCoUpdater:
          'w/master/pycobot/index.json').read()
         index = json.loads(ix.decode('utf-8'))
         for x, xval in enumerate(index):
-            if self.processgigithttp("irc-CoBot/pyCoBot", xval) is True:
+            if self.processgithttp("irc-CoBot/pyCoBot", xval) is True:
                 self.upd = True
                 self.restartupd = True
 
@@ -80,10 +80,10 @@ class pyCoUpdater:
             for k, val in enumerate(self.githttpupd[i]):
                 for x, xval in enumerate(index['modules']):
                     if val == xval:
-                        if self.processgithttp(i, "modules/" + val + ".py") is \
-                         True:
+                        if self.processgithttp(i, "modules/" + val + "/" + val +
+                         ".py") is True:
                             self.cli.privmsg(self.ev.target,
-                             "\2Actualizando \00303%s" % "modules/" + val + val)
+                             "\2Actualizando \00303%s" % "modules/" + val)
                             self.upd = True
 
     def processgithttp(self, repo, path):
