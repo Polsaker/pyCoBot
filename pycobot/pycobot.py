@@ -32,8 +32,8 @@ class pyCoBot:
         self.botcli = client
         self.handlers = []
         self.mconf = mconf
-        self.server = client.server()
-        self.server.connect(server, conf['port'], conf['nick'],
+        self.server2 = client.server()
+        self.server = self.server2.connect(server, conf['port'], conf['nick'],
             username=conf['nick'], ircname="pyCoBot")
         self.server.add_global_handler("all_raw_messages", self.allraw)
 
