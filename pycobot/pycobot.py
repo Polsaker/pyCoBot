@@ -14,6 +14,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from . import updater
+import pprint
 _rfc_1459_command_regexp = re.compile("^(:(?P<prefix>[^ ]+) +)?" +
     "(?P<command>[^ ]+)( *(?P<argument> .+))?")
 
@@ -32,8 +33,8 @@ class pyCoBot:
         self.botcli = client
         self.handlers = []
         self.mconf = mconf
-        self.server2 = client.server()
-        self.server = self.server2.connect(server, conf['port'], conf['nick'],
+        self.server = client.server()
+        self.server.connect(server, conf['port'], conf['nick'],
             username=conf['nick'], ircname="pyCoBot")
         self.server.add_global_handler("all_raw_messages", self.allraw)
 
@@ -256,7 +257,7 @@ class pyCoBot:
     def auth(self, event):
         session = self.session()
         passw = hashlib.sha1(event.splitd[1].encode('utf-8')).hexdigest()
-
+        pprint.pprint(self.server)
         try:
             row = session.query(User).filter(User.name == event.splitd[0].lower(
             )).filter(User.password == passw).one()

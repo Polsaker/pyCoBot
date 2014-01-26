@@ -193,8 +193,8 @@ class IRC(object):
         """Creates and returns a ServerConnection object."""
 
         c = ServerConnection(self)
-        with self.mutex:
-            self.connections.append(c)
+        #with self.mutex:
+        #    self.connections.append(c)
         return c
 
     def process_data(self, sockets):
@@ -884,9 +884,9 @@ class ServerConnection(Connection):
                 "Messages limited to 512 bytes including CR/LF")
         if self.socket is None:
             raise ServerNotConnectedError("Not connected.")
-        sender = getattr(self.socket, 'write', self.socket.send)
+        #sender = getattr(self.socket, 'write', self.socket.send)
         try:
-            sender(bytes_)
+            self.socket.send(bytes_)
             log.debug("TO SERVER: %s", string)
         except socket.error:
             # Ouch!
