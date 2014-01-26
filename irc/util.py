@@ -1,6 +1,4 @@
-from __future__ import division, absolute_import
 
-import six.six
 
 # from jaraco.util.itertools
 def always_iterable(item):

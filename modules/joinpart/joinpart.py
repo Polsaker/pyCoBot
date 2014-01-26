@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import irc.client
 
 
 class joinpart:
@@ -8,7 +9,7 @@ class joinpart:
         "Hace que el bot entre en un canal. Sintaxis: join <canal>",
          cprivchan=True)
         core.addCommandHandler("part", self, cpriv=4, chelp=
-        "Hace que el bot salga de un canal. Sintaxis: part [canal]",
+        "Hace que el bot salga de un canal. Sintaxis: part [canal] [mensaje]",
          cprivchan=True)
 
     def join_p(self, bot, cli, event):
@@ -24,13 +25,20 @@ class joinpart:
              "ntaxis: join <canal>")
 
     def part_p(self, bot, cli, event):
-        if len(event.splitd) > 0:
+        if len(event.splitd) > 0 and irc.client.is_channel(event.splitd[0]):
             return event.splitd[0]
         else:
             return event.target
 
     def part(self, bot, cli, event):
+
         if len(event.splitd) > 0:
-            cli.part(event.splitd[0])
+            chan = event.splitd[0]
+            try:
+                msg = event.splitd[1]
+            except:
+                msg = "Salida ordenada por un administrador"
         else:
-            cli.part((event.target, ))
+            msg = "Salida ordenada por un administrador"
+            chan = event.target
+        cli.part(chan, msg)
