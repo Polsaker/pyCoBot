@@ -67,6 +67,8 @@ class pyCoUpdater:
         for x, xval in enumerate(index):
             if self.processgithttp("irc-CoBot/pyCoBot", "pycobot/" + xval) is \
              True:
+                self.cli.privmsg(self.ev.target, "\2Actualizando \00303%s" +
+                 "pycobot/" + xval)
                 self.upd = True
                 self.restartupd = True
 
