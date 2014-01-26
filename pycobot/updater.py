@@ -51,7 +51,7 @@ class pyCoUpdater:
                 ix = urllib.request.urlopen('https://github.com/%s/ra' % (xval[
                  'location']) + 'w/master/index.json').read()
                 index = json.loads(ix.decode('utf-8'))
-                for x, val in enumerate(index):
+                for x, val in enumerate(index['modules']):
                     try:
                         open("modules/%s/%s.py" % (val, val))
                     except:

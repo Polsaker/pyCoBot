@@ -1,4 +1,4 @@
-class m_moodules:
+class m_modules:
     def __init__(self, core, client):
         core.addCommandHandler("loadmod", self, cpriv=9, chelp=
         "Carga un módulo. Sintaxis: loadmod <módulo>")
