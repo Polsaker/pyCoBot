@@ -43,6 +43,7 @@ class pyCoUpdater:
         if self.upd is False:
             self.cli.privmsg(self.ev.target, "No hay actualizaciones " +
              " disponibles")
+        print("updend")
         return self.restartupd
 
     def modrepos(self):
@@ -64,7 +65,8 @@ class pyCoUpdater:
          'w/master/pycobot/index.json').read()
         index = json.loads(ix.decode('utf-8'))
         for x, xval in enumerate(index):
-            if self.processgithttp("irc-CoBot/pyCoBot", xval) is True:
+            if self.processgithttp("irc-CoBot/pyCoBot", "pycobot/" + xval) is \
+             True:
                 self.upd = True
                 self.restartupd = True
 
@@ -80,6 +82,7 @@ class pyCoUpdater:
             for k, val in enumerate(self.githttpupd[i]):
                 for x, xval in enumerate(index['modules']):
                     if val == xval:
+
                         if self.processgithttp(i, "modules/" + val + "/" + val +
                          ".py") is True:
                             self.cli.privmsg(self.ev.target,
@@ -87,7 +90,6 @@ class pyCoUpdater:
                             self.upd = True
 
     def processgithttp(self, repo, path):
-        print("---" + repo + "---" + path)
         response = urllib.request.urlopen('https://github.com/%s/raw' % (repo) +
         '/master/%s' % path).read()
         try:
