@@ -319,23 +319,29 @@ class pyCoBot:
             shutil.copytree("modules/%s/" % module, "tmp/%s/%s" % (self.conf
              ['pserver'], nclassname))
             touch("tmp/%s/%s/__init__.py" % (self.conf['pserver'], nclassname))
-            self.modules[module] = my_import("tmp." + self.conf['pserver'] +
-            "." + nclassname + "." + module + "." + module)(self, cli)
+            try:
+                self.modules[module] = my_import("tmp." + self.conf['pserver'] +
+                "." + nclassname + "." + module + "." + module)(self, cli)
+            except AttributeError:
+                logging.error("No se pudo cargar el modulo '%s'. No se ha" %
+                 module + " encontrado la clase principal.")
+                return 2
             self.modinfo[module] = nclassname
             self.modname[self.modules[module]] = module
         except IOError:
             logging.error("No se pudo cargar el modulo '%s'. No se ha" %
              module + " encontrado el archivo.")
+            return 1
 
     def unloadmod(self, module):
         logging.info('Des-cargando modulo "%s" en %s'
          % (module, self.conf['server']))
         try:
             self.modules[module]
-        except NameError:
+        except KeyError:
             logging.error("El modulo %s no existe o no esta cargado" % module)
             return 1
-        shutil.rmtree("tmp/%s/%s.py" % (self.conf['pserver'], self.modinfo
+        shutil.rmtree("tmp/%s/%s" % (self.conf['pserver'], self.modinfo
          [module]))
         # Eliminamos los handlers..
         for i, val in enumerate(self.handlers):
