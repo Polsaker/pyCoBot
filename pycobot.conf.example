@@ -31,5 +31,15 @@
     ],
     "db":{
         "uri": "sqlite://db/cobot.db"
+    },
+    "modulerepos": [
+        {
+            "location": "irc-CoBot/pyCoBot",
+            "autodownload": true
+        }
+    ],
+    "config": {
+        "loglevel": "info",
+        "logfile": "bot.log"
     }
 }

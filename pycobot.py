@@ -16,7 +16,8 @@ client = None
 
 
 def main():
-    logging.basicConfig(level=logging.DEBUG)
+
+    #logging.basicConfig(level=logging.DEBUG)
 
     try:
         jsonConf = open("pycobot.conf").read()
@@ -25,6 +26,12 @@ def main():
         sys.exit("Missing config file!")
 
     conf = json.loads(jsonConf)  # Cargar la configuración
+    loglevel = conf['config']['loglevel']
+    numeric_level = getattr(logging, loglevel.upper(), None)
+    if not isinstance(numeric_level, int):
+        raise ValueError('Invalid log level: %s' % loglevel)
+    logging.basicConfig(level=numeric_level, filename=conf['config']['logfile'],
+     filemode='w')
     # Al iniciar borramos todo lo que hay en tmp/
     folder = 'tmp'
     for the_file in os.listdir(folder):

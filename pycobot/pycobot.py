@@ -9,6 +9,7 @@ import os
 import json
 import _thread
 import sys
+import shutil
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -257,11 +258,10 @@ class pyCoBot:
         passw = hashlib.sha1(event.splitd[1].encode('utf-8')).hexdigest()
 
         try:
-            row = session.query(User).filter(User.name == event.splitd[0]) \
-             .filter(User.password == passw).one()
+            row = session.query(User).filter(User.name == event.splitd[0].lower(
+            )).filter(User.password == passw).one()
             self.authd[event.source] = row.uid
-            self.server.privmsg(event.target, "Autenticado exitosamente como" +
-             row.name)
+            self.server.privmsg(event.target, "Autenticado exitosamente")
         except:
             self.server.privmsg(event.target, "\00304Error\003: Usuario o " +
             "contraseña incorrectos")
@@ -317,20 +317,17 @@ class pyCoBot:
         logging.info('Cargando modulo "%s" en %s'
          % (module, self.conf['server']))
         try:
-            # D:
-            modulef = open('modules/%s/%s.py' % (module, module)).read()
             nclassname = "m" + str(int(time.time())) + "x" + module
-            mod = re.sub(r".*class (.*):", "class " + nclassname + ":", modulef)
-            open('tmp/%s/%s.py' % (self.conf['pserver'], nclassname),
-                 'w').write(mod)
-
+            shutil.copytree("modules/%s/" % module, "tmp/%s/%s" % (self.conf
+             ['pserver'], nclassname))
+            touch("tmp/%s/%s/__init__.py" % (self.conf['pserver'], nclassname))
             self.modules[module] = my_import("tmp." + self.conf['pserver'] +
-            "." + nclassname + "." + nclassname)(self, cli)
+            "." + nclassname + "." + module + "." + module)(self, cli)
             self.modinfo[module] = nclassname
             self.modname[self.modules[module]] = module
         except IOError:
-            logging.error("No se pudo cargar el modulo '%s'. No se ha" +
-            " encontrado el archivo." % module)
+            logging.error("No se pudo cargar el modulo '%s'. No se ha" %
+             module + " encontrado el archivo.")
 
     def unloadmod(self, module):
         logging.info('Des-cargando modulo "%s" en %s'
@@ -340,7 +337,8 @@ class pyCoBot:
         except NameError:
             logging.error("El modulo %s no existe o no esta cargado" % module)
             return 1
-        os.remove("tmp/%s/%s.py" % (self.conf['pserver'], self.modinfo[module]))
+        shutil.rmtree("tmp/%s/%s.py" % (self.conf['pserver'], self.modinfo
+         [module]))
         # Eliminamos los handlers..
         for i, val in enumerate(self.handlers):
             if self.modules[module] == self.handlers[i]['mod']:
@@ -370,3 +368,10 @@ def my_import(cl):
         classname = cl[d + 1:len(cl)]
         m = __import__(cl[0:d], globals(), locals(), [classname])
         return getattr(m, classname)
+
+
+def touch(fname):
+    if os.path.exists(fname):
+        os.utime(fname, None)
+    else:
+        open(fname, 'w').close()
