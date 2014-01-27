@@ -3,6 +3,7 @@ import urllib.request
 import json
 import logging
 import hashlib
+import os
 
 
 class pyCoUpdater:
@@ -56,6 +57,7 @@ class pyCoUpdater:
                     try:
                         open("modules/%s/%s.py" % (val, val))
                     except:
+                        val = "modules/%s/%s" % (val, val)
                         if self.processgithttp(xval['location'], val + ".py") \
                          is True:
                             self.processgithttp(xval['location'], val + ".json")
@@ -117,9 +119,17 @@ class pyCoUpdater:
         if not fh == oh:
             logging.info("Actualizando %s. Hash local: %s. Hash remoto: %s" % (
              path, fh, oh))
+
+            ensure_dir(path)
             f = open(path, "w")
             f.write(response.decode('utf-8'))
             f.close()
             return True
         else:
             return False
+
+
+def ensure_dir(f):
+    d = os.path.dirname(f)
+    if not os.path.exists(d):
+        os.makedirs(d)
