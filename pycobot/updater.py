@@ -16,7 +16,7 @@ class pyCoUpdater:
         self.restartupd = False
 
     def addfile(self, utype, module, user="", repo="", url=""):
-        print(utype)
+        print(utype + "---" + module)
         if utype == "github":
             # TODO: Actualizador vía github api
             try:
@@ -67,7 +67,7 @@ class pyCoUpdater:
         for x, xval in enumerate(index):
             if self.processgithttp("irc-CoBot/pyCoBot", "pycobot/" + xval) is \
              True:
-                self.cli.privmsg(self.ev.target, "\2Actualizando \00303%s" +
+                self.cli.privmsg(self.ev.target, "\2Actualizando \00303" +
                  "pycobot/" + xval)
                 self.upd = True
                 self.restartupd = True
