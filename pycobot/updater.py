@@ -7,7 +7,8 @@ import hashlib
 
 class pyCoUpdater:
 
-    def __init__(self, cli, ev, conf):
+    def __init__(self, cli, ev, conf, bot):
+        self.bot = bot
         self.cli = cli
         self.conf = conf
         self.ev = ev
@@ -89,6 +90,14 @@ class pyCoUpdater:
                             self.cli.privmsg(self.ev.target,
                              "\2Actualizando \00303%s" % "modules/" + val)
                             self.upd = True
+                            try:
+                                # si esta cargado...
+                                self.bot.modinfo[val]
+                                # ... lo recargamos...
+                                self.bot.unloadmod(val)
+                                self.bot.loadmod(val, self.cli)
+                            except:
+                                pass  # ???
 
     def processgithttp(self, repo, path):
         response = urllib.request.urlopen('https://github.com/%s/raw' % (repo) +

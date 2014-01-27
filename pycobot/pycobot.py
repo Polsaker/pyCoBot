@@ -175,7 +175,7 @@ class pyCoBot:
             return True
 
     def updater(self, cli, event):
-        upd = updater.pyCoUpdater(cli, event, self.mconf)
+        upd = updater.pyCoUpdater(cli, event, self.mconf, self)
         folder = "modules"
         for the_file in os.listdir(folder):
             #file_path = os.path.join(folder, the_file)
@@ -347,6 +347,7 @@ class pyCoBot:
             return 1
         shutil.rmtree("tmp/%s/%s" % (self.conf['pserver'], self.modinfo
          [module]))
+        del self.modinfo[module]
         # Eliminamos los handlers..
         for i, val in enumerate(self.handlers):
             if self.modules[module] == self.handlers[i]['mod']:
