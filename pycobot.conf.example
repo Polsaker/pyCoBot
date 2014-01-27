@@ -50,6 +50,6 @@
         "logfile": "bot.log"
     },
     "moduleconf":  {
-    
+        "googleapikey": ""
     }
 }

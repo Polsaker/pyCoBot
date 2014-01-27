@@ -4,6 +4,7 @@
         "m_modules",
         "joinpart",
         "nickserv",
-        "quit"
+        "quit",
+        "google"
     ]
 }
