@@ -56,7 +56,8 @@ class pyCoUpdater:
                     try:
                         open("modules/%s/%s.py" % (val, val))
                     except:
-                        if self.processgithttp(xval['location'], val) is True:
+                        if self.processgithttp(xval['location'], val + ".py") \
+                         is True:
                             self.cli.privmsg(self.ev.target, "\2Actualizando " +
                              "\00303" + val + " \00307 [Nuevo]")
 
