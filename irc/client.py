@@ -113,7 +113,7 @@ class MessageTooLong(ValueError):
     "Message is too long"
 
 class PrioritizedHandler(
-        collections.namedtuple('Base', ('priority', 'callback'))):
+        collections.namedtuple('Base', ('priority', 'callback', 'cli'))):
     def __lt__(self, other):
         "when sorting prioritized handlers, only use the priority"
         return self.priority < other.priority
@@ -193,8 +193,8 @@ class IRC(object):
         """Creates and returns a ServerConnection object."""
 
         c = ServerConnection(self)
-        #with self.mutex:
-        #    self.connections.append(c)
+        with self.mutex:
+            self.connections.append(c)
         return c
 
     def process_data(self, sockets):
@@ -272,7 +272,7 @@ class IRC(object):
             for c in self.connections:
                 c.disconnect(message)
 
-    def add_global_handler(self, event, handler, priority=0):
+    def add_global_handler(self, cli, event, handler, priority=0):
         """Adds a global handler function for a specific event type.
 
         Arguments:
@@ -293,7 +293,7 @@ class IRC(object):
         number is highest priority).  If a handler function returns
         "NO MORE", no more handlers will be called.
         """
-        handler = PrioritizedHandler(priority, handler)
+        handler = PrioritizedHandler(priority, handler, cli)
         with self.mutex:
             event_handlers = self.handlers.setdefault(event, [])
             bisect.insort(event_handlers, handler)
@@ -384,9 +384,10 @@ class IRC(object):
                 h.get(event.type, [])
             )
             for handler in matching_handlers:
-                result = handler.callback(connection, event)
-                if result == "NO MORE":
-                    return
+                if handler.cli == connection:
+                    result = handler.callback(connection, event)
+                    if result == "NO MORE":
+                        return
 
     def _remove_connection(self, connection):
         """[Internal]"""
@@ -666,7 +667,7 @@ class ServerConnection(Connection):
 
         See documentation for IRC.add_global_handler.
         """
-        self.irclibobj.add_global_handler(*args)
+        self.irclibobj.add_global_handler(self, *args)
 
     def remove_global_handler(self, *args):
         """Remove global handler.
