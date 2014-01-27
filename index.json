@@ -3,6 +3,7 @@
     "modules": [
         "m_modules",
         "joinpart",
-        "nickserv"
+        "nickserv",
+        "quit"
     ]
 }
