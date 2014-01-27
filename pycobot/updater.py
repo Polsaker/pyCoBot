@@ -58,6 +58,7 @@ class pyCoUpdater:
                     except:
                         if self.processgithttp(xval['location'], val + ".py") \
                          is True:
+                            self.processgithttp(xval['location'], val + ".json")
                             self.cli.privmsg(self.ev.target, "\2Actualizando " +
                              "\00303" + val + " \00307 [Nuevo]")
 
