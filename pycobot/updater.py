@@ -56,7 +56,9 @@ class pyCoUpdater:
                     try:
                         open("modules/%s/%s.py" % (val, val))
                     except:
-                        self.processgithttp(xval['location'], val)
+                        if self.processgithttp(xval['location'], val) is True:
+                            self.cli.privmsg(self.ev.target, "\2Actualizando " +
+                             "\00303" + val + " \00307 [Nuevo]")
 
     def coreupdate(self):
         # TODO: Descargar archivos nuevos
