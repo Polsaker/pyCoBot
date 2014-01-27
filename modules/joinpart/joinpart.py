@@ -35,7 +35,8 @@ class joinpart:
         if len(event.splitd) > 0:
             chan = event.splitd[0]
             try:
-                msg = event.splitd[1]
+                event.splitd[1]
+                msg = " ".join(event.splitd[1])
             except:
                 msg = "Salida ordenada por un administrador"
         else:
