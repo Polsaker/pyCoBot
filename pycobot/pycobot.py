@@ -176,12 +176,13 @@ class pyCoBot:
 
     def updater(self, cli, event):
         upd = updater.pyCoUpdater(cli, event, self.mconf)
-        for key in list(self.modname.keys()):
+        folder = "modules"
+        for the_file in os.listdir(folder):
+            #file_path = os.path.join(folder, the_file)
             try:
-                val = self.modname[key]
-                f = open('modules/%s/%s.json' % (val, val))
+                f = open('modules/%s/%s.json' % (the_file, the_file))
                 j = json.load(f)
-                upd.addfile(j['type'], val, user=j['user'], repo=j['repo'],
+                upd.addfile(j['type'], the_file, user=j['user'], repo=j['repo'],
                  url=j['url'])
             except IOError:
                 pass

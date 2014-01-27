@@ -16,7 +16,6 @@ class pyCoUpdater:
         self.restartupd = False
 
     def addfile(self, utype, module, user="", repo="", url=""):
-        print(utype + "---" + module)
         if utype == "github":
             # TODO: Actualizador vía github api
             try:
