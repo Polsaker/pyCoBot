@@ -57,7 +57,7 @@ def main():
             l = open("tmp/" + conf['irc'][i]['pserver'] + "/__init__.py", "w")
             l.write("# :P")  # Con un __init__.py
         servers.append(pyCoBot(conf['irc'][i]['server'], client,
-         conf['irc'][i], conf))
+         conf['irc'][i], conf, i))
     client.boservers = servers
     client.process_forever()
 
