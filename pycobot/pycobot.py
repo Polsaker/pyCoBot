@@ -29,6 +29,7 @@ Session = sessionmaker(bind=engine)
 
 class pyCoBot:
     def __init__(self, server, client, conf, mconf, sid):
+        # zona de millones de definiciones de variables que se usan y no se usan
         self.session = Session
         self.sid = sid  # server id aka: el lugar que ocupa en el array de conf.
         self.botcli = client

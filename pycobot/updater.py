@@ -63,7 +63,7 @@ class pyCoUpdater:
                             self.processgithttp(xval['location'], val + ".json")
                             self.upd = True
                             self.cli.privmsg(self.ev.target, "\2Actualizando " +
-                             "\00303" + val + " \00307 [Nuevo]")
+                             "\00303" + val + "\00307\2 [Nuevo]")
 
     def coreupdate(self):
         # TODO: Descargar archivos nuevos
@@ -78,6 +78,9 @@ class pyCoUpdater:
                  "pycobot/" + xval)
                 self.upd = True
                 self.restartupd = True
+        # \o/
+        if self.processcessgithttp("irc-CoBot/pyCoBot", "pycobot.py") is True:
+            self.cli.privmsg(self.ev.target, "\2 Actualizando \00303pycobot.py")
 
     def preprocessgithttp(self):
         # TODO: Auto-descarga de módulos no encontrados localmente
