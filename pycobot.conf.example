@@ -11,8 +11,15 @@
             ],
             "modules":[
                 "test",
-                "m_modules"
-            ]
+                "m_modules",
+                "joinpart"
+            ],
+            "moduleconf":{
+                "nickserv": {
+                    "user": "",
+                    "password": ""
+                }
+            }
         },
         {
             "server": "irc.freenode.net",
@@ -41,5 +48,8 @@
     "config": {
         "loglevel": "info",
         "logfile": "bot.log"
+    },
+    "moduleconf":  {
+    
     }
 }
