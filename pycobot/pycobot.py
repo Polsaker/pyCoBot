@@ -146,6 +146,8 @@ class pyCoBot:
         if ev.type == "welcome":
             for i, val in enumerate(self.conf['autojoin']):
                 con.join(self.conf['autojoin'][i])
+        elif ev.type == "ping":
+            con.pong(ev.target)
 
     def authchk(self, host, cpriv, modsec, chan=False):
         # Verificación de autenticación
