@@ -8,6 +8,7 @@
         "google",
         "say",
         "ping",
-        "weather"
+        "weather",
+        "raw"
     ]
 }
