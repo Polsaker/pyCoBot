@@ -37,9 +37,11 @@ class quit:
             "abrir los archivos de configuración")
             return 0
 
-        for i in enumerate(self.core.botcli.boservers):
-            i[1].mconf = conf
-            i[1].conf = conf['irc'][i[1].sid]
+        for k, l in enumerate(self.core.botcli.boservers):
+            k.mconf = conf
+            conf['irc'][k.sid]['pserver'] = conf['irc'][k]['server'] \
+             .replace(".", "")
+            k.conf = conf['irc'][k.sid]
         cli.privmsg(event.target, "Se han recargado las configuraciones.")
 
     def reconnect(self, bot, cli, event):
