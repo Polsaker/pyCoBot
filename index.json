@@ -6,6 +6,7 @@
         "nickserv",
         "quit",
         "google",
-        "say"
+        "say",
+        "ping"
     ]
 }

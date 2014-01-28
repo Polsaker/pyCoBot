@@ -8,7 +8,7 @@ class test:
         core.addCommandHandler("test", self)
         core.addCommandHandler("test2", self, cpriv=1, cprivchan=True)
 
-    def welcomecatch(self, client):
+    def welcomecatch(self, client, event):
         print("Esto funciona :O")
 
     def helloworld(self, bot, cli, event):

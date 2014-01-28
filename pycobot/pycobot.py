@@ -58,7 +58,7 @@ class pyCoBot:
         for i, val in enumerate(self.handlers):
             if ev.type == self.handlers[i]['numeric']:
                 m = getattr(self.handlers[i]['mod'], self.handlers[i]['func'])
-                m(self.server)
+                m(self.server, ev)
 
         if ev.type == "privmsg" or ev.type == "pubmsg":
             #p = re.compile("(?:" + re.escape(self.conf['prefix']) + "|" +

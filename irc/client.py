@@ -1249,9 +1249,12 @@ class Event(object):
             arguments = []
         self.arguments = arguments
         self.realserv = realserv
-        if type == "privmsg" or type == "pubmsg":
+        if type == "privmsg" or type == "pubmsg" or type == "ctcpreply" or type\
+        == "ctcp" or type == "pubnotice" or type == "privnotice":
             if not is_channel(target):
                 self.target = parse_nick(source)[1] # >:D
+            if not is_channel(source):
+                self.source = parse_nick(source)[1]
             self.splitd = arguments[0].split()
 
 _LOW_LEVEL_QUOTE = "\020"

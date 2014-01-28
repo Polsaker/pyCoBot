@@ -13,6 +13,6 @@ class nickserv:
 
         core.addHandler("welcome", self, "identify")
 
-    def identify(self, client):
+    def identify(self, client, event):
         client.privmsg("NickServ", "IDENTIFY " + self.conf['user'] + " " +
          self.conf['password'])
