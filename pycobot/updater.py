@@ -81,11 +81,11 @@ class pyCoUpdater:
 
         # \o/
         if self.processgithttp("irc-CoBot/pyCoBot", "pycobot.py") is True:
-            self.cli.privmsg(self.ev.target, "\2 Actualizando \00303pycobot.py")
+            self.cli.privmsg(self.ev.target, "\2Actualizando \00303pycobot.py")
             self.upd = True
             self.restartupd = True
         if self.processgithttp("irc-CoBot/pyCoBot", "irc/client.py") is True:
-            self.cli.privmsg(self.ev.target, "\2 Actualizando \00303irc/clien" +
+            self.cli.privmsg(self.ev.target, "\2Actualizando \00303irc/clien" +
             "t.py")
             self.upd = True
             self.restartupd = True
