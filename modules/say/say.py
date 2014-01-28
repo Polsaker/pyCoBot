@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-class joinpart:
+class say:
 
     def __init__(self, core, client):
         core.addCommandHandler("say", self, cpriv=1, chelp=
