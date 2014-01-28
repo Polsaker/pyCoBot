@@ -84,6 +84,11 @@ class pyCoUpdater:
             self.cli.privmsg(self.ev.target, "\2 Actualizando \00303pycobot.py")
             self.upd = True
             self.restartupd = True
+        if self.processgithttp("irc-CoBot/pyCoBot", "irc/client.py") is True:
+            self.cli.privmsg(self.ev.target, "\2 Actualizando \00303irc/clien" +
+            "t.py")
+            self.upd = True
+            self.restartupd = True
 
     def preprocessgithttp(self):
         # TODO: Auto-descarga de módulos no encontrados localmente
