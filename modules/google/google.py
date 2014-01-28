@@ -20,6 +20,7 @@ class google:
             stext = " ".join(event.splitd)
         else:
             cli.privmsg(event.target, "\00304Error\003: Faltan parametros")
+            return 0
         r = urllib.request.urlopen("https://www.googleapis.com/customsearch/v1?"
          "num=3&key=%s&cx=001206920739550302428:fozo2qblwzc&q=%s&alt=json" %
          (self.apikey, stext)).read()

@@ -97,7 +97,8 @@ class pyCoBot:
                         for i in list(self.commandhandlers.keys()):
                             if self.authchk(ev.source, self.commandhandlers[i]
                              ['cpriv'], self.modname[self.commandhandlers[i]
-                             ['mod']], ev.target) is True:
+                             ['mod']], ev.target) is True and self. \
+                             commandhandlers[i]['alias'] == i:
                                 comlist = comlist + i + " "
 
                         con.privmsg(ev.target, "\2pyCoBot alpha\2. Comandos " +
@@ -116,8 +117,14 @@ class pyCoBot:
                              " Bot. Sintaxis" + \
                              " Sintaxis: help [comando]"
                         else:
+                            pprint.pprint(self.commandhandlers[ev.splitd[0]])
                             try:
                                 r = self.commandhandlers[ev.splitd[0]]['chelp']
+                                if not self.commandhandlers[ev.splitd[0]][
+                                'alias'] != ev.splitd[0]:
+                                    r = "Alias de " + self.commandhandlers[ev.
+                                    splitd[0]]['alias'] + " " + r
+
                             except KeyError:
                                 pass
                         if not r:
@@ -137,9 +144,10 @@ class pyCoBot:
                     except KeyError:
                         return 0
                     # Verificación de autenticación
+                    ocom = self.commandhandlers[com]['alias']
                     try:
                         c = getattr(self.commandhandlers
-                         [com]['mod'], com + "_p")(self,
+                         [com]['mod'], ocom + "_p")(self,
                          self.server, ev)
                     except AttributeError:
                         c = ev.target
@@ -148,7 +156,7 @@ class pyCoBot:
                     c)
 
                     if authd is True:
-                        getattr(self.commandhandlers[com]['mod'], com)(self,
+                        getattr(self.commandhandlers[com]['mod'], ocom)(self,
                          self.server, ev)
                     else:
                         self.server.privmsg(ev.target, "\00304Error\003: No a" +
@@ -307,16 +315,15 @@ class pyCoBot:
            % (self.conf['server'], numeric))
 
     def addCommandHandler(self, command, module, chelp="", cpriv=-1,
-         cprivchan=False, privmsgonly=False):
+         cprivchan=False, privmsgonly=False, alias=[]):
         """ Registra un commandHandler con el bot (un comando, bah)
         Parametros:
-            - server: Nombre (dirección) del servidor en el que se registra el
-             handler (la misma que aparece en la configuración)
             - command: Nombre del comando que se va a registrar
-            - módulo: 'self' del módulo donde se registra el handler
+            - module: 'self' del módulo donde se registra el handler
             - chelp: La ayuda del comando
-            - cpriv y cprivsect: Privilegios requeridos para usar el comando
+            - cpriv: Privilegios requeridos para usar el comando
             - privmsgonly: si el comando solo debe ser ejecutado por privmsg
+            - cprivchan: si se aplicarán privilegios por canal.
         Los comandos se accionan al escribir <prefijo>comando;
          <nickdelbot>, comando; <nickdelbot>: comando y <nickdelbot> comando """
         h = {}
@@ -325,7 +332,10 @@ class pyCoBot:
         h['cprivchan'] = cprivchan
         h['privmsgonly'] = privmsgonly
         h['chelp'] = chelp
+        h['alias'] = command
         self.commandhandlers[command] = h
+        for i, val in enumerate(alias):
+            self.commandhandlers[val] = h
 
         logging.debug("Registrado commandHandler en '%s' ('%s')"
          % (self.conf['server'], command))

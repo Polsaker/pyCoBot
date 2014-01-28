@@ -37,7 +37,7 @@ class quit:
             "abrir los archivos de configuración")
             return 0
 
-        for k, l in enumerate(self.core.botcli.boservers):
+        for l, k in enumerate(self.core.botcli.boservers):
             k.mconf = conf
             conf['irc'][k.sid]['pserver'] = conf['irc'][k.sid]['server'] \
              .replace(".", "")
