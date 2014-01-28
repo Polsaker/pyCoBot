@@ -321,6 +321,13 @@ class pyCoBot:
         logging.info('Cargando modulo "%s" en %s'
          % (module, self.conf['server']))
         try:
+            self.modinfo[module]
+            logging.warning("Se ha intentado cargar un módulo que ya estaba"
+             "cargado!!")
+            return 3
+        except KeyError:
+            pass
+        try:
             nclassname = "m" + str(int(time.time())) + "x" + module
             shutil.copytree("modules/%s/" % module, "tmp/%s/%s" % (self.conf
              ['pserver'], nclassname))

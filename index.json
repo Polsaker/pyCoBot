@@ -5,6 +5,7 @@
         "joinpart",
         "nickserv",
         "quit",
-        "google"
+        "google",
+        "say"
     ]
 }

@@ -16,6 +16,9 @@ class m_modules:
         elif r == 2:
             cli.privmsg(event.target, "\00304Error\003: No se ha encontrado l" +
             "a clase principal.")
+        elif r == 3:
+            cli.privmsg(event.target, "\00304Error\003: El módulo ya está car" +
+            "gado")
         else:
             cli.privmsg(event.target, "Se ha cargado el módulo " + event
              .splitd[0])
