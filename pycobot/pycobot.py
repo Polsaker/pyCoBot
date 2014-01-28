@@ -15,6 +15,15 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from . import updater
 import pprint
+
+########
+VER_MAJOR = "2"
+VER_MINOR = "0"
+VER_STS = " Alpha"
+VER_CODENAME = "Gizkard"
+VER_STRING = "%s.%s%s (%s)" % (VER_MAJOR, VER_MINOR, VER_STS, VER_CODENAME)
+#######
+
 _rfc_1459_command_regexp = re.compile("^(:(?P<prefix>[^ ]+) +)?" +
     "(?P<command>[^ ]+)( *(?P<argument> .+))?")
 
@@ -37,7 +46,7 @@ class pyCoBot:
         self.mconf = mconf
         self.server = client.server()
         self.server.connect(server, conf['port'], conf['nick'],
-            username=conf['nick'], ircname="pyCoBot")
+            username=conf['nick'], ircname="CoBot/" + VER_STRING)
         self.server.add_global_handler("all_raw_messages", self.allraw)
 
         self.modules = {}
@@ -150,6 +159,11 @@ class pyCoBot:
                 con.join(self.conf['autojoin'][i])
         elif ev.type == "ping":
             con.pong(ev.target)
+        elif ev.type == "ctcp":
+            if ev.arguments[0] == "VERSION":
+                con.ctcp_reply(ev.source, "VERSION CoBot/%s" % VER_STRING)
+            elif ev.arguments[0] == "PING":
+                con.ctcp_reply(ev.source, "PING " + ev.arguments[1])
 
     def authchk(self, host, cpriv, modsec, chan=False):
         # Verificación de autenticación

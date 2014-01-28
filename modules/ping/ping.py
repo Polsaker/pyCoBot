@@ -22,6 +22,8 @@ class ping:
         self.chan = event.target
 
     def pingrep(self, client, event):
+        if not event.arguments[0] == "PING":
+            return 0
         current_milli_time = int(round(time.time() * 1000))
         diff = current_milli_time - int(event.arguments[1])
         secs = str(diff / 1000)  # milisegudos -> segundos
