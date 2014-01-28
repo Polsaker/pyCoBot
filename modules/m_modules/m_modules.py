@@ -4,6 +4,12 @@ class m_modules:
         "Carga un módulo. Sintaxis: loadmod <módulo>")
         core.addCommandHandler("unloadmod", self, cpriv=9, chelp=
         "Descarga un módulo. Sintaxis: unloadmod <módulo>")
+        core.addCommandHandler("reloadmod", self, cpriv=9, chelp=
+        "re-carga un módulo. Sintaxis: reloadmod <módulo>")
+
+    def reloadmod(self, bot, cli, event):
+        self.unloadmod(bot, cli, event)
+        self.loadmod(bot, cli, event)
 
     def loadmod(self, bot, cli, event):
         if not len(event.splitd) > 0:
