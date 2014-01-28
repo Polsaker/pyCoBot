@@ -39,7 +39,7 @@ class quit:
 
         for k, l in enumerate(self.core.botcli.boservers):
             k.mconf = conf
-            conf['irc'][k.sid]['pserver'] = conf['irc'][k]['server'] \
+            conf['irc'][k.sid]['pserver'] = conf['irc'][k.sid]['server'] \
              .replace(".", "")
             k.conf = conf['irc'][k.sid]
         cli.privmsg(event.target, "Se han recargado las configuraciones.")
