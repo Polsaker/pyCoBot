@@ -9,6 +9,7 @@
         "say",
         "ping",
         "weather",
-        "raw"
+        "raw",
+        "op"
     ]
 }
