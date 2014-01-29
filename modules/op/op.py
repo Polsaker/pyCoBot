@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import irc.client
+import re
 
 
 class op:
@@ -22,6 +23,7 @@ class op:
         "Cambia el topic de un canal. Sintaxis: topic [canal] [topic]")
 
         core.addHandler("whoreply", self, "whoban")
+        core.addHandler("banlist", self, "banlist")
 
     def op_p(self, bot, cli, ev):
         if len(ev.splitd) > 0 and irc.client.is_channel(ev.splitd[0]):
@@ -97,7 +99,12 @@ class op:
         return self.op_p(bot, cli, ev)
 
     def unban(self, bot, cli, ev):
-        pass
+        x = self._getchannick(ev)
+        self.actn = "unban"
+        self.nick = x[0]
+        self.chan = x[1]
+        # cli.mode(x[1], "b")
+        cli.who(self.nick)
 
     def topic_p(self, bot, cli, ev):
         return self.op_p(bot, cli, ev)
@@ -110,3 +117,15 @@ class op:
         if self.actn == "ban" and self.nick == ev.arguments[4]:
             cli.mode(self.chan, "+b *!*@" + ev.arguments[2])
             cli.kick(self.chan, self.nick, self.msg)
+            self.actn = False
+        elif self.actn == "unban" and self.nick == ev.arguments[4]:
+            self.masc = ev.arguments[4] + "!" + ev.arguments[1] + "@" + \
+             ev.arguments[2]
+            cli.mode(self.chan, "b")
+            self.actn = False
+
+    def banlist(self, cli, ev):
+        rgx = ev.arguments[1].replace("*", ".*").replace("?", ".?")
+        p = re.compile(rgx, re.IGNORECASE)
+        if p.match(self.masc):
+            cli.mode(self.chan, "-b " + ev.arguments[1])
