@@ -2,7 +2,6 @@
 import urllib.request
 import urllib.parse
 import json
-import irc.client
 
 
 class weather:
@@ -34,8 +33,7 @@ class weather:
             w['current_observation']
         except KeyError:
             resp = "\00304Error\003: No se ha encontrado la ciudad. "
-            #try:
-            if True:
+            try:
                 w['response']['results']
                 resp = resp + "Quizás quiso decir: "
                 j = 0
@@ -45,7 +43,7 @@ class weather:
                     (val['city'], val["country_name"], val['zmw'])
                     if j >= 10:
                         continue
-            #except:
+            except:
                 pass
             cli.privmsg(event.target, resp)
             return 1
@@ -68,7 +66,7 @@ class weather:
         fc[1]['low']['celsius'])
 
         resp = resp + "Pronóstico: \00303%s\003 [\2%s\2], máxima de " \
-        "\2%s\2ºC, mínima de \2%s\2ºC, " % (self._convday(fc[2]['date']
+        "\2%s\2ºC, mínima de \2%s\2ºC" % (self._convday(fc[2]['date']
         ['weekday']), self._conv(fc[2]['icon']), fc[2]['high']['celsius'],
         fc[2]['low']['celsius'])
 
