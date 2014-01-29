@@ -10,6 +10,7 @@
         "ping",
         "weather",
         "raw",
-        "op"
+        "op",
+        "autoprotect"
     ]
 }
