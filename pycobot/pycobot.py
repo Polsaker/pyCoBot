@@ -74,12 +74,12 @@ class pyCoBot:
             #    re.escape(self.conf['nick']) + "[:, ]? )(.*)(?!\w+)")
             # Buscamos por el prefijo..
             p1 = re.compile(re.escape(self.conf['prefix']) +
-                "(\S{1,52})[ ]?(.*)")
+                "(\S{1,52})[ ]?(.*)", re.IGNORECASE)
             m1 = p1.search(ev.arguments[0])
 
             # Buscamos por el nick como prefijo..
             p2 = re.compile(re.escape(self.conf['nick']) +
-                "[:, ]? (\S{1,52})[ ]?(.*)")
+                "[:, ]? (\S{1,52})[ ]?(.*)", re.IGNORECASE)
             m2 = p2.search(ev.arguments[0])
             if not m1 is None:
                 del ev.splitd[0]
