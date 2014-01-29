@@ -874,6 +874,7 @@ class ServerConnection(Connection):
             w = 0
             for v in result:
                 sg = (v + footer).strip()
+                sg = sg.strip("\2\003")  # >:D
                 if w == k:
                     sg = sg.strip(footer + ", ")
                 self._privmsg(target, sg)
