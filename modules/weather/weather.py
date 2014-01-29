@@ -2,6 +2,7 @@
 import urllib.request
 import urllib.parse
 import json
+import irc.client
 
 
 class weather:
@@ -29,32 +30,47 @@ class weather:
          (self.apikey, ts)).read()
         w = json.loads(r.decode('utf-8'))
 
-        #try:
-        if True:
-            resp = "El tiempo en \00310\2%s\003\2: Viento a \2%s\2 km/h (\2%s" \
-            "\2), " % (w['current_observation']['display_location']['full'],
-            w['current_observation']['wind_kph'],
-            w['current_observation']['wind_dir'])
-            resp = resp + "presión \2%s\2 hPa. Temperatura: \2%s\2ºC, Sensació"\
-            "n térmica: \2%s\2ºC [\2%s\2]" % (w['current_observation']['pressu'
-            're_mb'], w['current_observation']['temp_c'], w['current_observati'
-            'on']['feelslike_c'], self._conv(w['current_observation']['icon']))
-            fc = w['forecast']['simpleforecast']['forecastday']
-            resp = resp + "Pronóstico: \00303Hoy\003 [\2%s\2], máxima de " \
-            "\2%s\2ºC, mínima de \2%s\2ºC, " % (self._conv(fc[0]['icon']),
-            fc[0]['high']['celsius'], fc[0]['low']['celsius'])
+        try:
+            w['current_observation']
+        except KeyError:
+            resp = "\00304Error\003: No se ha encontrado la ciudad. "
+            #try:
+            if True:
+                w['response']['results']
+                resp = resp + "Quizás quiso decir: "
+                j = 0
+                for val in w['response']['results']:
+                    j = j + 1
+                    resp = resp + "\2\"%s, %s\"\2 (zmw:%s), " % \
+                    (val['city'], val["country_name"], val['zmw'])
+                    if j >= 10:
+                        continue
+            #except:
+                pass
+            cli.privmsg(event.target, resp)
+            return 1
+        resp = "El tiempo en \00310\2%s\003\2: Viento a \2%s\2 km/h (\2%s" \
+        "\2), " % (w['current_observation']['display_location']['full'],
+        w['current_observation']['wind_kph'],
+        w['current_observation']['wind_dir'])
+        resp = resp + "presión \2%s\2 hPa. Temperatura: \2%s\2ºC, Sensació"\
+        "n térmica: \2%s\2ºC [\2%s\2]" % (w['current_observation']['pressu'
+        're_mb'], w['current_observation']['temp_c'], w['current_observati'
+        'on']['feelslike_c'], self._conv(w['current_observation']['icon']))
+        fc = w['forecast']['simpleforecast']['forecastday']
+        resp = resp + "Pronóstico: \00303Hoy\003 [\2%s\2], máxima de " \
+        "\2%s\2ºC, mínima de \2%s\2ºC, " % (self._conv(fc[0]['icon']),
+        fc[0]['high']['celsius'], fc[0]['low']['celsius'])
 
-            resp = resp + "Pronóstico: \00303%s\003 [\2%s\2], máxima de " \
-            "\2%s\2ºC, mínima de \2%s\2ºC, " % (self._convday(fc[1]['date']
-            ['weekday']), self._conv(fc[1]['icon']), fc[1]['high']['celsius'],
-            fc[1]['low']['celsius'])
+        resp = resp + "Pronóstico: \00303%s\003 [\2%s\2], máxima de " \
+        "\2%s\2ºC, mínima de \2%s\2ºC, " % (self._convday(fc[1]['date']
+        ['weekday']), self._conv(fc[1]['icon']), fc[1]['high']['celsius'],
+        fc[1]['low']['celsius'])
 
-            resp = resp + "Pronóstico: \00303%s\003 [\2%s\2], máxima de " \
-            "\2%s\2ºC, mínima de \2%s\2ºC, " % (self._convday(fc[2]['date']
-            ['weekday']), self._conv(fc[2]['icon']), fc[2]['high']['celsius'],
-            fc[2]['low']['celsius'])
-        #except KeyError:
-        #    pass
+        resp = resp + "Pronóstico: \00303%s\003 [\2%s\2], máxima de " \
+        "\2%s\2ºC, mínima de \2%s\2ºC, " % (self._convday(fc[2]['date']
+        ['weekday']), self._conv(fc[2]['icon']), fc[2]['high']['celsius'],
+        fc[2]['low']['celsius'])
 
         cli.privmsg(event.target, resp)
 

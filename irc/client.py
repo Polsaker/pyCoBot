@@ -852,7 +852,37 @@ class ServerConnection(Connection):
         """Send a PONG command."""
         self.send_raw("PONG %s%s" % (target, target2 and (" " + target2)))
 
-    def privmsg(self, target, text):
+    def privmsg(self, target, msg):
+        if len(msg) > 400:
+            msg = re.sub(r"\s+", " ", msg)  # normalize space
+            footer = "…"
+            avail = 400
+            words = msg.split()
+            result = []
+            k = 0
+            result.append("")
+            for word in words:
+                word += " "
+                if len(word) > avail:
+                    result.append("")
+                    k = k + 1
+                    avail = 400
+                    #break
+                result[k] += word
+                avail -= len(word)
+
+            w = 0
+            for v in result:
+                sg = (v + footer).strip()
+                if w == k:
+                    sg = sg.strip(footer + ", ")
+                self._privmsg(target, sg)
+                w = w + 1
+
+            return 0
+        self._privmsg(target, msg)
+
+    def _privmsg(self, target, text):
         """Send a PRIVMSG command."""
         self.send_raw("PRIVMSG %s :%s" % (target, text))
 
@@ -1447,6 +1477,10 @@ class NickMask(six.text_type):
 def _ping_ponger(connection, event):
     "A global handler for the 'ping' event"
     connection.pong(event.target)
+
+
+
+
 
 # for backward compatibility
 LineBuffer = buffer.LineBuffer
