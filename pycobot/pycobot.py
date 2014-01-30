@@ -10,9 +10,7 @@ import json
 import _thread
 import sys
 import shutil
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from peewee import peewee
 from . import updater
 import pprint
 
@@ -27,19 +25,19 @@ VER_STRING = "%s.%s%s (%s)" % (VER_MAJOR, VER_MINOR, VER_STS, VER_CODENAME)
 _rfc_1459_command_regexp = re.compile("^(:(?P<prefix>[^ ]+) +)?" +
     "(?P<command>[^ ]+)( *(?P<argument> .+))?")
 
-engine = create_engine("sqlite:///db/cobot.db")
-Base = declarative_base()
+database = peewee.SqliteDatabase('db/cobot.db')
+
+
+class BaseModel(peewee.Model):
+    class Meta:
+        database = database
 
 from .tables import User, UserPriv
-
-Base.metadata.create_all(engine)
-Session = sessionmaker(bind=engine)
 
 
 class pyCoBot:
     def __init__(self, server, client, conf, mconf, sid):
         # zona de millones de definiciones de variables que se usan y no se usan
-        self.session = Session
         self.sid = sid  # server id aka: el lugar que ocupa en el array de conf.
         self.botcli = client
         self.handlers = []
@@ -179,9 +177,7 @@ class pyCoBot:
             try:
                 uid = self.authd[host]
                 continua = False
-                session = self.session()
-                for row in session.query(UserPriv) \
-                .filter(UserPriv.uid == uid):
+                for row in UserPriv.select().where(UserPriv.uid == uid):
                     if (row.priv >= cpriv) and (row.secmod == "*" or row.secmod
                      == modsec):
                         if chan is False:
@@ -282,14 +278,13 @@ class pyCoBot:
             return irc.client.Event(command, prefix, target, arguments)
 
     def auth(self, event):
-        session = self.session()
+        #session = self.session()
         passw = hashlib.sha1(event.splitd[1].encode('utf-8')).hexdigest()
-        pprint.pprint(self.server)
+        u = User.select().where(User.name == event.splitd[0].lower())
         try:
-            row = session.query(User).filter(User.name == event.splitd[0].lower(
-            )).filter(User.password == passw).one()
-            self.authd[event.source] = row.uid
-            self.server.privmsg(event.target, "Autenticado exitosamente")
+            if u[0].password == passw:
+                self.authd[event.source] = u[0].uid
+                self.server.privmsg(event.target, "Autenticado exitosamente")
         except:
             self.server.privmsg(event.target, "\00304Error\003: Usuario o " +
             "contraseña incorrectos")
