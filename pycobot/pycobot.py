@@ -25,7 +25,7 @@ VER_STRING = "%s.%s%s (%s)" % (VER_MAJOR, VER_MINOR, VER_STS, VER_CODENAME)
 _rfc_1459_command_regexp = re.compile("^(:(?P<prefix>[^ ]+) +)?" +
     "(?P<command>[^ ]+)( *(?P<argument> .+))?")
 
-database = peewee.SqliteDatabase('db/cobot.db')
+database = peewee.SqliteDatabase('db/cobot.db', check_same_thread=False)
 
 
 class BaseModel(peewee.Model):
@@ -33,6 +33,12 @@ class BaseModel(peewee.Model):
         database = database
 
 from .tables import User, UserPriv
+
+try:
+    User.create_table()
+    UserPriv.create_table()
+except:
+    pass
 
 
 class pyCoBot:
@@ -281,13 +287,13 @@ class pyCoBot:
         #session = self.session()
         passw = hashlib.sha1(event.splitd[1].encode('utf-8')).hexdigest()
         u = User.select().where(User.name == event.splitd[0].lower())
-        try:
+        if True:
             if u[0].password == passw:
                 self.authd[event.source] = u[0].uid
                 self.server.privmsg(event.target, "Autenticado exitosamente")
-        except:
-            self.server.privmsg(event.target, "\00304Error\003: Usuario o " +
-            "contraseña incorrectos")
+        #except:
+        #    self.server.privmsg(event.target, "\00304Error\003: Usuario o " +
+        #    "contraseña incorrectos")
 
     def addHandler(self, numeric, modulo, func):
         """ Registra un handler con el bot.
