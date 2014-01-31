@@ -341,6 +341,21 @@ class pyCoBot:
         logging.debug("Registrado commandHandler en '%s' ('%s')"
          % (self.conf['server'], command))
 
+    # Retorna true si "module" está cargado
+    def is_loaded(self, module):
+        try:
+            self.modinfo[module]
+            return True
+        except KeyError:
+            return False
+
+    # Retorna un objeto de "module", o si no está cargado, False
+    def getmodule(self, module):
+        if self.is_loaded(module) is True:
+            return self.modules[module]
+        else:
+            return False
+
     # carga de modulos
     def loadmod(self, module, cli):
         logging.info('Cargando modulo "%s" en %s'
