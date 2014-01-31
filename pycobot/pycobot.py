@@ -47,6 +47,7 @@ class pyCoBot:
         self.sid = sid  # server id aka: el lugar que ocupa en el array de conf.
         self.botcli = client
         self.handlers = []
+        self.timehandlers = []
         self.mconf = mconf
         self.server = client.server()
         self.server.connect(server, conf['port'], conf['nick'],
@@ -294,6 +295,18 @@ class pyCoBot:
         #except:
         #    self.server.privmsg(event.target, "\00304Error\003: Usuario o " +
         #    "contraseña incorrectos")
+
+    # Procesa timehandlers (función interna)
+    def timehandler(self, hid, time, c, f):
+        while self.timehandlers[hid] is True:
+            time.sleep(time)
+            getattr(c, f)(self, self.server)
+
+    # Añade un timehandler. Parametros: intervalo en segundos, modulo, funcion
+    def addTimeHandler(self, interval, module, func):
+        self.timehandlers.append(True)
+        _thread.start_new_thread(self.timehandler, (len(self.timehandlers),
+            interval, module, func))
 
     def addHandler(self, numeric, modulo, func):
         """ Registra un handler con el bot.

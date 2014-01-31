@@ -1897,9 +1897,10 @@ class SelectQuery(Query):
         try:
             return clone.execute().next()
         except StopIteration:
-            raise self.model_class.DoesNotExist(
-                'Instance matching query does not exist:\nSQL: %s\nPARAMS: %s'
-                % self.sql())
+            #raise self.model_class.DoesNotExist(
+            #    'Instance matching query does not exist:\nSQL: %s\nPARAMS: %s'
+            #    % self.sql())
+            return False
 
     def first(self):
         res = self.execute()
