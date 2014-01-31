@@ -87,6 +87,12 @@ class games:
             self.dinero(u, cli, ev)
         elif com == "lvlup" or com == "nivel":
             self.lvlup(u, cli, ev)
+        elif com == "top":
+            self.top(cli, ev, 5)
+        elif com == "top10":
+            self.top(cli, ev, 10)
+        elif com == "lvltop":
+            self.top(cli, ev, 5, "nivel")
 
     def alta(self, cli, ev):
         ch = GameBank.get(GameBank.bid == 1)
@@ -157,6 +163,18 @@ class games:
         self.moneyOp(user, cost)
         user.nivel = user.nivel + 1
         user.save()
+
+    def top(self, cli, ev, cant, column="dinero"):
+        users = GameUser.select().where(GameUser.congelado == 0)
+        c = getattr(GameUser, column)
+        users = users.order_by(c.desc()).limit(cant)
+        self.msg(ev, "\00306    NICK                NIVEL  DINERO")
+        i = 1
+        for user in users:
+            k = str(i) + "."
+            self.msg(ev, "\2%s\2%s%s%s" % (k.ljust(4), user.nick.ljust(20),
+                str(user.nivel).ljust(7), user.dinero))
+            i = i + 1
 
     # Envía un mensaje al servidor..
     def msg(self, ev, msg, error=False):

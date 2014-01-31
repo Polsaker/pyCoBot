@@ -62,6 +62,7 @@ import abc
 import collections
 import functools
 import itertools
+import _thread
 
 from six import six
 
@@ -444,12 +445,13 @@ class ServerConnection(Connection):
         super(ServerConnection, self).__init__(irclibobj)
         self.connected = False
         self.features = features.FeatureSet()
+        self.queue = []
 
 
     # save the method args to allow for easier reconnection.
     @irc_functools.save_method_args
     def connect(self, server, port, nickname, password=None, username=None,
-            ircname=None, connect_factory=connection.Factory()):
+            ircname=None, connect_factory=connection.Factory(), sleep=0.5):
         """Connect/reconnect to a server.
 
         Arguments:
@@ -492,6 +494,8 @@ class ServerConnection(Connection):
             raise ServerConnectionError("Couldn't connect to socket: %s" % err)
         self.connected = True
         self.irclibobj._on_connect(self.socket)
+        self.sleeptime = sleep
+        _thread.start_new_thread(self.processthings, ())
 
         # Log on...
         if self.password:
@@ -499,6 +503,13 @@ class ServerConnection(Connection):
         self.nick(self.nickname)
         self.user(self.username, self.ircname)
         return self
+
+    def processthings(self):
+        while True:
+            for stuff in self.queue:
+                time.sleep(self.sleeptime)
+                self.send_stuff(stuff)
+            self.queue = []
 
     def reconnect(self):
         """
@@ -819,7 +830,7 @@ class ServerConnection(Connection):
 
     def nick(self, newnick):
         """Send a NICK command."""
-        self.send_raw("NICK " + newnick)
+        self.send_raw("NICK " + newnick, True)
 
     def notice(self, target, text):
         """Send a NOTICE command."""
@@ -842,7 +853,7 @@ class ServerConnection(Connection):
 
     def pass_(self, password):
         """Send a PASS command."""
-        self.send_raw("PASS " + password)
+        self.send_raw("PASS " + password, True)
 
     def ping(self, target, target2=""):
         """Send a PING command."""
@@ -850,7 +861,7 @@ class ServerConnection(Connection):
 
     def pong(self, target, target2=""):
         """Send a PONG command."""
-        self.send_raw("PONG %s%s" % (target, target2 and (" " + target2)))
+        self.send_raw("PONG %s%s" % (target, target2 and (" " + target2)), True)
 
     def privmsg(self, target, msg):
         if len(msg) > 400:
@@ -898,7 +909,7 @@ class ServerConnection(Connection):
         # unless you've been connected for at least 5 minutes!
         self.send_raw("QUIT" + (message and (" :" + message)))
 
-    def send_raw(self, string):
+    def send_raw(self, string, critical=False):
         """Send raw string to the server.
 
         The string will be padded with appropriate CR LF.
@@ -908,18 +919,25 @@ class ServerConnection(Connection):
         if '\n' in string:
             raise InvalidCharacters(
                 "Carriage returns not allowed in privmsg(text)")
-        bytes_ = string.encode('utf-8') + b'\r\n'
+
+        if self.socket is None:
+            raise ServerNotConnectedError("Not connected.")
+        #sender = getattr(self.socket, 'write', self.socket.send)
+        if critical is True:
+            self.send_stuff(string)
+        else:
+            self.queue.append(string)
+
+    def send_stuff(self, stuff):
+        bytes_ = stuff.encode('utf-8') + b'\r\n'
         # According to the RFC http://tools.ietf.org/html/rfc2812#page-6,
         # clients should not transmit more than 512 bytes.
         if len(bytes_) > 512:
             raise MessageTooLong(
                 "Messages limited to 512 bytes including CR/LF")
-        if self.socket is None:
-            raise ServerNotConnectedError("Not connected.")
-        #sender = getattr(self.socket, 'write', self.socket.send)
         try:
             self.socket.send(bytes_)
-            log.debug("TO SERVER: %s", string)
+            log.debug("TO SERVER: %s", stuff)
         except socket.error:
             # Ouch!
             self.disconnect("Connection reset by peer.")
@@ -949,7 +967,7 @@ class ServerConnection(Connection):
 
     def user(self, username, realname):
         """Send a USER command."""
-        self.send_raw("USER %s 0 * :%s" % (username, realname))
+        self.send_raw("USER %s 0 * :%s" % (username, realname), True)
 
     def userhost(self, nicks):
         """Send a USERHOST command."""
