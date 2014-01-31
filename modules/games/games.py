@@ -82,9 +82,11 @@ class games:
         if com == "alta":
             self.alta(cli, ev)
         elif com == "dados" or com == "dado":
-            self.dados(cli, ev)
+            self.dados(u, cli, ev)
         elif com == "dinero" or com == "saldo":
-            self.dinero(cli, ev)
+            self.dinero(u, cli, ev)
+        elif com == "lvlup" or com == "nivel":
+            self.lvlup(u, cli, ev)
 
     def alta(self, cli, ev):
         ch = GameBank.get(GameBank.bid == 1)
@@ -95,13 +97,13 @@ class games:
             self.msg(ev, "El banco está en quiebra, no puedes jugar.",
                 True)
         else:
-            GameUser.create(nick=ev.source, congelado=0, deuda=0, extrainf="{}",
-                nivel=0, dinero=0)
-            self.moneyOp(ev.source, 100, True)
+            u = GameUser.create(nick=ev.source, congelado=0, deuda=0, extrainf=
+                "{}", nivel=0, dinero=0)
+            self.moneyOp(u, 100, True)
             self.msg(ev, "\2Te has dado de alta!!\2 ahora tienes \2$100"
                 "\2 para empezar a jugar!")
 
-    def dinero(self, cli, ev):
+    def dinero(self, usr, cli, ev):
         if len(ev.splitd) == 0:
             user = GameUser.get(GameUser.nick == ev.source)
         elif ev.splitd[0] == "banco":
@@ -110,20 +112,19 @@ class games:
             resp = ("En el banco hay $\2%s\2. Flags: [\002\00302B\003\002"
             "] [\2Pozo\2 %s]" % (bank.dinero, bank.pozo))
         else:
-            user = GameUser.get(GameUser.nick == ev.splitd[0])
+            user = usr
 
         if not user is False:
-            resp = "En la cuenta de \2%s\2 hay $\2%s\2. Flags: [\2Lvl %s\2] " \
+            resp = "En la cuenta de \2%s\2 hay $\2%s\2. Flags: [\2Lvl\2 %s] " \
             % (user.nick, user.dinero, user.nivel)
         self.msg(ev, resp)
 
-    def dados(self, cli, ev):
+    def dados(self, user, cli, ev):
         bank = GameBank.get(GameBank.bid == 1)
         if bank.dinero < 5000:
             self.msg(ev, "El banco está en quiebra, no puedes jugar.",
                 True)
             return 1
-        user = GameUser.get(GameUser.nick == ev.source)
         if user.dinero < 5:
             self.msg(ev, "No tienes suficiente dinero como para jugar a este."
                 "juego. Necesitas $\25\2 y tienes %s" % user.dinero, True)
@@ -135,12 +136,27 @@ class games:
         r = ("\2%s\2: [\2%s+%s+%s=%s\2]" % (ev.source, d1, d2, d3, d))
         if d % 2 == 0:
             w = random.randint(3, 30)
-            self.moneyOp(ev.source, w, True)
+            self.moneyOp(user, w, True)
             self.msg(ev, "%s ganaste %s!!" % (r, w))
         else:
             w = random.randint(3, 16)
-            self.moneyOp(ev.source, w, False)
+            self.moneyOp(user, w, False)
             self.msg(ev, "%s perdiste %s!!" % (r, w))
+
+    def lvlup(self, user, cli, ev):
+        i = 0
+        cost = 125  # Costo base para subir de nivel
+        while i != user.nivel + 1:
+            cost = cost * 2
+            i = i + 1
+
+        if user.dinero < (cost + 50):
+            self.msg(ev, "Necesitas por lo menos $\2%s\2 para poder pasar al"
+                " nivel %s!" % (cost + 50, user.nivel + 1))
+            return 1
+        self.moneyOp(user, cost)
+        user.nivel = user.nivel + 1
+        user.save()
 
     # Envía un mensaje al servidor..
     def msg(self, ev, msg, error=False):
@@ -155,7 +171,6 @@ class games:
     # Viceversa si add es False.
     def moneyOp(self, user, cant, add=False, pozo=True):
         bank = GameBank.get(GameBank.bid == 1)
-        user = GameUser.get(GameUser.nick == user)
         if not user is False:
             if add is False:
                 user.dinero = user.dinero - cant
