@@ -429,7 +429,10 @@ class pyCoBot:
 
     def restart_program(self, quitmsg):
         for i in enumerate(self.botcli.boservers):
-            i[1].server.quit(quitmsg)
+            try:
+                i[1].server.quit(quitmsg)
+            except:
+                pass  # guh..
         python = sys.executable
         os.execl(python, python, * sys.argv)
 
