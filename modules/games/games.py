@@ -29,6 +29,10 @@ class games:
         chelp="Activa los juegos en un canal. Sintaxis: enablegame <canal>")
         core.addCommandHandler("disablegame", self, cpriv=4, cprivchan=True,
         chelp="Desactiva los juegos en un canal. Sintaxis: disablegame <canal>")
+        core.addCommandHandler("congelar", self, cpriv=5,
+        chelp="Congela una cuenta del juego. Sintaxis: congelar <nick> [hiper]")
+        core.addCommandHandler("descongelar", self, cpriv=5,
+        chelp="Descongela una cuenta del juego. Sintaxis: descongelar <nick>")
 
     ## Comandos
     def disablegame(self, bot, cli, event):
@@ -62,6 +66,36 @@ class games:
                 c.delete_instance()
                 self.msg(ev, "Se han desactivado los juegos en \2" +
                     ev.splitd[0])
+
+    def congelar(self, bot, cli, ev, des=False):
+        if len(ev.splitd) > 0:
+            cli.privmsg(ev.target, "\00304Error\003: Faltan parametros.")
+            return 1
+        user = GameUser.get(GameUser.nick == ev.splitd[0])
+        if user is False:
+            self.msg(ev, "El usuario \2%s\2 no existe." % ev.splitd[0], True)
+            return 1
+        if des is False:
+            if len(ev.splitd) < 1 and ev.splitd[1] == "hiper":
+                if user.congelado != 2:
+                    user.congelado = 2
+                else:
+                    self.msg("El usuario ya está congelado.", True)
+                    return 1
+            else:
+                if user.congelado != 1:
+                    user.congelado = 1
+                else:
+                    self.msg("El usuario ya está congelado.", True)
+                    return 1
+        else:
+            if user.congelado != 0:
+                user.congelado = 0
+            else:
+                self.msg("El usuario no está congelado.", True)
+                return 1
+        user.save()
+
     ## /Comandos
 
     def commandhandle(self, cli, ev):
@@ -78,6 +112,13 @@ class games:
                 self.msg(ev, "No estás dado de alta en el juego. Para"
                 " darte de alta escribe \2!alta\2", True)
                 return 2  # "No estás dado de alta en el juego"
+            if u.congelado == 1:
+                self.msg(ev, "No puedes jugar, esta cuenta ha sido congelada "
+                "por un administrador", True)
+                return 3  # "Esta cuenta esta congelada"
+            elif u.congelado == 2:
+                return 4  # "Esta cuenta esta hipercongelada"
+
         # Comandos....
         if com == "alta":
             self.alta(cli, ev)
@@ -204,6 +245,7 @@ class games:
         nx.append(random.randint(1, 8))
         comb = ""
         tot = 0
+
         for n in nx:
             if n == 1:
                 comb = comb + "[\2\00303$\003\2]"
