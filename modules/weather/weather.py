@@ -20,7 +20,8 @@ class weather:
 
     def tiempo(self, bot, cli, event):
         if len(event.splitd) > 0:
-            ts = urllib.parse.quote_plus(" ".join(event.splitd))
+            ts = urllib.parse.quote_plus(" ".join(event.splitd)).replace("+",
+                "%20")
         else:
             cli.privmsg(event.target, "\00304Error\003: Faltan parametros")
 
@@ -28,7 +29,6 @@ class weather:
         "ons/forecast/lang:es/q/%s.json" %
          (self.apikey, ts)).read()
         w = json.loads(r.decode('utf-8'))
-
         try:
             w['current_observation']
         except KeyError:
