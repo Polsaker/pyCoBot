@@ -908,7 +908,7 @@ class ServerConnection(Connection):
         """Send a QUIT command."""
         # Note that many IRC servers don't use your QUIT message
         # unless you've been connected for at least 5 minutes!
-        self.send_raw("QUIT" + (message and (" :" + message)))
+        self.send_raw("QUIT" + (message and (" :" + message)), True)
 
     def send_raw(self, string, critical=False):
         """Send raw string to the server.
