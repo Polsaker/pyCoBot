@@ -10,7 +10,7 @@ class games:
         # Nos fijamos si somos el único (o el primer) m_games que se cargo.
         # Si es así, entonces cargamos los timehandlers
         l = False
-        for w, k in enumerate(core.botcli.boservers):
+        for k in core.botcli.bots:
             if k.is_loaded("games") is True:
                 l = True
         self.cli = client

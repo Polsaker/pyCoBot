@@ -46,6 +46,11 @@ class pyCoBot:
         # zona de millones de definiciones de variables que se usan y no se usan
         self.sid = sid  # server id aka: el lugar que ocupa en el array de conf.
         self.botcli = client
+        try:
+            self.botcli.bots
+        except:
+            self.botcli.bots = []
+        self.botcli.bots.append(self)
         self.handlers = []
         self.timehandlers = []
         self.mconf = mconf
@@ -388,9 +393,15 @@ class pyCoBot:
             try:
                 self.modules[module] = my_import("tmp." + self.conf['pserver'] +
                 "." + nclassname + "." + module + "." + module)(self, cli)
-            except AttributeError:
-                logging.error("No se pudo cargar el modulo '%s'. No se ha" %
-                 module + " encontrado la clase principal.")
+            except AttributeError as q:
+                if str(q) == "'module' object has no attribute '" + module + \
+                    "'":
+                    logging.error("No se pudo cargar el modulo '%s'. No se ha" %
+                     module + " encontrado la clase principal.")
+                else:
+                    logging.error("No se ha podido cargar el módulo '%s'"
+                        " debido a algun error interno en su __init__: %s" % (
+                        module, q))
                 return 2
             self.modinfo[module] = nclassname
             self.modname[self.modules[module]] = module
