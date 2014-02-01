@@ -133,7 +133,7 @@ class games:
             return 1
         if user.dinero < 5:
             self.msg(ev, "No tienes suficiente dinero como para jugar a este."
-                "juego. Necesitas $\25\2 y tienes %s" % user.dinero, True)
+                "juego. Necesitas $\0025\2 y tienes %s" % user.dinero, True)
         d1 = random.randint(1, 6)
         d2 = random.randint(1, 6)
         d3 = random.randint(1, 6)
@@ -143,11 +143,11 @@ class games:
         if d % 2 == 0:
             w = random.randint(3, 30)
             self.moneyOp(user, w, True)
-            self.msg(ev, "%s ganaste %s!!" % (r, w))
+            self.msg(ev, "%s ganaste $\2%s\2!!" % (r, w))
         else:
             w = random.randint(3, 16)
             self.moneyOp(user, w, False)
-            self.msg(ev, "%s perdiste %s!!" % (r, w))
+            self.msg(ev, "%s perdiste $\2%s\2!!" % (r, w))
 
     def lvlup(self, user, cli, ev):
         i = 0
