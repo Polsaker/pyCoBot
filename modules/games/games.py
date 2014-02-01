@@ -158,14 +158,14 @@ class games:
         elif ev.splitd[0] == "banco":
             user = False
             bank = GameBank.get(GameBank.bid == 1)
-            resp = ("En el banco hay $\2%s\2. Flags: [\002\00302B\003\002"
-            "] [\2Pozo\2 %s]" % (bank.dinero, bank.pozo))
+            resp = ("En el banco hay $\2{0:,}\2. Flags: [\002\00302B\003\002"
+            "] [\2Pozo\2 %s]".format(bank.dinero) % bank.pozo)
         else:
             user = usr
 
         if not user is False:
-            resp = "En la cuenta de \2%s\2 hay $\2%s\2. Flags: [\2Lvl\2 %s] " \
-            % (user.nick, user.dinero, user.nivel)
+            resp = "En la cuenta de \2%s\2 hay $\2{0:,}\2. Flags: " \
+                " [\2Lvl\2 %s] ".format(user.dinero) % (user.nick, user.nivel)
         self.msg(ev, resp)
 
     def dados(self, user, cli, ev):
@@ -215,8 +215,9 @@ class games:
         i = 1
         for user in users:
             k = str(i) + "."
+            din = "{0:,}".format(user.dinero)
             self.msg(ev, "\2%s\2%s%s%s" % (k.ljust(4), user.nick.ljust(20),
-                str(user.nivel).ljust(7), user.dinero))
+                str(user.nivel).ljust(7), din))
             i = i + 1
 
     def tragamonedas(self, user, cli, ev):
