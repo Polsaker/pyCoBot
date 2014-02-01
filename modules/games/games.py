@@ -138,6 +138,8 @@ class games:
             self.tragamonedas(u, cli, ev)
         elif com == "rueda":
             self.rueda(u, cli, ev)
+        elif com == "circulando":
+            self.circulando(cli, ev)
 
     def alta(self, cli, ev):
         ch = GameBank.get(GameBank.bid == 1)
@@ -298,7 +300,7 @@ class games:
         if user.dinero < 1000:
             self.msg(ev, "No tienes suficiente dinero como para jugar a este."
                 "juego. Necesitas $\0021000\2 y tienes %s" % user.dinero, True)
-        if user.nivel >= 4:
+        if user.nivel < 4:
             self.msg(ev, "Debes ser nivel 4 para poder usar este juego", True)
 
         d1 = random.randint(1, 6)
@@ -343,6 +345,26 @@ class games:
         banco.pozo = finalp
         user.save()
         banco.save()
+        self.msg(ev, r)
+
+    def circulando(self, cli, ev):
+        banco = GameBank.get(GameBank.bid == 1)
+        users = GameUser.select()
+        tot = 0
+        totc = 0
+        totu = 0
+        tot += banco.dinero
+        tot += banco.pozo
+
+        for user in users:
+            tot += user.dinero
+            totu += user.dinero
+            if user.congelado != 0:
+                totc += user.dinero
+        r = "En total hay circulando $\2{0:,}\2 ($\2{1:,}\2 en el banco, " \
+            "$\2{2:,}\2 en el pozo, $\2{3:,}\2 en manos de los usuarios y " \
+            "$\2{4:,}\2 fuera de circulación en cuentas congeladas)".format(
+            tot, banco.dinero, banco.pozo, totu, totc)
         self.msg(ev, r)
 
     # Envía un mensaje al servidor..
