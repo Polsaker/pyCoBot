@@ -51,6 +51,8 @@ class autodeop:
             return 1
         x = self.parsemode(cli, ev)
         for w in x:
+            if w == cli.nickname:
+                continue
             cli.mode(ev.target, "-o " + w)
 
     def parsemode(self, cli, ev):
