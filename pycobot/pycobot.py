@@ -392,7 +392,8 @@ class pyCoBot:
             touch("tmp/%s/%s/__init__.py" % (self.conf['pserver'], nclassname))
             try:
                 self.modules[module] = my_import("tmp." + self.conf['pserver'] +
-                "." + nclassname + "." + module + "." + module)(self, cli)
+                "." + nclassname + "." + module + "." + module)(self,
+                 self.botcli)
             except AttributeError as q:
                 if str(q) == "'module' object has no attribute '" + module + \
                     "'":
