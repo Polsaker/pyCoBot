@@ -158,7 +158,7 @@ class games:
                 "\2 para empezar a jugar!")
 
     def dinero(self, usr, cli, ev):
-        if len(ev.splitd) == 0:
+        if len(ev.splitd) != 0:
             user = GameUser.get(GameUser.nick == ev.source)
         elif ev.splitd[0] == "banco":
             user = False
