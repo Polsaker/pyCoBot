@@ -136,6 +136,8 @@ class games:
             self.top(cli, ev, 5, "nivel")
         elif com == "tragamonedas" or com == "tragaperras":
             self.tragamonedas(u, cli, ev)
+        elif com == "rueda":
+            self.rueda(u, cli, ev)
 
     def alta(self, cli, ev):
         ch = GameBank.get(GameBank.bid == 1)
@@ -231,7 +233,7 @@ class games:
             return 1
         if user.dinero < 15:
             self.msg(ev, "No tienes suficiente dinero como para jugar a este."
-                "juego. Necesitas $\0025\2 y tienes %s" % user.dinero, True)
+                "juego. Necesitas $\00215\2 y tienes %s" % user.dinero, True)
         if user.nivel == 0:
             self.msg(ev, "Debes ser nivel 1 para poder usar este juego", True)
 
@@ -287,6 +289,62 @@ class games:
         r += " $%s" % abs(tot)
         self.msg(ev, r)
 
+    def rueda(self, user, cli, ev):
+        banco = GameBank.get(GameBank.bid == 1)
+        if banco.pozo < 50000:
+            self.msg(ev, "El pozo debe tener por lo menos $50.000 para poder"
+                " usar la rueda", True)
+            return 1
+        if user.dinero < 1000:
+            self.msg(ev, "No tienes suficiente dinero como para jugar a este."
+                "juego. Necesitas $\0021000\2 y tienes %s" % user.dinero, True)
+        if user.nivel >= 4:
+            self.msg(ev, "Debes ser nivel 4 para poder usar este juego", True)
+
+        d1 = random.randint(1, 6)
+        final = user.dinero
+        finalb = banco.dinero
+        finalp = banco.pozo
+        r = "\2%s\2: " % user.nick
+        if d1 == 1:
+            final = user.dinero + (banco.pozo * 50 / 100)
+            finalp = (banco.pozo * 50 / 100)
+            r = "\00304GANASTE\00311 EL 50% DEL DINERO DEL POZO!!!\003"
+            r += " Ahora tienes \00303\2$%s" % final
+        elif d1 == 2:
+            final = user.dinero + (banco.pozo * 25 / 100)
+            finalp = (banco.pozo * 75 / 100)
+            r = "\00304GANASTE\00311 EL 25% DEL DINERO DEL POZO!!!\003"
+            r += " Ahora tienes \00303\2$%s" % final
+        elif d1 == 3:
+            r = "No pierdes ni ganas nada de dinero."
+        elif d1 == 4:
+            final = (user.dinero * 25 / 100)
+            finalp += (user.dinero * 25 / 100)
+            finalb += (user.dinero * 50 / 100)
+            r = "\00304PERDISTE\00311 EL 75% DE TU DINERO!\003"
+            r += " Ahora tienes \00303\2$%s" % final
+        elif d1 == 5:
+            final = (user.dinero * 50 / 100)
+            finalp += (user.dinero * 25 / 100)
+            finalb += (user.dinero * 25 / 100)
+            r = "\00304PERDISTE\00311 EL 50% DE TU DINERO!\003"
+            r += " Ahora tienes \00303\2$%s" % final
+        elif d1 == 6:
+            final = 300
+            finalp += (user.dinero * 50 / 100)
+            finalb += (user.dinero * 50 / 100) - 300
+            r = "\00304PERDISTE\00311 TODO TU DINERO!!\003 Tienes $300 para" \
+                " amortizar la perdida."
+
+        # No usamos self.moneyOp por que me da pereza!
+        user.dinero = final
+        banco.dinero = finalb
+        banco.pozo = finalp
+        user.save()
+        banco.save()
+        self.msg(ev, r)
+
     # Envía un mensaje al servidor..
     def msg(self, ev, msg, error=False):
         msg = "\x0f" + msg  # >:D
@@ -306,7 +364,7 @@ class games:
                 if pozo is True:
                     cant = cant / 2
                     bank.pozo = bank.pozo + cant
-                bank.dinero = bank.dinero + cant
+                    bank.dinero = bank.dinero + cant
             else:
                 user.dinero = user.dinero + cant
                 bank.dinero = bank.dinero - cant
