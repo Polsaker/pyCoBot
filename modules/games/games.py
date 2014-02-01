@@ -93,6 +93,8 @@ class games:
             self.top(cli, ev, 10)
         elif com == "lvltop":
             self.top(cli, ev, 5, "nivel")
+        elif com == "tragamonedas" or com == "tragaperras":
+            self.tragamonedas(u, cli, ev)
 
     def alta(self, cli, ev):
         ch = GameBank.get(GameBank.bid == 1)
@@ -175,6 +177,69 @@ class games:
             self.msg(ev, "\2%s\2%s%s%s" % (k.ljust(4), user.nick.ljust(20),
                 str(user.nivel).ljust(7), user.dinero))
             i = i + 1
+
+    def tragamonedas(self, user, cli, ev):
+        bank = GameBank.get(GameBank.bid == 1)
+        if bank.dinero < 5000:
+            self.msg(ev, "El banco está en quiebra, no puedes jugar.",
+                True)
+            return 1
+        if user.dinero < 15:
+            self.msg(ev, "No tienes suficiente dinero como para jugar a este."
+                "juego. Necesitas $\0025\2 y tienes %s" % user.dinero, True)
+        if user.nivel == 0:
+            self.msg(ev, "Debes ser nivel 1 para poder usar este juego", True)
+
+        s = random.randint(6 * user.nivel, 12 * user.nivel)
+        p = random.randint(5 * user.nivel, 16 * user.nivel)
+        n = random.randint(-9 * user.nivel, 15)
+        m = random.randint(12 * user.nivel, 30 * user.nivel)
+        e = random.randint(-17 * user.nivel, 3 * user.nivel)
+        b = random.randint(-26 * user.nivel, -8 * user.nivel)
+        x = random.randint(-17 * user.nivel, 17)
+        a = random.randint(8 * user.nivel, 15 * user.nivel)
+        nx = []
+        nx.append(random.randint(1, 8))
+        nx.append(random.randint(1, 8))
+        nx.append(random.randint(1, 8))
+        comb = ""
+        tot = 0
+        for n in nx:
+            if n == 1:
+                comb = comb + "[\2\00303$\003\2]"
+                tot += s
+            elif n == 2:
+                comb = comb + "[\002\00302%\003\002]"
+                tot += p
+            elif n == 3:
+                comb = comb + "[\002\00307#\003\002]"
+                tot += n
+            elif n == 4:
+                comb = comb + "[\002\00309+\003\002]"
+                tot += m
+            elif n == 5:
+                comb = comb + "[\002\00315-\003\002]"
+                tot += e
+            elif n == 6:
+                comb = comb + "[\002\00311/\003\002]"
+                tot += b
+            elif n == 7:
+                comb = comb + "[\002\00313X\003\002]"
+                tot += x
+            elif n == 8:
+                comb = comb + "[\002\00312&\003\002]"
+                tot += a
+        r = "\2%s\2: %s " % (user.nick, comb)
+        if nx[1] == nx[2] and nx[2] == nx[3]:
+            tot = 200 * user.nivel
+        if tot < 0:
+            self.moneyOp(user, tot)
+            r += "\2PERDISTE\2"
+        else:
+            self.moneyOp(user, tot, True)
+            r += "\2GANASTE\2"
+        r += " $%s" % abs(tot)
+        self.msg(ev, r)
 
     # Envía un mensaje al servidor..
     def msg(self, ev, msg, error=False):
