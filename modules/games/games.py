@@ -207,6 +207,8 @@ class games:
         self.moneyOp(user, cost)
         user.nivel = user.nivel + 1
         user.save()
+        self.msg(ev, "\2%s\2: Ahora eres nivel \2%s\2!!" % (user.nick,
+             user.nivel + 1))
 
     def top(self, cli, ev, cant, column="dinero"):
         users = GameUser.select().where(GameUser.congelado == 0)
