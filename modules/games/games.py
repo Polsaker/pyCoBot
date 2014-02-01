@@ -139,15 +139,16 @@ class games:
 
     def alta(self, cli, ev):
         ch = GameBank.get(GameBank.bid == 1)
-        u = GameUser.get(GameUser.nick == ev.source)
-        if not u is False:
+        ul = GameUser.get(GameUser.nick == ev.source)
+        if not ul is False:
             self.msg(ev, "Ya estás dado de alta!", True)
         if ch.dinero < 5000:
             self.msg(ev, "El banco está en quiebra, no puedes jugar.",
                 True)
         else:
-            u = GameUser.create(nick=ev.source, congelado=0, deuda=0, extrainf=
+            GameUser.create(nick=ev.source, congelado=0, deuda=0, extrainf=
                 "{}", nivel=0, dinero=0)
+            u = GameUser.get(GameUser.nick == ev.source)
             self.moneyOp(u, 100, True)
             self.msg(ev, "\2Te has dado de alta!!\2 ahora tienes \2$100"
                 "\2 para empezar a jugar!")
