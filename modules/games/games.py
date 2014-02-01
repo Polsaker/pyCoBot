@@ -300,8 +300,10 @@ class games:
         if user.dinero < 1000:
             self.msg(ev, "No tienes suficiente dinero como para jugar a este."
                 "juego. Necesitas $\0021000\2 y tienes %s" % user.dinero, True)
+            return 1
         if user.nivel < 4:
             self.msg(ev, "Debes ser nivel 4 para poder usar este juego", True)
+            return 1
 
         d1 = random.randint(1, 6)
         final = user.dinero
