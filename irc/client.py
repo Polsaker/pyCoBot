@@ -506,10 +506,11 @@ class ServerConnection(Connection):
 
     def processthings(self):
         while True:
-            time.sleep(self.sleeptime)
             for stuff in self.queue:
+                time.sleep(self.sleeptime)
                 self.send_stuff(stuff)
             self.queue = []
+            time.sleep(self.sleeptime)
 
     def reconnect(self):
         """
