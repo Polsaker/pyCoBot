@@ -364,7 +364,7 @@ class games:
                 if pozo is True:
                     cant = cant / 2
                     bank.pozo = bank.pozo + cant
-                    bank.dinero = bank.dinero + cant
+                bank.dinero = bank.dinero + cant
             else:
                 user.dinero = user.dinero + cant
                 bank.dinero = bank.dinero - cant
