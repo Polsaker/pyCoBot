@@ -281,7 +281,7 @@ class games:
         if nx[1] == nx[2] and nx[2] == nx[3]:
             tot = 200 * user.nivel
         if tot < 0:
-            self.moneyOp(user, tot)
+            self.moneyOp(user, abs(tot))
             r += "\2PERDISTE\2"
         else:
             self.moneyOp(user, tot, True)
