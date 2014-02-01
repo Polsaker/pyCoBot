@@ -46,6 +46,9 @@ class autodeop:
                 "ctivado en el canal \2" + ev.splitd[0])
 
     def modeprot(self, cli, ev):
+        c = autodeopt.get(autodeopt.channel == ev.target)
+        if c is False:
+            return 1
         x = self.parsemode(cli, ev)
         for w in x:
             cli.mode(ev.target, "-o " + w)
