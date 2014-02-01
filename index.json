@@ -12,6 +12,7 @@
         "raw",
         "op",
         "autoprotect",
-        "games"
+        "games",
+        "autodeop"
     ]
 }
