@@ -393,7 +393,7 @@ class pyCoBot:
             try:
                 self.modules[module] = my_import("tmp." + self.conf['pserver'] +
                 "." + nclassname + "." + module + "." + module)(self,
-                 self.botcli)
+                 self.server)
             except AttributeError as q:
                 if str(q) == "'module' object has no attribute '" + module + \
                     "'":
