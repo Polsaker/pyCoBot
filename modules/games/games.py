@@ -234,6 +234,8 @@ class games:
             self.circulando(cli, ev)
         elif com == "lvlp":
             self.lvlp(cli, ev)
+        elif com == "prestamo":
+            self.prestamo(u, cli, ev)
 
     def alta(self, cli, ev):
         ch = GameBank.get(GameBank.bid == 1)
@@ -259,12 +261,17 @@ class games:
             bank = GameBank.get(GameBank.bid == 1)
             resp = ("En el banco hay $\2{0:,}\2. Flags: [\002\00302B\003\002"
             "] [\2Pozo\2 %s]".format(bank.dinero) % bank.pozo)
+            self.msg(ev, resp)
+            return 1
         else:
             user = GameUser.get(GameUser.nick == ev.splitd[0])
 
-        if not user is False:
-            resp = "En la cuenta de \2%s\2 hay $\2{0:,}\2. Flags: " \
-                " [\2Lvl\2 %s] ".format(user.dinero) % (user.nick, user.nivel)
+        resp = "En la cuenta de \2%s\2 hay $\2{0:,}\2. Flags: " \
+            " [\2Lvl\2 %s] ".format(user.dinero) % (user.nick, user.nivel)
+        if user.deuda != 0:
+            resp += "[\2Deuda\2 {0}] ".format(user.deuda)
+        if user.congelado != 0:
+            resp += "[\2\00304F\2\3] "
         self.msg(ev, resp)
 
     def dados(self, user, cli, ev):
@@ -377,7 +384,7 @@ class games:
                 comb = comb + "[\002\00312&\003\002]"
                 tot += a
         r = "\2%s\2: %s " % (user.nick, comb)
-        if nx[1] == nx[2] and nx[2] == nx[3]:
+        if nx[0] == nx[1] and nx[1] == nx[2]:
             tot = 200 * user.nivel
         if tot < 0:
             self.moneyOp(user, abs(tot))
@@ -481,6 +488,38 @@ class games:
             i = i + 1
 
         self.msg(ev, "El nivel \2{0}\2 cuesta $\2{1:,}".format(i, cost))
+
+    def prestamo(self, user, cli, ev):
+        i = 0
+        tot = 500
+        while i != user.nivel:
+            tot += tot * 25 / 100
+            i += 1
+        if user.deuda != 0:
+            tot -= user.deuda
+        if len(ev.splitd) == 0:
+            self.msg(ev, "\2{0}\2: Puedes pedir hasta $\2{1}\2".format(
+                user.nick, tot))
+        elif ev.splitd[0] == "pagar":
+            if user.dinero > user.deuda + 100:
+                self.moneyOp(user, user.deuda)
+                user.deuda = 0
+                self.msg(ev, "Has pagado tu deuda.")
+            else:
+                tot = user.deuda - (user.dinero - 100)
+                self.moneyOp(user, tot)
+                user.deuda -= tot
+                self.msg(ev, "Has pagado una parte de tu deuda. Todavía debes"
+                    " $\2{0}".format(user.deuda))
+            user.save()
+        else:
+            if int(ev.splitd[0]) <= tot:
+                user.deuda = int(ev.splitd[0]) + 100
+                user.dinero += int(ev.splitd[0])
+                user.save()
+                self.msg(ev, "El banco te ha otorgado el préstamo.")
+            else:
+                self.msg(ev, "Solo puedes pedir hasta \2{0}".format(tot))
 
     # Envía un mensaje al servidor..
     def msg(self, ev, msg, error=False):
