@@ -132,57 +132,57 @@ class games:
             user.save()
 
         if self.lastuser is not False:
-            user = GameUser.get(GameUser.nick == self.lastgameuser)
+            user = GameUser.get(GameUser.nick == self.lastuser)
             l = random.randint(1, 10)
             if l == 1:
-                self.moneyop(user, (user.dinero * 5 / 100))
+                self.moneyOp(user, (user.dinero * 5 / 100))
                 t = "\2%s\2 ha caido ebrio/a en el suelo. Alguien se aprocecha"\
                     "y le roba algo de dinero, le quedan $\2%s\2." % (
-                        self.lastplayer, user.dinero)
+                        self.lastuser, user.dinero)
             elif l == 2:
-                self.moneyop(user, (user.dinero * 5 / 100), True)
+                self.moneyOp(user, (user.dinero * 5 / 100), True)
                 t = "\2%s\2 ha encontrado una billetera en el suelo. Tira la" \
                 "billetera y se queda con el dinero. Ahora tiene $\2%s\2." % (
-                        self.lastplayer, user.dinero)
+                        self.lastuser, user.dinero)
             elif l == 3:
-                self.moneyop(user, (user.dinero * 5 / 100),)
+                self.moneyOp(user, (user.dinero * 5 / 100))
                 t = "A \2%s\2 le ha caido un rayo aún estando dentro del casi" \
                 "no! Este extraño suceso hace que parte de su dinero se queme."\
-                " Le quedan $\2%s\2." % (self.lastplayer, user.dinero)
+                " Le quedan $\2%s\2." % (self.lastuser, user.dinero)
             elif l == 4:
-                self.moneyop(user, (user.dinero * 5 / 100))
+                self.moneyOp(user, (user.dinero * 5 / 100))
                 t = "\2%s\2 es estafado con el típico mail del principe niger" \
                 "iano que necesita dinero para huir."\
-                " Le quedan $\2%s\2." % (self.lastplayer, user.dinero)
+                " Le quedan $\2%s\2." % (self.lastuser, user.dinero)
             elif l == 5:
-                self.moneyop(user, (user.dinero * 5 / 100),)
+                self.moneyOp(user, (user.dinero * 5 / 100))
                 t = "A \2%s\2 se le cae algo de dinero por el retrete." \
-                " Le quedan $\2%s\2." % (self.lastplayer, user.dinero)
+                " Le quedan $\2%s\2." % (self.lastuser, user.dinero)
             elif l == 6:
-                self.moneyop(user, (user.dinero * 8 / 100))
+                self.moneyOp(user, (user.dinero * 8 / 100))
                 t = "A \2%s\2 lo engañan y lo meten en un tour carísimo a" \
                 " Chernobyl, donde descubre que la quimioterapia no es barata"\
-                " Le quedan $\2%s\2." % (self.lastplayer, user.dinero)
+                " Le quedan $\2%s\2." % (self.lastuser, user.dinero)
             elif l == 7:
-                self.moneyop(user, (user.dinero * 5 / 100), True)
+                self.moneyOp(user, (user.dinero * 5 / 100), True)
                 t = "\2%s\2 ha encontrado algo de dinero en la billetera" \
                 " de la persona que acaba de asesinar en el tren."
-                " Ahora tiene $\2%s\2." % (self.lastplayer, user.dinero)
+                " Ahora tiene $\2%s\2." % (self.lastuser, user.dinero)
             elif l == 8:
-                self.moneyop(user, (user.dinero * 7 / 100))
+                self.moneyOp(user, (user.dinero * 7 / 100))
                 t = "\2%s\2 es abducido por unos extraterrestres. No son tont" \
                 "os, se han llevado una parte de su dinero..."
-                " Ahora tiene $\2%s\2." % (self.lastplayer, user.dinero)
+                " Ahora tiene $\2%s\2." % (self.lastuser, user.dinero)
             elif l == 9:
-                self.moneyop(user, (user.dinero * 7 / 100), True)
+                self.moneyOp(user, (user.dinero * 7 / 100), True)
                 t = "\2%s\2 encuentra algo de dinero en esa caja fuerte que " \
                 "acaba de romper." \
-                " Ahora tiene $\2%s\2." % (self.lastplayer, user.dinero)
+                " Ahora tiene $\2%s\2." % (self.lastuser, user.dinero)
             elif l == 10:
-                self.moneyop(user, (user.dinero * 7 / 100), True)
+                self.moneyOp(user, (user.dinero * 7 / 100))
                 t = "A \2%s\2 lo sacan del casino por que su mugre atrae a la" \
                 "s moscas. Se toma un baño, le paga a los guardias y continua "
-                "jugando. Ahora tiene $\2%s\2." % (self.lastplayer, user.dinero)
+                "jugando. Ahora tiene $\2%s\2." % (self.lastuser, user.dinero)
             self.gmsg(t)
 
             self.lastuser = False
@@ -513,7 +513,7 @@ class games:
         chans = GameChannel.select()
         for k in self.core.botcli.bots:
             for chan in chans:
-                k.botcli.notice(chan.channel, msg)
+                k.server.notice(chan.channel, msg)
 # Tablas... (El campo extrainf está reservado para implementar nuevas
 # características sin tener que añadir mas campos a las tablas existentes.
 
