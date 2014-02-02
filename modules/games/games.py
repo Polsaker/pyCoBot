@@ -242,9 +242,11 @@ class games:
         ul = GameUser.get(GameUser.nick == ev.source)
         if not ul is False:
             self.msg(ev, "Ya estás dado de alta!", True)
+            return 1
         if ch.dinero < 5000:
             self.msg(ev, "El banco está en quiebra, no puedes jugar.",
                 True)
+            return 1
         else:
             GameUser.create(nick=ev.source, congelado=0, deuda=0, extrainf=
                 "{}", nivel=0, dinero=0)
