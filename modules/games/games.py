@@ -228,15 +228,15 @@ class games:
                 "\2 para empezar a jugar!")
 
     def dinero(self, usr, cli, ev):
-        if len(ev.splitd) != 0:
-            user = GameUser.get(GameUser.nick == ev.splitd[0])
+        if len(ev.splitd) == 0:
+            user = usr
         elif ev.splitd[0] == "banco":
             user = False
             bank = GameBank.get(GameBank.bid == 1)
             resp = ("En el banco hay $\2{0:,}\2. Flags: [\002\00302B\003\002"
             "] [\2Pozo\2 %s]".format(bank.dinero) % bank.pozo)
         else:
-            user = usr
+            user = GameUser.get(GameUser.nick == ev.splitd[0])
 
         if not user is False:
             resp = "En la cuenta de \2%s\2 hay $\2{0:,}\2. Flags: " \
