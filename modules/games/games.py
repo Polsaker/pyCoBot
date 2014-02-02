@@ -229,7 +229,7 @@ class games:
 
     def dinero(self, usr, cli, ev):
         if len(ev.splitd) != 0:
-            user = GameUser.get(GameUser.nick == ev.source)
+            user = GameUser.get(GameUser.nick == ev.splitd[0])
         elif ev.splitd[0] == "banco":
             user = False
             bank = GameBank.get(GameBank.bid == 1)
