@@ -12,8 +12,11 @@ class games:
         self.timehandlers = ""
         l = False
         for k in core.botcli.bots:
+            import pprint
             if k.is_loaded("games") is True:
-                if k.getmodule("games").timehandlers != k.getmodule("games"):
+                pprint.pprint(k.getmodule("games").timehandlers)
+                pprint.pprint(k.getmodule("games"))
+                if k.getmodule("games").timehandlers == k.getmodule("games"):
                     self.timehandlers = k.getmodule("games")
                 l = True
         self.cli = client
