@@ -44,11 +44,11 @@ class games:
     ## Comandos
     def changemoney(self, bot, cli, event):
         if len(event.splitd) < 2:
-            self.msg(ev, "Faltan parametros", True)
+            self.msg(event, "Faltan parametros", True)
         if event.splitd[0] == "banco":
             user = GameBank.get(GameBank.bid == 1)
         else:
-            user = GameUser.get(GameUser.nick == ev.splitd[0])
+            user = GameUser.get(GameUser.nick == event.splitd[0])
         user.dinero = event.splitd[1]
         user.save()
 
