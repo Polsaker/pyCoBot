@@ -37,8 +37,21 @@ class games:
         chelp="Congela una cuenta del juego. Sintaxis: congelar <nick> [hiper]")
         core.addCommandHandler("descongelar", self, cpriv=5,
         chelp="Descongela una cuenta del juego. Sintaxis: descongelar <nick>")
+        core.addCommandHandler("changemoney", self, cpriv=6,
+        chelp="Cambia la cantidad de dinero almacenado en una cuenta. Sintaxis"
+        ": changemoney <nick> <dinero>")
 
     ## Comandos
+    def changemoney(self, bot, cli, event):
+        if len(event.splitd) < 2:
+            self.msg(ev, "Faltan parametros", True)
+        if event.splitd[0] == "banco":
+            user = GameBank.get(GameBank.bid == 1)
+        else:
+            user = GameUser.get(GameUser.nick == ev.splitd[0])
+        user.dinero = event.splitd[1]
+        user.save()
+
     def disablegame(self, bot, cli, event):
         return self.enablegame(bot, cli, event, True)
 
