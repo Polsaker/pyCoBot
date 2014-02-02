@@ -25,7 +25,7 @@ VER_STRING = "%s.%s%s (%s)" % (VER_MAJOR, VER_MINOR, VER_STS, VER_CODENAME)
 _rfc_1459_command_regexp = re.compile("^(:(?P<prefix>[^ ]+) +)?" +
     "(?P<command>[^ ]+)( *(?P<argument> .+))?")
 
-database = peewee.SqliteDatabase('db/cobot.db', check_same_thread=False)
+database = peewee.SqliteDatabase('db/cobot.db', threadlocals=False)
 
 
 class BaseModel(peewee.Model):
