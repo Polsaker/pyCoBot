@@ -45,10 +45,15 @@ class quit:
         cli.privmsg(event.target, "Se han recargado las configuraciones.")
 
     def reconnect(self, bot, cli, event):
+        quitmsg = "Salida ordenada por un administrador"
         if len(event.splitd) > 0:
-            quitmsg = " ".join(event.splitd)
-        else:
-            quitmsg = "Salida ordenada por un administrador"
+            for l, k in enumerate(self.core.botcli.boservers):
+                if k.conf['server'] == event.splitd[0]:
+                    cli = k.server
+                    if len(event.splitd) > 1:
+                        quitmsg = " ".join(event.splitd[1:])
+                else:
+                    quitmsg = " ".join(event.splitd)
         cli.quit("[RECONNECT] " + quitmsg)
         cli.reconnect()
 

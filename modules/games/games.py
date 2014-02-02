@@ -86,6 +86,7 @@ class games:
 
     def descongelar(self, bot, cli, ev):
         self.congelar(bot, cli, ev, True)
+
     def congelar(self, bot, cli, ev, des=False):
         if len(ev.splitd) < 1:
             cli.privmsg(ev.target, "\00304Error\003: Faltan parametros.")
