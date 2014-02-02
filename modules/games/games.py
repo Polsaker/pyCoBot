@@ -84,8 +84,10 @@ class games:
                 self.msg(ev, "Se han desactivado los juegos en \2" +
                     ev.splitd[0])
 
+    def descongelar(self, bot, cli, ev):
+        self.congelar(bot, cli, ev, True)
     def congelar(self, bot, cli, ev, des=False):
-        if len(ev.splitd) > 0:
+        if len(ev.splitd) < 1:
             cli.privmsg(ev.target, "\00304Error\003: Faltan parametros.")
             return 1
         user = GameUser.get(GameUser.nick == ev.splitd[0])
@@ -96,20 +98,23 @@ class games:
             if len(ev.splitd) < 1 and ev.splitd[1] == "hiper":
                 if user.congelado != 2:
                     user.congelado = 2
+                    self.msg(ev, "Se ha congelado a \2%s\2" % user.nick)
                 else:
-                    self.msg("El usuario ya está congelado.", True)
+                    self.msg(ev, "El usuario ya está congelado.", True)
                     return 1
             else:
                 if user.congelado != 1:
                     user.congelado = 1
+                    self.msg(ev, "Se ha congelado a \2%s\2" % user.nick)
                 else:
-                    self.msg("El usuario ya está congelado.", True)
+                    self.msg(ev, "El usuario ya está congelado.", True)
                     return 1
         else:
             if user.congelado != 0:
                 user.congelado = 0
+                self.msg(ev, "Se ha descongelado a \2%s\2" % user.nick)
             else:
-                self.msg("El usuario no está congelado.", True)
+                self.msg(ev, "El usuario no está congelado.", True)
                 return 1
         user.save()
 
