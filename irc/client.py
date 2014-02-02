@@ -864,10 +864,13 @@ class ServerConnection(Connection):
         """Send a PONG command."""
         self.send_raw("PONG %s%s" % (target, target2 and (" " + target2)), True)
 
+    def split_len(self, seq, length):
+        return [seq[i:i + length] for i in range(0, len(seq), length)]
+
     def privmsg(self, target, msg):
         if len(msg) > 400:
             msg = re.sub(r"\s+", " ", msg)  # normalize space
-            footer = "…"
+            footer = " …"
             avail = 400
             words = msg.split()
             result = []
@@ -876,9 +879,20 @@ class ServerConnection(Connection):
             for word in words:
                 word += " "
                 if len(word) > avail:
-                    result.append("")
-                    k = k + 1
-                    avail = 400
+                    if not len(word) >= 400:
+                        result.append("")
+                        k = k + 1
+                        avail = 400
+                    else:
+                        x = self.split_len(word, 400)
+                        for w in x:
+                            result.append("")
+                            k += 1
+                            result[k] = w
+
+                        avail = 400
+
+                        continue
                     #break
                 result[k] += word
                 avail -= len(word)
@@ -886,7 +900,6 @@ class ServerConnection(Connection):
             w = 0
             for v in result:
                 sg = (v + footer).strip()
-                sg = sg.strip("\2\003")  # >:D
                 if w == k:
                     sg = sg.strip(footer + ", ")
                 self._privmsg(target, sg)

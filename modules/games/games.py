@@ -224,6 +224,8 @@ class games:
             self.rueda(u, cli, ev)
         elif com == "circulando":
             self.circulando(cli, ev)
+        elif com == "lvlp":
+            self.lvlp(cli, ev)
 
     def alta(self, cli, ev):
         ch = GameBank.get(GameBank.bid == 1)
@@ -266,6 +268,7 @@ class games:
         if user.dinero < 5:
             self.msg(ev, "No tienes suficiente dinero como para jugar a este."
                 "juego. Necesitas $\0025\2 y tienes %s" % user.dinero, True)
+            return 1
         d1 = random.randint(1, 6)
         d2 = random.randint(1, 6)
         d3 = random.randint(1, 6)
@@ -320,8 +323,10 @@ class games:
         if user.dinero < 15:
             self.msg(ev, "No tienes suficiente dinero como para jugar a este."
                 "juego. Necesitas $\00215\2 y tienes %s" % user.dinero, True)
+            return 1
         if user.nivel == 0:
             self.msg(ev, "Debes ser nivel 1 para poder usar este juego", True)
+            return 1
         self.timehandlers.lastuser = user.nick
         s = random.randint(6 * user.nivel, 12 * user.nivel)
         p = random.randint(5 * user.nivel, 16 * user.nivel)
@@ -431,7 +436,7 @@ class games:
         banco.pozo = finalp
         user.save()
         banco.save()
-        self.msg(ev, r)
+        self.msg(ev, user.nick + ": " + r)
 
     def circulando(self, cli, ev):
         banco = GameBank.get(GameBank.bid == 1)
@@ -452,6 +457,22 @@ class games:
             "$\2{4:,}\2 fuera de circulación en cuentas congeladas)".format(
             tot, banco.dinero, banco.pozo, totu, totc)
         self.msg(ev, r)
+
+    def lvlp(self, cli, ev):
+        if len(ev.splitd) == 0:
+            self.msg(ev, "Faltan parámetros", True)
+            return 1
+        if int(ev.splitd[0]) > 3000:
+            self.msg(ev, "Digamos que niveles por encima de este no existen..",
+                True)
+            return 1
+        i = 0
+        cost = 125
+        while i != int(ev.splitd[0]):
+            cost = cost * 2
+            i = i + 1
+
+        self.msg(ev, "El nivel \2{0}\2 cuesta $\2{1:,}".format(i, cost))
 
     # Envía un mensaje al servidor..
     def msg(self, ev, msg, error=False):
