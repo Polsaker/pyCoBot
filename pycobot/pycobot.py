@@ -303,13 +303,13 @@ class pyCoBot:
 
     # Procesa timehandlers (función interna)
     def timehandler(self, hid, tme, c, f):
-        while self.timehandlers[hid] is True:
+        while self.timehandlers[hid][0] is True:
             time.sleep(tme)
             getattr(c, f)(self, self.server)
 
     # Añade un timehandler. Parametros: intervalo en segundos, modulo, funcion
     def addTimeHandler(self, interval, module, func):
-        self.timehandlers.append(True)
+        self.timehandlers.append([True, module])
         _thread.start_new_thread(self.timehandler, (len(self.timehandlers) - 1,
             interval, module, func))
 
@@ -438,6 +438,10 @@ class pyCoBot:
                 logging.debug('Eliminando commandhandler "%s" del modulo %s'
                  % (q[1], module))
                 del self.commandhandlers[q[1]]
+        # Matamos a los timehandlers..
+        for k, i in enumerate(self.timehandlers):
+            if i[1] == self.modules[module]:
+                self.timehandlers[k][0] = False
 
     def restart_program(self, quitmsg):
         for i in enumerate(self.botcli.boservers):
