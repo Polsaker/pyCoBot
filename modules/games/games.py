@@ -9,10 +9,11 @@ class games:
     def __init__(self, core, client):
         # Nos fijamos si somos el único (o el primer) m_games que se cargo.
         # Si es así, entonces cargamos los timehandlers
+        self.timehandlers = ""
         l = False
         for k in core.botcli.bots:
             if k.is_loaded("games") is True:
-                if k.getmodule("games").timehandlers == k.getmodule("games"):
+                if k.getmodule("games").timehandlers != k.getmodule("games"):
                     self.timehandlers = k.getmodule("games")
                 l = True
         self.cli = client
