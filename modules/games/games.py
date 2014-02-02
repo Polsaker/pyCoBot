@@ -133,6 +133,8 @@ class games:
 
         if self.lastuser is not False:
             user = GameUser.get(GameUser.nick == self.lastuser)
+            if user.nivel == 0:
+                return 1
             l = random.randint(1, 10)
             if l == 1:
                 self.moneyOp(user, (user.dinero * 5 / 100))
