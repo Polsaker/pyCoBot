@@ -155,6 +155,9 @@ class pyCoBot:
                         return 0
                     # Verificación de autenticación
                     ocom = self.commandhandlers[com]['alias']
+                    if self.commandhandlers[com]['privmsgonly'] is True and \
+                     ev.type == "pubmsg":
+                        return 0
                     try:
                         c = getattr(self.commandhandlers
                          [com]['mod'], ocom + "_p")(self,
