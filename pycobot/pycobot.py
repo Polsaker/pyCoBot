@@ -296,13 +296,13 @@ class pyCoBot:
         #session = self.session()
         passw = hashlib.sha1(event.splitd[1].encode('utf-8')).hexdigest()
         u = User.select().where(User.name == event.splitd[0].lower())
-        if True:
+        try:
             if u[0].password == passw:
                 self.authd[event.source] = u[0].uid
                 self.server.privmsg(event.target, "Autenticado exitosamente")
-        #except:
-        #    self.server.privmsg(event.target, "\00304Error\003: Usuario o " +
-        #    "contraseña incorrectos")
+        except:
+            self.server.privmsg(event.target, "\00304Error\003: Usuario o " +
+            "contraseña incorrectos")
 
     # Procesa timehandlers (función interna)
     def timehandler(self, hid, tme, c, f):
