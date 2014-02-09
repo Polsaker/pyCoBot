@@ -13,6 +13,7 @@
         "op",
         "autoprotect",
         "games",
-        "autodeop"
+        "autodeop",
+        "authadd"
     ]
 }
