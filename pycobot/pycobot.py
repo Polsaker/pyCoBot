@@ -195,7 +195,7 @@ class pyCoBot:
                 for row in UserPriv.select().where(UserPriv.uid == uid):
                     if (row.priv >= cpriv) and (row.secmod == "*" or row.secmod
                      == modsec):
-                        if chan is False:
+                        if chan is False and row.secchan == "*":
                             continua = True
                         else:
                             if row.secchan == "*" or row.secchan == chan:
