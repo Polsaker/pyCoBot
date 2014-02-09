@@ -124,8 +124,8 @@ class pyCoBot:
                              " Sintaxis: help [comando]"
                         elif ev.splitd[0] == "auth":
                             r = "Identifica a un usuario registrado con el " + \
-                             " Bot. Sintaxis" + \
-                             " Sintaxis: help [comando]"
+                             " Bot." + "Sintaxis: auth <usuario> <contraseña>" \
+                             ". Este comando debe usarse vía mensaje privado."
                         else:
                             pprint.pprint(self.commandhandlers[ev.splitd[0]])
                             try:
