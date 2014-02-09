@@ -17,7 +17,12 @@ class authadd:
 
         u = User.get(User.name == ev.splitd[0].lower())
         if u is False:
-            user = User.create(name=ev.splitd[0].lower(), password=passw)
+            u = User()
+            u.name = ev.splitd[0].lower()
+            u.password = passw
+            u.save()
+            # Si no hago esto no puedo obtener el uid :\
+            user = User.get(User.name == ev.splitd[0].lower())
             UserPriv.create(uid=user.uid, priv=0, secmod="*", secchan="*")
             cli.privmsg(ev.target, "Te has registrado exitosamente. Ahora"
             " debes identificarte (\2{0}help auth\2)".format(bot.conf['prefix']
