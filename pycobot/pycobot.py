@@ -259,7 +259,7 @@ class pyCoBot:
         h['numeric'] = numeric
         h['mod'] = modulo
         h['func'] = func
-
+        h['id'] = self.server.addhandler(numeric, getattr(modulo, func))
         self.handlers.append(h)
 
         logging.debug("Registrado handler en '%s' ('%s')"
@@ -359,6 +359,7 @@ class pyCoBot:
             if self.modules[module] == self.handlers[i]['mod']:
                 logging.debug('Eliminando handler "%s" del modulo %s en %s'
                  % (self.handlers[i]['numeric'], module, self.conf['server']))
+                self.server.delhandler(self.handlers[i]['id'])
                 del self.handlers[i]
 
         l = []
