@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 import re
-from irc import events
-import irc.client
 import time
 import hashlib
 import logging
@@ -55,9 +53,16 @@ class pyCoBot:
         self.timehandlers = []
         self.mconf = mconf
         self.server = client.server()
-        self.server.connect(server, conf['port'], conf['nick'],
-            username=conf['nick'], ircname="CoBot/" + VER_STRING)
-        self.server.add_global_handler("all_raw_messages", self.allraw)
+
+        self.server.addhandler("pubmsg", self._cproc)
+        self.server.addhandler("privmsg", self._cproc)
+        self.server.addhandler("welcome", self._joinchans)
+
+        try:
+            self.server.connect(server, conf['port'], conf['nick'],
+                conf['nick'], "CoBot/" + VER_STRING)
+        except:
+            pass  # :P
 
         self.modules = {}
         self.modinfo = {}
@@ -68,123 +73,115 @@ class pyCoBot:
         for i, val in enumerate(conf['modules']):
             self.loadmod(conf['modules'][i], conf['server'])
 
-    def allraw(self, con, event):
-        _thread.start_new_thread(self.cproc, (con, event))
+    def _cproc(self, con, ev):
+        p1 = re.compile("^" + re.escape(self.conf['prefix']) +
+            "(\S{1,52})[ ]?(.*)", re.IGNORECASE)
+        m1 = p1.search(ev.arguments[0])
 
-    def cproc(self, con, event):
-        ev = self.processline(event.arguments[0], con)
-        # OPTIMIZE: hacer esto es feo, cambiarlo por algo mejor!
-        for i, val in enumerate(self.handlers):
-            if ev.type == self.handlers[i]['numeric']:
-                m = getattr(self.handlers[i]['mod'], self.handlers[i]['func'])
-                m(self.server, ev)
+        # Buscamos por el nick como prefijo..
+        p2 = re.compile("^" + re.escape(self.conf['nick']) +
+            "[:, ]? (\S{1,52})[ ]?(.*)", re.IGNORECASE)
+        m2 = p2.search(ev.arguments[0])
+        if not m1 is None:
+            del ev.splitd[0]
+            com = m1.group(1)
+        elif not m2 is None:
+            del ev.splitd[0]
+            del ev.splitd[0]
+            com = m2.group(1)
 
-        if ev.type == "privmsg" or ev.type == "pubmsg":
-            #p = re.compile("(?:" + re.escape(self.conf['prefix']) + "|" +
-            #    re.escape(self.conf['nick']) + "[:, ]? )(.*)(?!\w+)")
-            # Buscamos por el prefijo..
-            p1 = re.compile("^" + re.escape(self.conf['prefix']) +
-                "(\S{1,52})[ ]?(.*)", re.IGNORECASE)
-            m1 = p1.search(ev.arguments[0])
+        if not m1 is None or not m2 is None:
+            if com == "help" or com == "ayuda":
+                r = False
+                if not len(ev.splitd) > 0:
+                    comlist = "help auth "
+                    for i in list(self.commandhandlers.keys()):
+                        if self.authchk(ev.source, self.commandhandlers[i]
+                         ['cpriv'], self.modname[self.commandhandlers[i]
+                         ['mod']], ev.target) is True and self. \
+                         commandhandlers[i]['alias'] == i:
+                            comlist = comlist + i + " "
 
-            # Buscamos por el nick como prefijo..
-            p2 = re.compile("^" + re.escape(self.conf['nick']) +
-                "[:, ]? (\S{1,52})[ ]?(.*)", re.IGNORECASE)
-            m2 = p2.search(ev.arguments[0])
-            if not m1 is None:
-                del ev.splitd[0]
-                com = m1.group(1)
-            elif not m2 is None:
-                del ev.splitd[0]
-                del ev.splitd[0]
-                com = m2.group(1)
+                    con.privmsg(ev.target, "\2pyCoBot alpha\2. Comandos " +
+                    "empezar con \2" + self.conf["prefix"] + "\2. " +
+                    "Escriba " + self.conf["prefix"] + "help \2<comando>" +
+                    "\2 para mas información sobre un comando")
 
-            if not m1 is None or not m2 is None:
-                if com == "help" or com == "ayuda":
-                    r = False
-                    if not len(ev.splitd) > 0:
-                        comlist = "help auth "
-                        for i in list(self.commandhandlers.keys()):
-                            if self.authchk(ev.source, self.commandhandlers[i]
-                             ['cpriv'], self.modname[self.commandhandlers[i]
-                             ['mod']], ev.target) is True and self. \
-                             commandhandlers[i]['alias'] == i:
-                                comlist = comlist + i + " "
-
-                        con.privmsg(ev.target, "\2pyCoBot alpha\2. Comandos " +
-                        "empezar con \2" + self.conf["prefix"] + "\2. " +
-                        "Escriba " + self.conf["prefix"] + "help \2<comando>" +
-                        "\2 para mas información sobre un comando")
-
-                        con.privmsg(ev.target, "Comandos: " + comlist)
-                    else:
-                        if ev.splitd[0] == "help":  # Harcoded help :P
-                            r = "Muestra la ayuda de un comando, o, si no " + \
-                             " tiene parametros, la lista de comandos." + \
-                             " Sintaxis: help [comando]"
-                        elif ev.splitd[0] == "auth":
-                            r = "Identifica a un usuario registrado con el " + \
-                             " Bot." + "Sintaxis: auth <usuario> <contraseña>" \
-                             ". Este comando debe usarse vía mensaje privado."
-                        else:
-                            pprint.pprint(self.commandhandlers[ev.splitd[0]])
-                            try:
-                                r = self.commandhandlers[ev.splitd[0]]['chelp']
-                                if not self.commandhandlers[ev.splitd[0]][
-                                'alias'] != ev.splitd[0]:
-                                    r = "Alias de " + self.commandhandlers[ev.
-                                    splitd[0]]['alias'] + " " + r
-
-                            except KeyError:
-                                pass
-                        if not r:
-                            con.privmsg(ev.target, "No se ha encontrado el " +
-                             "comando")
-                        else:
-                            con.privmsg(ev.target, "Ayuda de \2" + ev.splitd[0]
-                             + "\2: " + r)
-                elif com == "auth" and ev.type == "privmsg":
-                    self.auth(ev)
-                elif com == "update":
-                    # >:D
-                    _thread.start_new_thread(self.updater, (self.server, ev))
+                    con.privmsg(ev.target, "Comandos: " + comlist)
                 else:
-                    try:
-                        self.commandhandlers[com]
-                    except KeyError:
-                        return 0
-                    # Verificación de autenticación
-                    ocom = self.commandhandlers[com]['alias']
-                    if self.commandhandlers[com]['privmsgonly'] is True and \
-                     ev.type == "pubmsg":
-                        return 0
-                    try:
-                        c = getattr(self.commandhandlers
-                         [com]['mod'], ocom + "_p")(self,
-                         self.server, ev)
-                    except AttributeError:
-                        c = ev.target
-                    authd = self.authchk(ev.source, self.commandhandlers[com]
-                    ['cpriv'], self.modname[self.commandhandlers[com]['mod']],
-                    c)
-
-                    if authd is True:
-                        getattr(self.commandhandlers[com]['mod'], ocom)(self,
-                         self.server, ev)
+                    if ev.splitd[0] == "help":  # Harcoded help :P
+                        r = "Muestra la ayuda de un comando, o, si no " + \
+                         " tiene parametros, la lista de comandos." + \
+                         " Sintaxis: help [comando]"
+                    elif ev.splitd[0] == "auth":
+                        r = "Identifica a un usuario registrado con el " + \
+                         " Bot." + "Sintaxis: auth <usuario> <contraseña>" \
+                         ". Este comando debe usarse vía mensaje privado."
                     else:
-                        self.server.privmsg(ev.target, "\00304Error\003: No a" +
-                        "utorizado")
+                        pprint.pprint(self.commandhandlers[ev.splitd[0]])
+                        try:
+                            r = self.commandhandlers[ev.splitd[0]]['chelp']
+                            if not self.commandhandlers[ev.splitd[0]][
+                            'alias'] != ev.splitd[0]:
+                                r = "Alias de " + self.commandhandlers[ev.
+                                splitd[0]]['alias'] + " " + r
 
-        if ev.type == "welcome":
-            for i, val in enumerate(self.conf['autojoin']):
-                con.join(self.conf['autojoin'][i])
-        elif ev.type == "ping":
-            con.pong(ev.target)
-        elif ev.type == "ctcp":
-            if ev.arguments[0] == "VERSION":
-                con.ctcp_reply(ev.source, "VERSION CoBot/%s" % VER_STRING)
-            elif ev.arguments[0] == "PING":
-                con.ctcp_reply(ev.source, "PING " + ev.arguments[1])
+                        except KeyError:
+                            pass
+                    if not r:
+                        con.privmsg(ev.target, "No se ha encontrado el " +
+                         "comando")
+                    else:
+                        con.privmsg(ev.target, "Ayuda de \2" + ev.splitd[0]
+                         + "\2: " + r)
+            elif com == "auth" and ev.type == "privmsg":
+                self.auth(ev)
+            elif com == "update":
+                # >:D
+                _thread.start_new_thread(self.updater, (self.server, ev))
+            else:
+                try:
+                    self.commandhandlers[com]
+                except KeyError:
+                    return 0
+                # Verificación de autenticación
+                ocom = self.commandhandlers[com]['alias']
+                if self.commandhandlers[com]['privmsgonly'] is True and \
+                 ev.type == "pubmsg":
+                    return 0
+                try:
+                    c = getattr(self.commandhandlers
+                     [com]['mod'], ocom + "_p")(self,
+                     self.server, ev)
+                except AttributeError:
+                    c = ev.target
+                authd = self.authchk(ev.source, self.commandhandlers[com]
+                ['cpriv'], self.modname[self.commandhandlers[com]['mod']],
+                c)
+
+                if authd is True:
+                    getattr(self.commandhandlers[com]['mod'], ocom)(self,
+                     self.server, ev)
+                else:
+                    self.server.privmsg(ev.target, "\00304Error\003: No a" +
+                    "utorizado")
+
+        #if ev.type == "welcome":
+        #    import pprint
+        #    pprint.pprint(self.conf)
+        #    for i, val in enumerate(self.conf['autojoin']):
+        #        con.join(self.conf['autojoin'][i])
+        #elif ev.type == "ping":
+        #    con.pong(ev.target)
+        #elif ev.type == "ctcp":
+        #    if ev.arguments[0] == "VERSION":
+        #        con.ctcp_reply(ev.source, "VERSION CoBot/%s" % VER_STRING)
+        #    elif ev.arguments[0] == "PING":
+        #        con.ctcp_reply(ev.source, "PING " + ev.arguments[1])
+
+    def _joinchans(self, con, ev):
+        for i, val in enumerate(self.conf['autojoin']):
+            con.join(self.conf['autojoin'][i])
 
     def authchk(self, host, cpriv, modsec, chan=False):
         # Verificación de autenticación
@@ -223,74 +220,6 @@ class pyCoBot:
                 pass
         if upd.update() is True:
             self.restart_program("[UPDATE] Aplicando actualizaciones")
-
-    # Procesa una linea y retorna un Event
-    def processline(self, line, c):
-        prefix = None
-        command = None
-        arguments = None
-
-        m = _rfc_1459_command_regexp.match(line)
-        if m.group("prefix"):
-            prefix = m.group("prefix")
-
-        if m.group("command"):
-            command = m.group("command").lower()
-
-        if m.group("argument"):
-            a = m.group("argument").split(" :", 1)
-            arguments = a[0].split()
-            if len(a) == 2:
-                arguments.append(a[1])
-
-        # Translate numerics into more readable strings.
-        command = events.numeric.get(command, command)
-
-        if command in ["privmsg", "notice"]:
-            target, message = arguments[0], arguments[1]
-            messages = irc.client._ctcp_dequote(message)
-
-            if command == "privmsg":
-                if irc.client.is_channel(target):
-                    command = "pubmsg"
-            else:
-                if irc.client.is_channel(target):
-                    command = "pubnotice"
-                else:
-                    command = "privnotice"
-
-            for m in messages:
-                if isinstance(m, tuple):
-                    if command in ["privmsg", "pubmsg"]:
-                        command = "ctcp"
-                    else:
-                        command = "ctcpreply"
-
-                    if command == "ctcp" and m[0] == "ACTION":
-                        return irc.client.Event("action", prefix, target, m[1:])
-                    else:
-                        return irc.client.Event(command,
-                             irc.client.NickMask(prefix), target, m)
-                else:
-                    return irc.client.Event(command,
-                         irc.client.NickMask(prefix), target, [m])
-
-        else:
-            target = None
-
-            if command == "quit":
-                arguments = [arguments[0]]
-            elif command == "ping":
-                target = arguments[0]
-            else:
-                target = arguments[0]
-                arguments = arguments[1:]
-
-            if command == "mode":
-                if not irc.client.is_channel(target):
-                    command = "umode"
-
-            return irc.client.Event(command, prefix, target, arguments)
 
     def auth(self, event):
         #session = self.session()

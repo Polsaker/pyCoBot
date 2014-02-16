@@ -21,6 +21,8 @@ class authadd:
         " <usuario> <privilegio> [modulo] [canal] (si modulo o canal no se esp"
         "ecifican, se borrara el primer privilegio que coincida",
          cprivchan=True)
+        core.addCommandHandler("deluser", self, cpriv=10, chelp=
+        "Borra a un usuario del bot. Sintaxis: deluser <usuario>")
 
     def register(self, bot, cli, ev):
         if len(ev.splitd) != 2:
@@ -169,3 +171,15 @@ class authadd:
              "privilegio coincidiendo para borrar.")
         else:
             cli.privmsg(ev.target, "Se han borrado {0} privilegios".format(tot))
+
+    def deluser(self, bot, cli, ev):
+        if not len(ev.splitd) > 0:
+            cli.privmsg(ev.target, "\00304Error\003: Faltan parametros.")
+            return 0
+        user = User.get(User.name == ev.splitd[0].lower())
+        if user is False:
+            cli.privmsg(ev.target, "\003Error\003: El usuario no existe.")
+        else:
+            user.delete_instance()
+            cli.privmsg(ev.target, "Se ha eliminado el usuario \2{0}\2".format(
+                ev.splitd[0].lower()))

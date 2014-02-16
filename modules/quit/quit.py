@@ -47,14 +47,17 @@ class quit:
     def reconnect(self, bot, cli, event):
         quitmsg = "Salida ordenada por un administrador"
         if len(event.splitd) > 0:
-            for l, k in enumerate(self.core.botcli.boservers):
+            for l, k in enumerate(bot.botcli.boservers):
                 if k.conf['server'] == event.splitd[0]:
                     cli = k.server
                     if len(event.splitd) > 1:
                         quitmsg = " ".join(event.splitd[1:])
                 else:
                     quitmsg = " ".join(event.splitd)
-        cli.quit("[RECONNECT] " + quitmsg)
+        try:
+            cli.quit("[RECONNECT] " + quitmsg)
+        except:
+            pass  # :P
         cli.reconnect()
 
     def restart(self, bot, cli, event):

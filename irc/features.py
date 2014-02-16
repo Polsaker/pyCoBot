@@ -45,8 +45,8 @@ class FeatureSet(object):
 
         name, sep, value = feature.partition('=')
 
-        if not sep:
-            return
+        #if not sep:
+            #return
 
         if not value:
             self.set(name)

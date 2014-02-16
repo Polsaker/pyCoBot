@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import irc.client
+from irc.client import ClientPool
 import sys
 import json
 import logging
@@ -45,7 +45,7 @@ def main():
         except Exception:
             pass
 
-    client = irc.client.IRC()
+    client = ClientPool()
 
     # Añadir servidores
     for i, val in enumerate(conf['irc']):

@@ -82,6 +82,7 @@ numeric = {
     "351": "version",
     "352": "whoreply",
     "353": "namreply",
+    "354": "whospcrpl",
     "361": "killdone",
     "362": "closing",
     "363": "closeend",
