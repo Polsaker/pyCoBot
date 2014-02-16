@@ -29,7 +29,7 @@ class ClientPool(object):
             for client in self.clients:
                 if client.connected:
                     connected = True
-                client.process_data()
+                # client.process_data()
             time.sleep(0.1)
 
 
@@ -75,6 +75,12 @@ class IRCConnection(object):
         self.user(user, realname)
         self.nick(nick, True)
         self._handle_event(Event("connect", None, None))
+
+        _thread.start_new_thread(self.process_forever, ())
+
+    def process_forever(self):
+        while self.connected:
+            self.process_data()
 
     def process_queue(self):
         try:  # Guh, este thread no debe morir!
@@ -125,9 +131,12 @@ class IRCConnection(object):
 
     def _on_join(self, connection, event):
         if parse_nick(event.source)[1] == self.nickname:
-            if self.features.whox:
+            try:
+                self.features.whox
                 self.who(event.target, "%tcnuhrsaf,31")
                 self.channels[event.target] = Channel(event.target)
+            except:
+                pass
 
     def _ping_ponger(self, connection, event):
         "A global handler for the 'ping' event"
