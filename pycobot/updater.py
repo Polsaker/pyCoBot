@@ -133,8 +133,8 @@ class pyCoUpdater:
              path, fh, oh))
 
             ensure_dir(path)
-            f = open(path, "w")
-            f.write(response.decode('utf-8'))
+            f = open(path, "wb")
+            f.write(response.encode('utf-8'))
             f.close()
             return True
         else:
