@@ -122,7 +122,7 @@ class pyCoUpdater:
         '/master/%s' % path).read()
         try:
             f = open(path, "rb")
-            fh = hashlib.sha1(f.read().encode('utf-8')).hexdigest()
+            fh = hashlib.sha1(f.read()).hexdigest()
             f.close()
         except:
             fh = 0
