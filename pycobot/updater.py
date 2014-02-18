@@ -121,7 +121,7 @@ class pyCoUpdater:
         response = urllib.request.urlopen('https://github.com/%s/raw' % (repo) +
         '/master/%s' % path).read()
         try:
-            f = open(path)
+            f = open(path, "rb")
             fh = hashlib.sha1(f.read().encode('utf-8')).hexdigest()
             f.close()
         except:
