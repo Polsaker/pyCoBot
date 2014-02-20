@@ -42,7 +42,7 @@ class IRCConnection(object):
         self.socket = False
 
         # Handlers internos
-        self.addhandler("ping", self._ping_ponger)
+        #self.addhandler("ping", self._ping_ponger)
         self.addhandler("join", self._on_join)
         self.addhandler("currenttopic", self._currtopic)
         self.addhandler("whospcrpl", self._whoreply)
@@ -143,6 +143,8 @@ class IRCConnection(object):
         connection.pong(event.target)
 
     def _handle_event(self, event):
+		if event.type == "ping":
+			self.ping_ponger(self, event)
         try:
             for handler in self.handlers[event.type]:
                 _thread.start_new_thread(handler, (self, event))
