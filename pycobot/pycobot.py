@@ -57,7 +57,9 @@ class pyCoBot:
         self.server.addhandler("pubmsg", self._cproc)
         self.server.addhandler("privmsg", self._cproc)
         self.server.addhandler("welcome", self._joinchans)
-
+		for i, val in enumerate(conf['modules']):
+            self.loadmod(conf['modules'][i], conf['server'])
+            
         try:
             self.server.connect(server, conf['port'], conf['nick'],
                 conf['nick'], "CoBot/" + VER_STRING)
@@ -70,8 +72,6 @@ class pyCoBot:
         self.commandhandlers = {}
         self.conf = conf
         self.authd = {}  # Usuarios autenticados..
-        for i, val in enumerate(conf['modules']):
-            self.loadmod(conf['modules'][i], conf['server'])
 
     def _cproc(self, con, ev):
         p1 = re.compile("^" + re.escape(self.conf['prefix']) +
