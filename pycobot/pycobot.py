@@ -54,7 +54,12 @@ class pyCoBot:
         self.mconf = mconf
         self.server = client.server()
         self.conf = conf
-
+        self.modules = {}
+        self.modinfo = {}
+        self.modname = {}
+        self.commandhandlers = {}
+        
+        self.authd = {}  # Usuarios autenticados..
         self.server.addhandler("pubmsg", self._cproc)
         self.server.addhandler("privmsg", self._cproc)
         self.server.addhandler("welcome", self._joinchans)
@@ -66,13 +71,6 @@ class pyCoBot:
                 conf['nick'], "CoBot/" + VER_STRING)
         except:
             pass  # :P
-
-        self.modules = {}
-        self.modinfo = {}
-        self.modname = {}
-        self.commandhandlers = {}
-        
-        self.authd = {}  # Usuarios autenticados..
 
     def _cproc(self, con, ev):
         p1 = re.compile("^" + re.escape(self.conf['prefix']) +
