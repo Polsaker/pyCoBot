@@ -143,8 +143,8 @@ class IRCConnection(object):
         connection.pong(event.target)
 
     def _handle_event(self, event):
-		if event.type == "ping":
-			self.ping_ponger(self, event)
+        if event.type == "ping":
+            self.ping_ponger(self, event)
         try:
             for handler in self.handlers[event.type]:
                 _thread.start_new_thread(handler, (self, event))
