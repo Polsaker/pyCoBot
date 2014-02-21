@@ -53,6 +53,7 @@ class pyCoBot:
         self.timehandlers = []
         self.mconf = mconf
         self.server = client.server()
+        self.conf = conf
 
         self.server.addhandler("pubmsg", self._cproc)
         self.server.addhandler("privmsg", self._cproc)
@@ -70,7 +71,7 @@ class pyCoBot:
         self.modinfo = {}
         self.modname = {}
         self.commandhandlers = {}
-        self.conf = conf
+        
         self.authd = {}  # Usuarios autenticados..
 
     def _cproc(self, con, ev):
