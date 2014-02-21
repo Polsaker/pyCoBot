@@ -57,7 +57,7 @@ class pyCoBot:
         self.server.addhandler("pubmsg", self._cproc)
         self.server.addhandler("privmsg", self._cproc)
         self.server.addhandler("welcome", self._joinchans)
-		for i, val in enumerate(conf['modules']):
+        for i, val in enumerate(conf['modules']):
             self.loadmod(conf['modules'][i], conf['server'])
             
         try:
