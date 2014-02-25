@@ -13,7 +13,7 @@ _rfc_1459_command_regexp = re.compile("^(:(?P<prefix>[^ ]+) +)?" +
     "(?P<command>[^ ]+)( *(?P<argument> .+))?")
 
 
-class ClientPool(object):p
+class ClientPool(object):
     def __init__(self):
         self.clients = []
 
