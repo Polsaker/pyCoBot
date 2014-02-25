@@ -295,7 +295,7 @@ class IRCConnection(object):
         self.send("NICK {0}".format(nick), urgent)
 
     def pong(self, sstr=""):
-        self.send("PONG {0}".format(sstr))
+        self.send("PONG :{0}".format(sstr))
 
     def who(self, target="", op=""):
         self.send("WHO%s%s" % (target and (" " + target), op and (" " + op)))
