@@ -28,6 +28,15 @@ class rpg:
         except:
             pass
         
+        core.addHandler("pubmsg", self, "commandhandle2")
+        core.addHandler("privmsg", self, "commandhandle")
+    
+    def commandhandle2(self, cli, ev):
+        pass  # TODO: Checkear si se puede jugar en el canal y llamar a commandhandle
+    
+    def commandhandle(self, cli, ev):
+        pass  # TODO: verificar autenticacion, comandos, etc
+    
 class RPGChannel(BaseModel):
     cid = IntegerField(primary_key=True)
     channel = CharField()
