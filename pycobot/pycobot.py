@@ -212,7 +212,7 @@ class pyCoBot:
             continua = False
             user = UserPriv.select().where(UserPriv.uid == uid)
             return user[0].name
-         except KeyError:
+        except KeyError:
             return False
 
 
