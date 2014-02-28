@@ -32,10 +32,37 @@ class rpg:
         core.addHandler("privmsg", self, "commandhandle")
     
     def commandhandle2(self, cli, ev):
-        pass  # TODO: Checkear si se puede jugar en el canal y llamar a commandhandle
-    
+        c = RPGChannel.get(RPGChannel.channel == ev.target)
+        if c is False:
+            return 1  # "Los juegos no están habilitados en este canal.."
+        else:
+            self.commandhandle(cli, ev)
+
     def commandhandle(self, cli, ev):
-        pass  # TODO: verificar autenticacion, comandos, etc
+        if not ev.splitd[0][0] == "!":
+            return 0
+        com = ev.splitd[0][1:]
+        del ev.splitd[0]
+        
+        if com == "alta" or com == "start":
+            self.alta(cli, ev)
+            return 1
+        
+        # Comandos normales
+        if com == "stats":
+            func = "stats" # meh...
+        else:
+            return 3  # "Comando/funcion inexistente"
+        
+        user = RPGUser.get(RPGUser.nick == ev.source)
+        if user is False:
+            self.msg(ev, "No estás dado de alta en el juego. Para"
+                " darte de alta escribe \2!alta\2", True)
+                return 2  # "No estás dado de alta en el juego"
+        else:
+            getattr(self, func)(user, cli, ev)
+                
+        
     
 class RPGChannel(BaseModel):
     cid = IntegerField(primary_key=True)
