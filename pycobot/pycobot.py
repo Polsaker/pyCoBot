@@ -207,13 +207,13 @@ class pyCoBot:
     
     def is_identified(self, host):
         # Verificación de autenticación
-		try:
-			uid = self.authd[host]
-			continua = False
-			user = UserPriv.select().where(UserPriv.uid == uid)
-			return user[0].name
-		except KeyError:
-			return False
+        try:
+            uid = self.authd[host]
+            continua = False
+            user = UserPriv.select().where(UserPriv.uid == uid)
+            return user[0].name
+         except KeyError:
+            return False
 
 
     def updater(self, cli, event):
