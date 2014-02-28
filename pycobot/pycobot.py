@@ -211,7 +211,7 @@ class pyCoBot:
 			uid = self.authd[host]
 			continua = False
 			user = UserPriv.select().where(UserPriv.uid == uid):
-			return user[0].nick
+			return user[0].name
 		except KeyError:
 			return False
 
