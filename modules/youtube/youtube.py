@@ -42,7 +42,7 @@ class youtube:
                 s = "0" + str(m)
             if len(h) == 1:
                 s = "0" + str(h)
-            rank = round((likes / (likes + dislikes)) * 100)
+            rank = round((int(likes) / (int(likes) + int(dislikes))) * 100)
             resp = "\2%s\2 \00310Duración:\003 %s:%s:%s \00310Visto\003 \2%s\2" \
                 " veces, con \00303%s \2Me gusta\2\003, \00305%s \2No me gusta\2\003" \
                 " (%s\%) y %s \2comentarios\2" % (vtitle, str(h), str(m), str(s),
