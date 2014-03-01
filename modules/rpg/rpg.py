@@ -58,7 +58,7 @@ class rpg:
         if user is False:
             self.msg(ev, "No estás dado de alta en el juego. Para"
                 " darte de alta escribe \2!alta\2", True)
-                return 2  # "No estás dado de alta en el juego"
+            return 2  # "No estás dado de alta en el juego"
         else:
             getattr(self, func)(user, cli, ev)
                 
