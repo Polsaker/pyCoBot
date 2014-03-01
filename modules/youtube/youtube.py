@@ -15,7 +15,7 @@ class youtube:
     
     def ytlinks(self, cli, ev):
         yr = re.compile("youtube\.com\/watch\?.*v=([A-Za-z0-9._%-]*)[&\w;=\+_\-]*")
-        res = yr.searc(" ".join(ev.splitd))
+        res = yr.search(" ".join(ev.splitd))
         if res is not None:
             r = urllib.request.urlopen("https://www.googleapis.com/youtube/v3/videos?id=" + m1.group(1) +"&part=id,contentDetails,statistics,snippet&key=" + self.apikey)
             jao = json.loads(r.decode('utf-8'))
