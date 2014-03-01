@@ -14,7 +14,7 @@ class youtube:
         core.addHandler("pubmsg", self, "ytlinks")
     
     def ytlinks(self, cli, ev):
-        yr = re.compile("youtube\.com\/watch\?.*v=([A-Za-z0-9._%-]*)[&\w;=\+_\-]*")
+        yr = re.compile(".*youtube\.com\/watch\?.*v=([A-Za-z0-9._%-]*)[&\w;=\+_\-]*.*")
         res = yr.search(ev.arguments[0])
         if res is not None:
             r = urllib.request.urlopen("https://www.googleapis.com/youtube/v3/videos?id=" + res.group(1) +"&part=id,contentDetails,statistics,snippet&key=" + self.apikey)
