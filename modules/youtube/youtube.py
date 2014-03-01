@@ -25,7 +25,7 @@ class youtube:
             dislikes = jao['items'][0]['statistics']['dislikeCount']
             comments = jao['items'][0]['statistics']['commentCount']
             duration = jao['items'][0]['contentDetails']['duration']
-            tr = re.compile("PT(\d{1,})*(H)*(\d{1,})(M)*(\d{1,})(S)*")
+            tr = re.compile("PT(\d{1,})*H*(\d{1,})M*(\d{1,})S*")
             tm = tr.search(duration)
             m = "0"
             h = "0"

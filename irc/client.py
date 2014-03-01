@@ -249,7 +249,7 @@ class IRCConnection(object):
         return [len(self.handlers[message]), message]
 
     def delhandler(self, identif):
-        del self.handlers[identif[1]][identif[0]]
+        del self.handlers[identif[1]][identif[0] - 1]
 
     def disconnect(self, message):
         if not self.connected:
