@@ -4,7 +4,6 @@ import re
 
 
 class youtube:
-
     def __init__(self, core, client):
         try:
             self.apikey = core.mconf['moduleconf']['googleapikey']
@@ -12,7 +11,7 @@ class youtube:
                 return None
         except:
             return None
-        core.addhandler("pubmsg", self, "ytlinks")
+        core.addHandler("pubmsg", self, "ytlinks")
     
     def ytlinks(self, cli, ev):
         yr = re.compile("youtube\.com\/watch\?.*v=([A-Za-z0-9._%-]*)[&\w;=\+_\-]*")
