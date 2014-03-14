@@ -34,6 +34,12 @@ class youtube:
                 s = tm.group(3)
                 m = tm.group(2)
                 h = tm.group(1)
+                if not h:
+                    h = "00"
+                if not m:
+                    m = "00"
+                if not s:  # ???
+                    s = "00"
             except:
                 pass
             if len(s) == 1:
