@@ -31,27 +31,25 @@ class youtube:
             h = "00"
             s = "00"
             try:
-                s = tm.group(3)
-                m = tm.group(2)
-                h = tm.group(1)
-                if not h:
-                    h = 0
-                if not m:
-                    m = 0
-                if not s:  # ???
-                    s = 0
+                s = str(tm.group(3))
+                m = str(tm.group(2))
+                h = str(tm.group(1))
+                if m == "":
+                    m = "00"
+                if h == "":
+                    h = "00"
             except:
                 pass
-            if int(s) < 10:
+            if len(s) > 2:
                 s = "0" + str(s)
-            if int(m) < 10:
+            if len(m) > 2:
                 s = "0" + str(m)
-            if int(h) < 10:
+            if len(h) > 2:
                 s = "0" + str(h)
             rank = round((int(likes) / (int(likes) + int(dislikes))) * 100)
             resp = "\2%s\2 \00310Duración:\003 %s:%s:%s \00310Visto\003 \2%s\2" \
                 " veces, con \00303%s \2Me gusta\2\003, \00305%s \2No me gusta\2\003" \
-                " (%s%%) y %s \2comentarios\2" % (vtitle, str(h), str(m), str(s), \
+                " (%s%%) y %s \2comentarios\2" % (vtitle, h, m, s, \
                 views, likes, dislikes, rank, comments)
             cli.privmsg(ev.target, resp)
 
