@@ -27,26 +27,26 @@ class youtube:
             duration = jao['items'][0]['contentDetails']['duration']
             tr = re.compile("PT(\d{1,})*H*(\d{1,})M*(\d{1,})S*")
             tm = tr.search(duration)
-            m = "0"
-            h = "0"
-            s = "0"
+            m = "00"
+            h = "00"
+            s = "00"
             try:
                 s = tm.group(3)
                 m = tm.group(2)
                 h = tm.group(1)
                 if not h:
-                    h = "00"
+                    h = 0
                 if not m:
-                    m = "00"
+                    m = 0
                 if not s:  # ???
-                    s = "00"
+                    s = 0
             except:
                 pass
-            if len(s) == 1:
+            if int(s) < 10:
                 s = "0" + str(s)
-            if len(m) == 1:
+            if int(m) < 10:
                 s = "0" + str(m)
-            if len(h) == 1:
+            if int(h) < 10:
                 s = "0" + str(h)
             rank = round((int(likes) / (int(likes) + int(dislikes))) * 100)
             resp = "\2%s\2 \00310Duración:\003 %s:%s:%s \00310Visto\003 \2%s\2" \
