@@ -31,21 +31,21 @@ class youtube:
             h = "00"
             s = "00"
             try:
-                s = str(tm.group(3))
-                m = str(tm.group(2))
-                h = str(tm.group(1))
-                if m == "":
+                s = tm.group(3)
+                m = tm.group(2)
+                h = tm.group(1)
+                if m == None:
                     m = "00"
-                if h == "":
+                if h == None:
                     h = "00"
             except:
                 pass
             if len(s) > 2:
                 s = "0" + str(s)
             if len(m) > 2:
-                s = "0" + str(m)
+                m = "0" + str(m)
             if len(h) > 2:
-                s = "0" + str(h)
+                h = "0" + str(h)
             rank = round((int(likes) / (int(likes) + int(dislikes))) * 100)
             resp = "\2%s\2 \00310Duración:\003 %s:%s:%s \00310Visto\003 \2%s\2" \
                 " veces, con \00303%s \2Me gusta\2\003, \00305%s \2No me gusta\2\003" \
