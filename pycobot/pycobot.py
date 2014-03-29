@@ -58,14 +58,14 @@ class pyCoBot:
         self.modinfo = {}
         self.modname = {}
         self.commandhandlers = {}
-        
+
         self.authd = {}  # Usuarios autenticados..
         self.server.addhandler("pubmsg", self._cproc)
         self.server.addhandler("privmsg", self._cproc)
         self.server.addhandler("welcome", self._joinchans)
         for i, val in enumerate(conf['modules']):
             self.loadmod(conf['modules'][i], conf['server'])
-            
+
         try:
             self.server.connect(server, conf['port'], conf['nick'],
                 conf['nick'], "CoBot/" + VER_STRING)
@@ -95,7 +95,7 @@ class pyCoBot:
                 if not len(ev.splitd) > 0:
                     comlist = "help auth "
                     for i in list(self.commandhandlers.keys()):
-                        if self.authchk(ev.source, self.commandhandlers[i]
+                        if self.authchk(ev.source2, self.commandhandlers[i]
                          ['cpriv'], self.modname[self.commandhandlers[i]
                          ['mod']], ev.target) is True and self. \
                          commandhandlers[i]['alias'] == i:
@@ -154,7 +154,7 @@ class pyCoBot:
                      self.server, ev)
                 except AttributeError:
                     c = ev.target
-                authd = self.authchk(ev.source, self.commandhandlers[com]
+                authd = self.authchk(ev.source2, self.commandhandlers[com]
                 ['cpriv'], self.modname[self.commandhandlers[com]['mod']],
                 c)
 
@@ -204,17 +204,15 @@ class pyCoBot:
                 return True
         else:
             return True
-    
+
     def is_identified(self, host):
         # Verificación de autenticación
         try:
             uid = self.authd[host]
-            continua = False
             user = UserPriv.select().where(UserPriv.uid == uid)
             return user[0].name
         except KeyError:
             return False
-
 
     def updater(self, cli, event):
         upd = updater.pyCoUpdater(cli, event, self.mconf, self)
@@ -237,7 +235,7 @@ class pyCoBot:
         u = User.select().where(User.name == event.splitd[0].lower())
         try:
             if u[0].password == passw:
-                self.authd[event.source] = u[0].uid
+                self.authd[event.source2] = u[0].uid
                 self.server.privmsg(event.target, "Autenticado exitosamente")
         except:
             self.server.privmsg(event.target, "\00304Error\003: Usuario o " +

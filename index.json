@@ -15,6 +15,7 @@
         "games",
         "autodeop",
         "authadd",
-	"youtube"
+        "youtube",
+        "quotes"
     ]
 }

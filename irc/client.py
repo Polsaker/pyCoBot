@@ -304,9 +304,8 @@ class IRCConnection(object):
         for channel in channels:
             self.send("JOIN {0}".format(channel))
 
-    def part(self, *channels):
-        for channel in channels:
-            self.send("PART {0}".format(channel))
+    def part(self, channel, msg):
+        self.send("PART {0} :{1}".format(channel, msg))
 
     def privmsg(self, target, msg):
         if len(msg) > 400:
@@ -525,6 +524,7 @@ class Event(object):
     def __init__(self, type, source, target, arguments=None):
         self.type = type
         self.source = source
+        self.source2 = source
         self.target = target
         if arguments is None:
             arguments = []
