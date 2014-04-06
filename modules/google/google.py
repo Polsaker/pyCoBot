@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 import urllib.request
+import urllib.parse
 
 
 class google:
@@ -17,7 +18,7 @@ class google:
 
     def google(self, bot, cli, event):
         if len(event.splitd) > 0:
-            stext = " ".join(event.splitd)
+            stext = urllib.parse.quote_plus(" ".join(event.splitd))
         else:
             cli.privmsg(event.target, "\00304Error\003: Faltan parametros")
             return 0
