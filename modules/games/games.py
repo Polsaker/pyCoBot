@@ -9,7 +9,7 @@ class games:
     def __init__(self, core, client):
         # Nos fijamos si somos el único (o el primer) m_games que se cargo.
         # Si es así, entonces cargamos los timehandlers
-        self.rbal = rand(0, 5)
+        self.rbal = random.randint(0, 5)
         self.rcnt = 0
         self.timehandlers = ""
         l = False
@@ -503,6 +503,12 @@ class games:
             cli.kick(ev.source, ev.target, "*BOOM*")
         else:
             cli.privmsg(ev.source, ev.target + ": *CLICK*")
+        
+        if self.rcnt == 5:
+            self.rcnt = 0
+            self.rbal = random.randint(0, 5)
+        else:
+            self.rcnt += 1
     
     def prestamo(self, user, cli, ev):
         i = 0
