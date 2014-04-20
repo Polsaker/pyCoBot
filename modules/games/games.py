@@ -500,9 +500,9 @@ class games:
     
     def ruleta(self, cli, ev):
         if self.rcnt == self.rbal:
-            cli.kick(ev.source, ev.target, "*BOOM*")
+            cli.kick(ev.target, ev.source, "*BOOM*")
         else:
-            cli.privmsg(ev.source, ev.target + ": *CLICK*")
+            cli.privmsg(ev.target, ev.source + ": *CLICK*")
         
         if self.rcnt == 5:
             self.rcnt = 0
