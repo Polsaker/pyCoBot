@@ -501,6 +501,8 @@ class games:
     def ruleta(self, cli, ev):
         if self.rcnt == self.rbal:
             cli.kick(ev.target, ev.source, "*BOOM*")
+            self.rcnt = 0
+            self.rbal = random.randint(0, 5)
         else:
             cli.privmsg(ev.target, ev.source + ": *CLICK*")
         
