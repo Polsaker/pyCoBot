@@ -9,6 +9,8 @@ class games:
     def __init__(self, core, client):
         # Nos fijamos si somos el único (o el primer) m_games que se cargo.
         # Si es así, entonces cargamos los timehandlers
+        self.rbal = random.randint(0, 5)
+        self.rcnt = 0
         self.timehandlers = ""
         l = False
         for k in core.botcli.bots:
@@ -236,6 +238,8 @@ class games:
             self.lvlp(cli, ev)
         elif com == "prestamo":
             self.prestamo(u, cli, ev)
+        elif com == "ruleta":
+            self.ruleta(cli, ev)
 
     def alta(self, cli, ev):
         ch = GameBank.get(GameBank.bid == 1)
@@ -493,7 +497,21 @@ class games:
             i = i + 1
 
         self.msg(ev, "El nivel \2{0}\2 cuesta $\2{1:,}".format(i, cost))
-
+    
+    def ruleta(self, cli, ev):
+        if self.rcnt == self.rbal:
+            cli.kick(ev.target, ev.source, "*BOOM*")
+            self.rcnt = 0
+            self.rbal = random.randint(0, 5)
+        else:
+            cli.privmsg(ev.target, ev.source + ": *CLICK*")
+        
+        if self.rcnt == 5:
+            self.rcnt = 0
+            self.rbal = random.randint(0, 5)
+        else:
+            self.rcnt += 1
+    
     def prestamo(self, user, cli, ev):
         i = 0
         tot = 500
