@@ -2,6 +2,7 @@
 from pycobot.tables import User, UserPriv
 from pycobot.pycobot import BaseModel
 from peewee.peewee import CharField, IntegerField
+from irc import client
 import time
 
 
@@ -31,7 +32,7 @@ class antiflood:
             self.users[ev.target][ev.source]
         except KeyError:
             self.users[ev.target][ev.source] = {}
-            self.users[ev.target][ev.source]['kicks'] = 0
+            self.users[ev.target][ev.source]['kicked'] = False
             self.users[ev.target][ev.source]['firstmsg'] = 0
             self.users[ev.target][ev.source]['msgcount'] = 0
         
@@ -44,9 +45,15 @@ class antiflood:
                 self.users[ev.target][ev.source]['msgcount'] = 0
             else:
                 if self.users[ev.target][ev.source]['msgcount'] >= ul.ratemsg:
-                    cli.kick(ev.target, ev.source, "flood")
+                    self.floodkick(cli, ev.target, ev.source, ev.source2)
                 self.users[ev.target][ev.source]['msgcount'] += 1
                 
+    def floodkick(self, cli, chan, nick, source):
+        if self.users[chan][nick]['kicked'] is False:
+            self.users[chan][nick]['kicked'] = True
+            cli.kick(chan, nick, "No hagas flood.")
+        else:
+            cli.mode(chan, "+b " + client.parse_nick(source)[4])
         
 
     def antiflood_p(self, bot, cli, ev):
