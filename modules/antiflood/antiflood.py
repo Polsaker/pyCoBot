@@ -8,6 +8,10 @@ class antiflood:
         core.addCommandHandler("antiflood", self, cpriv=5, chelp=
         "Maneja el antiflood de un canal. Sintaxis: antiflood <canal> <on/off>"
         " [mensajes] [segundos]", cprivchan=True)
+        core.addHandler("pubmsg", self, "pubmsghandle")
+    
+    def pubmsghandle(self, cli, ev):
+        pass  # TODO
 
     def antiflood_p(self, bot, cli, ev):
         if len(ev.splitd) > 2:
