@@ -9,6 +9,10 @@ class antiflood:
     def __init__(self, core, client):
         self.users = {}
         self.bans = {}
+        try:
+            AntiFloodChan.create_table()
+        except:
+            pass
         core.addCommandHandler("antiflood", self, cpriv=5, chelp=
         "Maneja el antiflood de un canal. Sintaxis: antiflood <canal> <on/off>"
         " [mensajes] [segundos]", cprivchan=True)
