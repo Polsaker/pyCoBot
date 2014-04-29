@@ -249,7 +249,7 @@ class pyCoBot:
                 getattr(c, f)(self, self.server)
         except:
             e = sys.exc_info()[0]
-            logger.error("Ha ocurrido un error al manejar los timehandlers: " + e)
+            logging.error("Ha ocurrido un error al manejar los timehandlers: " + e)
 
     # Añade un timehandler. Parametros: intervalo en segundos, modulo, funcion
     def addTimeHandler(self, interval, module, func):
