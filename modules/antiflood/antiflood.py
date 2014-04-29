@@ -23,11 +23,21 @@ class antiflood:
         if not len(ev.splitd) > 1:
             cli.privmsg(ev.target, "\00304Error\003: Faltan parametros.")
             return 0
-        
+        ul = AntiFloodChan.get(AntiFloodChan.chan == ev.splitd[0])
         if ev.splitd[1] == "on":
-            pass
+            if not ul is False:
+                ul.ratesec = ev.splitd[3]
+                ul.ratemsg = ev.splitd[2]
+                ul.save()
+            else:
+                AntiFloodChan.create(chan=ev.splitd[0], ratesec=ev.splitd[3], ratemsg=ev.splitd[2])
+            cli.privmsg(ev.target, "Se ha activado el antiflood en \2{0}\2".format(ev.splitd[0]))
         elif ev.splitd[1] == "off":
-            pass
+            if ul is False:
+                cli.privmsg(ev.target, "\00304Error\003: El antiflood no esta activado en ese canal.")
+            else:
+                ul.delete_instance()
+                cli.privmsg(ev.target, "Se ha desactivado el antiflood en \2{0}\2".format(ev.splitd[0]))
         
 
 class AntiFloodChan(BaseModel):
