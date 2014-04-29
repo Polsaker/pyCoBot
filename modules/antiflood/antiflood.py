@@ -20,7 +20,7 @@ class antiflood:
     
     def pubmsghandle(self, cli, ev):
         ul = AntiFloodChan.get(AntiFloodChan.chan == ev.target)
-        if u is False:
+        if ul is False:
             return 0
         try:
             try:
