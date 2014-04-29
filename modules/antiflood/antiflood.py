@@ -3,7 +3,7 @@ from pycobot.tables import User, UserPriv
 
 
 
-class authadd:
+class antiflood:
     def __init__(self, core, client):
         core.addCommandHandler("antiflood", self, cpriv=5, chelp=
         "Maneja el antiflood de un canal. Sintaxis: antiflood <canal> <on/off>"
@@ -19,4 +19,15 @@ class authadd:
         if not len(ev.splitd) > 1:
             cli.privmsg(ev.target, "\00304Error\003: Faltan parametros.")
             return 0
-        # TODO.
+        
+        if ev.splitd[1] == "on":
+            pass
+        elif ev.splitd[1] == "off":
+            pass
+        
+
+class AntiFloodChan(BaseModel):
+    cid = IntegerField(primary_key=True)
+    chan = CharField()
+    ratesec = IntegerField()
+    ratemsg = IntegerField()
