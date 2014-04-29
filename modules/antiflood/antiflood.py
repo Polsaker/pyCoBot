@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from pycobot.tables import User, UserPriv
-
+from pycobot.pycobot import BaseModel
+from peewee.peewee import CharField, IntegerField
 
 
 class antiflood:
