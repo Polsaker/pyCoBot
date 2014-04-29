@@ -243,9 +243,13 @@ class pyCoBot:
 
     # Procesa timehandlers (función interna)
     def timehandler(self, hid, tme, c, f):
-        while self.timehandlers[hid][0] is True:
-            time.sleep(tme)
-            getattr(c, f)(self, self.server)
+        try:
+            while self.timehandlers[hid][0] is True:
+                time.sleep(tme)
+                getattr(c, f)(self, self.server)
+        except:
+            e = sys.exc_info()[0]
+            logger.error("Ha ocurrido un error al manejar los timehandlers: " + e)
 
     # Añade un timehandler. Parametros: intervalo en segundos, modulo, funcion
     def addTimeHandler(self, interval, module, func):
