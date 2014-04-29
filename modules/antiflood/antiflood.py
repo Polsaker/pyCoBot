@@ -2,17 +2,48 @@
 from pycobot.tables import User, UserPriv
 from pycobot.pycobot import BaseModel
 from peewee.peewee import CharField, IntegerField
+import time
 
 
 class antiflood:
     def __init__(self, core, client):
+        self.users = {}
+        self.bans = {}
         core.addCommandHandler("antiflood", self, cpriv=5, chelp=
         "Maneja el antiflood de un canal. Sintaxis: antiflood <canal> <on/off>"
         " [mensajes] [segundos]", cprivchan=True)
         core.addHandler("pubmsg", self, "pubmsghandle")
     
     def pubmsghandle(self, cli, ev):
-        pass  # TODO
+        ul = AntiFloodChan.get(AntiFloodChan.chan == ev.target)
+        if u is False:
+            return 0
+        try:
+            try:
+                self.users[ev.target]
+            except KeyError:
+                self.users[ev.target] = {}
+            
+            self.users[ev.target][ev.source]
+        except KeyError:
+            self.users[ev.target][ev.source] = {}
+            self.users[ev.target][ev.source]['kicks'] = 0
+            self.users[ev.target][ev.source]['firstmsg'] = 0
+            self.users[ev.target][ev.source]['msgcount'] = 0
+        
+        if self.users[ev.target][ev.source]['firstmsg'] == 0:
+            self.users[ev.target][ev.source]['firstmsg'] = time.time()
+            self.users[ev.target][ev.source]['msgcount'] += 1
+        else:
+            if (time.time() - self.users[ev.target][ev.source]['firstmsg']) >= ul.ratesec:
+                if self.users[ev.target][ev.source]['msgcount'] >= ul.ratemsg:
+                    cli.kick(ev.target, ev.source, "flood")
+                self.users[ev.target][ev.source]['firstmsg'] = 0
+                self.users[ev.target][ev.source]['msgcount'] = 0
+            else:
+                self.users[ev.target][ev.source]['msgcount'] += 1
+                
+        
 
     def antiflood_p(self, bot, cli, ev):
         if len(ev.splitd) > 2:
