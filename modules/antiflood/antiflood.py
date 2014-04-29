@@ -53,7 +53,8 @@ class antiflood:
             self.users[chan][nick]['kicked'] = True
             cli.kick(chan, nick, "No hagas flood.")
         else:
-            cli.mode(chan, "+b " + client.parse_nick(source)[4])
+            cli.mode(chan, "+b *!*@" + client.parse_nick(source)[4])
+            cli.kick(chan, nick, "No hagas flood.")
         
 
     def antiflood_p(self, bot, cli, ev):
