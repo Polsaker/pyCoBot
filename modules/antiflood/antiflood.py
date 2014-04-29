@@ -25,6 +25,9 @@ class antiflood:
             return 0
         ul = AntiFloodChan.get(AntiFloodChan.chan == ev.splitd[0])
         if ev.splitd[1] == "on":
+            if not len(ev.splitd) > 3:
+                cli.privmsg(ev.target, "\00304Error\003: Faltan parametros.")
+                return 0
             if not ul is False:
                 ul.ratesec = ev.splitd[3]
                 ul.ratemsg = ev.splitd[2]
