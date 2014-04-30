@@ -45,6 +45,8 @@ class antiflood:
                 self.users[ev.target][ev.source]['msgcount'] = 0
             else:
                 if self.users[ev.target][ev.source]['msgcount'] >= ul.ratemsg:
+                    self.users[ev.target][ev.source]['firstmsg'] = 0
+                    self.users[ev.target][ev.source]['msgcount'] = 0
                     self.floodkick(cli, ev.target, ev.source, ev.source2)
                 self.users[ev.target][ev.source]['msgcount'] += 1
                 
