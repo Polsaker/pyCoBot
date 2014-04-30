@@ -73,8 +73,12 @@ class pyCoBot:
             pass  # :P
 
     def _cproc(self, con, ev):
-        p1 = re.compile("^" + re.escape(self.conf['prefix']) +
-            "(\S{1,52})[ ]?(.*)", re.IGNORECASE)
+        if ev.type == "pubmsg":
+            p1 = re.compile("^" + re.escape(self.conf['prefix']) +
+                "(\S{1,52})[ ]?(.*)", re.IGNORECASE)
+        else:
+            p1 = re.compile("^" + 
+                "(\S{1,52})[ ]?(.*)", re.IGNORECASE)
         m1 = p1.search(ev.arguments[0])
 
         # Buscamos por el nick como prefijo..
