@@ -58,6 +58,8 @@ class antiflood:
         else:
             cli.mode(chan, "+b *!*@" + client.parse_nick(source)[4])
             cli.kick(chan, nick, "No hagas flood.")
+            time.sleep(900)
+            cli.mode(chan, "-b *!*@" + client.parse_nick(source)[4])
         
 
     def antiflood_p(self, bot, cli, ev):
