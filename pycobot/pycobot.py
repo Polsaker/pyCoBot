@@ -79,7 +79,12 @@ class pyCoBot:
         else:
             p1 = re.compile("^" + 
                 "(\S{1,52})[ ]?(.*)", re.IGNORECASE)
+            m1 = p1.search(ev.arguments[0])
+            if m1 is None:
+                p1 = re.compile("^" + re.escape(self.conf['prefix']) +
+                "(\S{1,52})[ ]?(.*)", re.IGNORECASE)
         m1 = p1.search(ev.arguments[0])
+
 
         # Buscamos por el nick como prefijo..
         p2 = re.compile("^" + re.escape(self.conf['nick']) +
