@@ -43,9 +43,9 @@ class IRCConnection(object):
 
         # Handlers internos
         #self.addhandler("ping", self._ping_ponger)
-        self.addhandler("join", self._on_join)
-        self.addhandler("currenttopic", self._currtopic)
-        self.addhandler("whospcrpl", self._whoreply)
+        #self.addhandler("join", self._on_join)
+        #self.addhandler("currenttopic", self._currtopic)
+        #self.addhandler("whospcrpl", self._whoreply)
 
     def connect(self, server, port, nick, user, realname, bindto=("", 0),
             msgdelay=0.5):
