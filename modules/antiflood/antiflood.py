@@ -30,26 +30,26 @@ class antiflood:
             except KeyError:
                 self.users[ev.target] = {}
             
-            self.users[ev.target][client.parse_nick(source)[4])]
+            self.users[ev.target][client.parse_nick(source)[4]]
         except KeyError:
-            self.users[ev.target][client.parse_nick(source)[4])] = {}
-            self.users[ev.target][client.parse_nick(source)[4])]['kicked'] = False
-            self.users[ev.target][client.parse_nick(source)[4])]['firstmsg'] = 0
-            self.users[ev.target][client.parse_nick(source)[4])]['msgcount'] = 0
+            self.users[ev.target][client.parse_nick(source)[4]] = {}
+            self.users[ev.target][client.parse_nick(source)[4]]['kicked'] = False
+            self.users[ev.target][client.parse_nick(source)[4]]['firstmsg'] = 0
+            self.users[ev.target][client.parse_nick(source)[4]]['msgcount'] = 0
         
-        if self.users[ev.target][client.parse_nick(source)[4])]['firstmsg'] == 0:
-            self.users[ev.target][client.parse_nick(source)[4])]['firstmsg'] = time.time()
-            self.users[ev.target][client.parse_nick(source)[4])]['msgcount'] += 1
+        if self.users[ev.target][client.parse_nick(source)[4]]['firstmsg'] == 0:
+            self.users[ev.target][client.parse_nick(source)[4]]['firstmsg'] = time.time()
+            self.users[ev.target][client.parse_nick(source)[4]]['msgcount'] += 1
         else:
-            if (time.time() - self.users[ev.target][client.parse_nick(source)[4])]['firstmsg']) >= ul.ratesec:
-                self.users[ev.target][client.parse_nick(source)[4])]['firstmsg'] = 0
-                self.users[ev.target][client.parse_nick(source)[4])]['msgcount'] = 0
+            if (time.time() - self.users[ev.target][client.parse_nick(source)[4]]['firstmsg']) >= ul.ratesec:
+                self.users[ev.target][client.parse_nick(source)[4]]['firstmsg'] = 0
+                self.users[ev.target][client.parse_nick(source)[4]]['msgcount'] = 0
             else:
-                if self.users[ev.target][client.parse_nick(source)[4])]['msgcount'] >= ul.ratemsg:
-                    self.users[ev.target][client.parse_nick(source)[4])]['firstmsg'] = 0
-                    self.users[ev.target][client.parse_nick(source)[4])]['msgcount'] = 0
+                if self.users[ev.target][client.parse_nick(source)[4]]['msgcount'] >= ul.ratemsg:
+                    self.users[ev.target][client.parse_nick(source)[4]]['firstmsg'] = 0
+                    self.users[ev.target][client.parse_nick(source)[4]]['msgcount'] = 0
                     self.floodkick(cli, ev.target, ev.source, ev.source2)
-                self.users[ev.target][client.parse_nick(source)[4])]['msgcount'] += 1
+                self.users[ev.target][client.parse_nick(source)[4]]['msgcount'] += 1
                 
     def floodkick(self, cli, chan, nick, source):
         if self.users[chan][nick]['kicked'] is False:
