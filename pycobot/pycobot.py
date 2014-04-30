@@ -77,11 +77,7 @@ class pyCoBot:
             p1 = re.compile("^" + re.escape(self.conf['prefix']) +
                 "(\S{1,52})[ ]?(.*)", re.IGNORECASE)
         else:
-            p1 = re.compile("^" + 
-                "(\S{1,52})[ ]?(.*)", re.IGNORECASE)
-            m1 = p1.search(ev.arguments[0])
-            if m1 is None:
-                p1 = re.compile("^" + re.escape(self.conf['prefix']) +
+            p1 = re.compile("^(?:" + re.escape(self.conf['prefix']) +
                 "(\S{1,52})[ ]?(.*)", re.IGNORECASE)
         m1 = p1.search(ev.arguments[0])
 
