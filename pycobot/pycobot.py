@@ -120,10 +120,10 @@ class pyCoBot:
                         pprint.pprint(self.commandhandlers[ev.splitd[0]])
                         try:
                             r = self.commandhandlers[ev.splitd[0]]['chelp']
-                            if not self.commandhandlers[ev.splitd[0]][
+                            if self.commandhandlers[ev.splitd[0]][
                             'alias'] != ev.splitd[0]:
-                                r = "Alias de " + self.commandhandlers[ev.
-                                splitd[0]]['alias'] + " " + r
+                                r = "(Alias de " + self.commandhandlers[ev.
+                                splitd[0]]['alias'] + ") " + r
 
                         except KeyError:
                             pass
