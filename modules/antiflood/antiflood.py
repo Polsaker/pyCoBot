@@ -52,8 +52,8 @@ class antiflood:
                 self.users[ev.target][client.parse_nick(source)[4]]['msgcount'] += 1
                 
     def floodkick(self, cli, chan, nick, source):
-        if self.users[chan][nick]['kicked'] is False:
-            self.users[chan][nick]['kicked'] = True
+        if self.users[chan][client.parse_nick(source)[4]]['kicked'] is False:
+            self.users[chan][client.parse_nick(source)[4]]['kicked'] = True
             cli.kick(chan, nick, "No hagas flood.")
         else:
             cli.mode(chan, "+b *!*@" + client.parse_nick(source)[4])
