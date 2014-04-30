@@ -59,7 +59,7 @@ class antiflood:
 
     def antiflood_p(self, bot, cli, ev):
         if len(ev.splitd) > 2:
-            return ev.splitd[1]
+            return ev.splitd[0]
         else:
             return 0
 
