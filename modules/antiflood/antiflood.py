@@ -10,19 +10,30 @@ class antiflood:
     def __init__(self, core, client):
         self.users = {}
         self.bans = {}
+        self.chans = {}
         try:
             AntiFloodChan.create_table()
         except:
             pass
-        core.addCommandHandler("antiflood", self, cpriv=5, chelp=
+        core.addCommandHandler("antiflood", self, cpriv=7, chelp=
         "Maneja el antiflood de un canal. Sintaxis: antiflood <canal> <on/off>"
         " [mensajes] [segundos]", cprivchan=True)
         core.addHandler("pubmsg", self, "pubmsghandle")
+        self.updatechancache()
+
+    def updatechancache(self):
+        self.chans = {}
+        u = AntiFloodChan.select()
+        for x in u:
+            self.chans[x.chan] = {}
+            self.chans[x.chan]['sec'] = x.ratesec
+            self.chans[x.chan]['msg'] = x.ratemsg
 
     def pubmsghandle(self, cli, ev):
         source = ev.source2
-        ul = AntiFloodChan.get(AntiFloodChan.chan == ev.target)
-        if ul is False:
+        try:
+            self.chans[ev.target]
+        except:
             return 0
         try:
             try:
@@ -41,11 +52,11 @@ class antiflood:
             self.users[ev.target][client.parse_nick(source)[4]]['firstmsg'] = time.time()
             self.users[ev.target][client.parse_nick(source)[4]]['msgcount'] += 1
         else:
-            if (time.time() - self.users[ev.target][client.parse_nick(source)[4]]['firstmsg']) >= ul.ratesec:
+            if (time.time() - self.users[ev.target][client.parse_nick(source)[4]]['firstmsg']) >= self.chans[ev.target]['sec']:
                 self.users[ev.target][client.parse_nick(source)[4]]['firstmsg'] = 0
                 self.users[ev.target][client.parse_nick(source)[4]]['msgcount'] = 0
             else:
-                if self.users[ev.target][client.parse_nick(source)[4]]['msgcount'] >= ul.ratemsg:
+                if self.users[ev.target][client.parse_nick(source)[4]]['msgcount'] >= self.chans[ev.target]['msg']:
                     self.users[ev.target][client.parse_nick(source)[4]]['firstmsg'] = 0
                     self.users[ev.target][client.parse_nick(source)[4]]['msgcount'] = 0
                     self.floodkick(cli, ev.target, ev.source, ev.source2)
@@ -60,7 +71,6 @@ class antiflood:
             cli.kick(chan, nick, "No hagas flood.")
             time.sleep(900)
             cli.mode(chan, "-b *!*@" + client.parse_nick(source)[4])
-
 
     def antiflood_p(self, bot, cli, ev):
         if len(ev.splitd) > 2:
@@ -82,14 +92,19 @@ class antiflood:
                 ul.ratemsg = ev.splitd[2]
                 ul.save()
             else:
-                AntiFloodChan.create(chan=ev.splitd[0], ratesec=ev.splitd[3], ratemsg=ev.splitd[2])
-            cli.privmsg(ev.target, "Se ha activado el antiflood en \2{0}\2".format(ev.splitd[0]))
+                AntiFloodChan.create(chan=ev.splitd[0], ratesec=ev.splitd[3],
+                                                         ratemsg=ev.splitd[2])
+            cli.privmsg(ev.target, "Se ha activado el antiflood en \2{0}\2"
+                                                        .format(ev.splitd[0]))
         elif ev.splitd[1] == "off":
             if ul is False:
-                cli.privmsg(ev.target, "\00304Error\003: El antiflood no esta activado en ese canal.")
+                cli.privmsg(ev.target, "\00304Error\003: El antiflood no esta"
+                                                    " activado en ese canal.")
             else:
                 ul.delete_instance()
-                cli.privmsg(ev.target, "Se ha desactivado el antiflood en \2{0}\2".format(ev.splitd[0]))
+                cli.privmsg(ev.target, "Se ha desactivado el antiflood en "
+                                                "\2{0}\2".format(ev.splitd[0]))
+        self.updatechancache()
 
 
 class AntiFloodChan(BaseModel):

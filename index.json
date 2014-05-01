@@ -17,6 +17,7 @@
         "authadd",
         "youtube",
         "quotes",
-	"antiflood"
+        "antiflood",
+        "regexakick"
     ]
 }
