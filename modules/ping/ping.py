@@ -7,14 +7,19 @@ class ping:
     def __init__(self, core, client):
         core.addCommandHandler("ping", self, chelp="Responde con pong.")
         core.addCommandHandler("pong", self, chelp="Responde con ping.")
+        core.addCommandHandler("pig", self)
         core.addCommandHandler("lag", self, chelp="Mide el lag.")
         core.addHandler("ctcpreply", self, "pingrep")
 
+    def pig(self, bot, cli, event):
+        cli.notice(event.target, event.source +
+                                ": ¿Quieres un cerdo? ¡Ve a mirarte al espejo!")
+
     def ping(self, bot, cli, event):
-        cli.privmsg(event.target, event.source + ": pong")
+        cli.notice(event.target, event.source + ": pong")
 
     def pong(self, bot, cli, event):
-        cli.privmsg(event.target, event.source + ": ping")
+        cli.notice(event.target, event.source + ": ping")
 
     def lag(self, bot, cli, event):
         current_milli_time = int(round(time.time() * 1000))
@@ -27,5 +32,5 @@ class ping:
         current_milli_time = int(round(time.time() * 1000))
         diff = current_milli_time - int(event.arguments[1])
         secs = str(diff / 1000)  # milisegudos -> segundos
-        client.privmsg(self.chan, event.source + " tiene un lag de " + secs +
+        client.notice(self.chan, event.source + " tiene un lag de " + secs +
         " segundos.")
