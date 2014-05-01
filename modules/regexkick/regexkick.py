@@ -47,7 +47,7 @@ class regexkick:
         if ev.splitd[0] == "add" or ev.splitd[0] == "list":
             return ev.splitd[1]
         elif ev.splitd[0] == "del":
-            ul = regexKick.get(regexKick.rid == ev.arguments[1])
+            ul = regexKick.get(regexKick.rid == ev.splitd[1])
             if ul is not False:
                 return ul.channel
 
@@ -65,7 +65,7 @@ class regexkick:
             for x in u:
                 cli.notice(ev.target, "\2{0}\2 - {1}".format(x.rid, x.regex))
         elif ev.splitd[0] == "del":
-            ul = regexKick.get(regexKick.rid == ev.arguments[1])
+            ul = regexKick.get(regexKick.rid == ev.splitd[1])
             ul.delete_instance()
             cli.notice(ev.target, "Se ha eliminado el akick.")
         self.updatechancache()
