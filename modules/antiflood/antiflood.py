@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from pycobot.tables import User, UserPriv
+
 from pycobot.pycobot import BaseModel
 from peewee.peewee import CharField, IntegerField
 from irc import client
@@ -18,7 +18,7 @@ class antiflood:
         "Maneja el antiflood de un canal. Sintaxis: antiflood <canal> <on/off>"
         " [mensajes] [segundos]", cprivchan=True)
         core.addHandler("pubmsg", self, "pubmsghandle")
-    
+
     def pubmsghandle(self, cli, ev):
         source = ev.source2
         ul = AntiFloodChan.get(AntiFloodChan.chan == ev.target)
@@ -29,14 +29,14 @@ class antiflood:
                 self.users[ev.target]
             except KeyError:
                 self.users[ev.target] = {}
-            
+
             self.users[ev.target][client.parse_nick(source)[4]]
         except KeyError:
             self.users[ev.target][client.parse_nick(source)[4]] = {}
             self.users[ev.target][client.parse_nick(source)[4]]['kicked'] = False
             self.users[ev.target][client.parse_nick(source)[4]]['firstmsg'] = 0
             self.users[ev.target][client.parse_nick(source)[4]]['msgcount'] = 0
-        
+
         if self.users[ev.target][client.parse_nick(source)[4]]['firstmsg'] == 0:
             self.users[ev.target][client.parse_nick(source)[4]]['firstmsg'] = time.time()
             self.users[ev.target][client.parse_nick(source)[4]]['msgcount'] += 1
@@ -50,7 +50,7 @@ class antiflood:
                     self.users[ev.target][client.parse_nick(source)[4]]['msgcount'] = 0
                     self.floodkick(cli, ev.target, ev.source, ev.source2)
                 self.users[ev.target][client.parse_nick(source)[4]]['msgcount'] += 1
-                
+
     def floodkick(self, cli, chan, nick, source):
         if self.users[chan][client.parse_nick(source)[4]]['kicked'] is False:
             self.users[chan][client.parse_nick(source)[4]]['kicked'] = True
@@ -60,7 +60,7 @@ class antiflood:
             cli.kick(chan, nick, "No hagas flood.")
             time.sleep(900)
             cli.mode(chan, "-b *!*@" + client.parse_nick(source)[4])
-        
+
 
     def antiflood_p(self, bot, cli, ev):
         if len(ev.splitd) > 2:
@@ -90,7 +90,7 @@ class antiflood:
             else:
                 ul.delete_instance()
                 cli.privmsg(ev.target, "Se ha desactivado el antiflood en \2{0}\2".format(ev.splitd[0]))
-        
+
 
 class AntiFloodChan(BaseModel):
     cid = IntegerField(primary_key=True)

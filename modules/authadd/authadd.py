@@ -1,10 +1,26 @@
 # -*- coding: utf-8 -*-
 from pycobot.tables import User, UserPriv
+from pycobot.pycobot import BaseModel
+from peewee.peewee import CharField, IntegerField
 import hashlib
+import re
 
 
 class authadd:
+    whouid = None
+    mask = None
+    nickbl = {}
+    core = None
+    conf = None
+
     def __init__(self, core, client):
+        self.core = core
+        self.conf = core.conf
+        try:
+            NSAccount.create_table()
+        except:
+            pass
+        core.addCommandHandler("nslink", self)  # >:D
         core.addCommandHandler("register", self, chelp="Registra un usuario con"
         " el bot. Sintaxis: register <usuario> <contraseña> USAR SOLO EN MENSAJ"
         "E PRIVADO!!", privmsgonly=True)
@@ -23,6 +39,42 @@ class authadd:
          cprivchan=True)
         core.addCommandHandler("deluser", self, cpriv=10, chelp=
         "Borra a un usuario del bot. Sintaxis: deluser <usuario>")
+        core.addHandler("whospcrpl", self, "whoreply")
+        core.addHandler("pubmsg", self, "msghandler")
+        core.addHandler("privmsg", self, "msghandler")
+
+    def whoreply(self, cli, ev):
+        if ev.arguments[0] == "9":
+            NSAccount.create(acc=ev.arguments[2], uid=self.whouid)
+            cli.notice(ev.arguments[1], "Su usuario ha sido enlazado con la cue"
+                "nta de nickserv \2{0}\2".format(ev.arguments[2]))
+        elif ev.arguments[0] == "8":
+            ul = NSAccount.get(NSAccount.acc == ev.arguments[2])
+            if ul is False:
+                self.nickbl[ev.arguments[1]] = True
+            else:
+                self.core.authd[self.mask] = ul.uid
+
+                cli.notice(ev.arguments[1], "Ha sido identificado automáticamen"
+                "te a través de su cuenta de NickServ.")
+
+    def msghandler(self, cli, ev):
+        if ev.type == "privmsg":
+            p1 = re.compile("^(?:" + re.escape(self.conf['prefix']) +
+                ")?(\S{1,52})[ ]?(.*)", re.IGNORECASE)
+        else:
+            p1 = re.compile("^" + re.escape(self.conf['prefix']) +
+                "(\S{1,52})[ ]?(.*)", re.IGNORECASE)
+        m1 = p1.search(ev.arguments[0])
+        if not m1 is None:
+            try:
+                self.nickbl[ev.source]
+            except KeyError:
+                try:
+                    self.core.authd[ev.source2]
+                except KeyError:
+                    self.mask = ev.source2
+                    cli.who(ev.source, "%atn,8")
 
     def register(self, bot, cli, ev):
         if len(ev.splitd) != 2:
@@ -42,6 +94,8 @@ class authadd:
             cli.privmsg(ev.target, "Te has registrado exitosamente. Ahora"
             " debes identificarte (\2{0}help auth\2)".format(bot.conf['prefix']
             ))
+            self.whouid = user.uid
+            cli.who(ev.target, "%atn,9")
         else:
             cli.privmsg(ev.target, "\00304Error\003: Ya estás registrado.")
 
@@ -76,6 +130,13 @@ class authadd:
             return ev.splitd[3]
         else:
             return 0
+
+    def nslink(self, bot, cli, ev):
+        try:
+            self.whouid = bot.authd[ev.source2]
+            cli.who(ev.source, "%atn,9")
+        except KeyError:
+            pass
 
     def addpriv(self, bot, cli, ev):
         if not len(ev.splitd) > 1:
@@ -183,3 +244,8 @@ class authadd:
             user.delete_instance()
             cli.privmsg(ev.target, "Se ha eliminado el usuario \2{0}\2".format(
                 ev.splitd[0].lower()))
+
+
+class NSAccount(BaseModel):
+    uid = IntegerField()
+    acc = CharField()
