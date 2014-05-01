@@ -510,7 +510,48 @@ class IRCConnection(object):
         """Send a NAMES command."""
         self.send("NAMES" + (channels and (" " + ",".join(channels)) or ""))
 
-    def notice(self, target, text):
+    def notice(self, target, msg):
+        if len(msg) > 400:
+            msg = re.sub(r"\s+", " ", msg)  # normalize space
+            footer = " …"
+            avail = 400
+            words = msg.split()
+            result = []
+            k = 0
+            result.append("")
+            for word in words:
+                word += " "
+                if len(word) > avail:
+                    if not len(word) >= 400:
+                        result.append("")
+                        k = k + 1
+                        avail = 400
+                    else:
+                        x = self.split_len(word, 400)
+                        for w in x:
+                            result.append("")
+                            k += 1
+                            result[k] = w
+
+                        avail = 400
+
+                        continue
+                    #break
+                result[k] += word
+                avail -= len(word)
+
+            w = 0
+            for v in result:
+                sg = (v + footer).strip()
+                if w == k:
+                    sg = sg.strip(footer + ", ")
+                self._notice(target, sg)
+                w = w + 1
+
+            return 0
+        self._notice(target, msg)
+
+    def _notice(self, target, text):
         """Send a NOTICE command."""
         # Should limit len(text) here!
         self.send("NOTICE %s :%s" % (target, text))
