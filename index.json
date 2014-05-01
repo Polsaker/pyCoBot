@@ -18,6 +18,7 @@
         "youtube",
         "quotes",
         "antiflood",
-        "regexkick"
+        "regexkick",
+	"translate"
     ]
 }
