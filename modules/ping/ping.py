@@ -6,7 +6,7 @@ class ping:
 
     def __init__(self, core, client):
         core.addCommandHandler("ping", self, chelp="Responde con pong.")
-        core.addCommandHandler("pong", self, chelp="Responde con ping.")
+        core.addCommandHandler("pong", self)
         core.addCommandHandler("pig", self)
         core.addCommandHandler("lag", self, chelp="Mide el lag.")
         core.addHandler("ctcpreply", self, "pingrep")
