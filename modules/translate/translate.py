@@ -19,7 +19,7 @@ class translate:
     def translate(text, OUT, IN):
         text = urllib.parse.quote(text)
         conn = http.client.HTTPConnection("translate.google.com")
-        conn.request("GET", "/translate_a/t?client=t&text="+text+"&hl="+IN+"&tl="+O$
+        conn.request("GET", "/translate_a/t?client=t&text="+text+"&hl="+IN+"&tl="+OUT)
         res = conn.getresponse().read()
         res = res[4:res.index(b",\"\",\"\"]]")]
         res = res.split(b"],[")
