@@ -9,7 +9,7 @@ import random
 class quotes:
     def __init__(self, core, client):
         try:
-            tquote.create_table()
+            tquote.create_table(True)
         except:
             pass
         core.addCommandHandler("quote", self,

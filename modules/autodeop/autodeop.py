@@ -10,7 +10,7 @@ class autodeop:
         "Activa o desactiva el autodeop en un canal. Sintaxis: autodeop <canal>"
         " <on/off>")
         try:
-            autodeopt.create_table()
+            autodeopt.create_table(True)
         except:
             pass
         core.addHandler("mode", self, "modeprot")

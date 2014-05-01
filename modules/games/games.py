@@ -27,9 +27,9 @@ class games:
             self.timehandlers = self
             core.addTimeHandler(1800, self, "th30min")
         try:
-            GameChannel.create_table()
-            GameBank.create_table()
-            GameUser.create_table()
+            GameChannel.create_table(True)
+            GameBank.create_table(True)
+            GameUser.create_table(True)
             GameBank.create(bid=1, dinero=100000000, pozo=0, extrainf="{}")
         except:
             pass
@@ -497,7 +497,7 @@ class games:
             i = i + 1
 
         self.msg(ev, "El nivel \2{0}\2 cuesta $\2{1:,}".format(i, cost))
-    
+
     def ruleta(self, cli, ev):
         if self.rcnt == self.rbal:
             cli.kick(ev.target, ev.source, "*BOOM*")
@@ -505,13 +505,13 @@ class games:
             self.rbal = random.randint(0, 5)
         else:
             cli.privmsg(ev.target, ev.source + ": *CLICK*")
-        
+
         if self.rcnt == 5:
             self.rcnt = 0
             self.rbal = random.randint(0, 5)
         else:
             self.rcnt += 1
-    
+
     def prestamo(self, user, cli, ev):
         i = 0
         tot = 500
