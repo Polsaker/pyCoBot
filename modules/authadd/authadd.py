@@ -17,7 +17,7 @@ class authadd:
         self.core = core
         self.conf = core.conf
         try:
-            NSAccount.create_table()
+            NSAccount.create_table(True)
         except:
             pass
         core.addCommandHandler("nslink", self)  # >:D
