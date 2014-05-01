@@ -26,4 +26,4 @@ class translate:
         for i in range(len(res)):
             if i >= 1: res[i] = res[i][1:res[i].index(b"\",\"")]
             else:      res[i] = res[i][:res[i].index(b"\",\"")]
-        return res[0]
+        return str(res[0])[2:len(str(res[0])) -1]
