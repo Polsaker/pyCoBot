@@ -2,7 +2,8 @@ import http.client
 import urllib.request
 import urllib.parse
 import urllib.error
-import re
+#import re
+import json
 
 
 class translate:
@@ -117,33 +118,48 @@ class translate:
             return 0
         text = urllib.parse.quote(text)
         conn = http.client.HTTPConnection("translate.google.com")
-        conn.request("GET", "/translate_a/t?client=t&text=" + text +
-                    "&hl=" + IN + "&tl=" + OUT)
+        conn.request("GET", "/translate_a/t?client=p&text=" + text +
+                    "&sl=" + IN + "&tl=" + OUT + "&oe=utf-8&ie=utf-8")
         res = conn.getresponse().read()
 
-        p1 = re.compile(
-            "\[\[\[\"(.+)\",\"(.*)\",\"(.*)\",\"\"\]\],.*,\"(.{2,5})\",.*,.*")
+        trs = json.loads(res.decode('utf-8'))
         try:
-            m1 = p1.search(res.decode('utf-8'))
-        except:
+            translated = trs['sentences'][0]['trans']
+            translit = trs['sentences'][0]['translit']
             try:
-                m1 = p1.search(res.decode('latin-1'))
-            except:
-                m1 = p1.search(res.decode('utf-8', 'replace'))
-        if m1 is not None:
-            translated = m1.group(1)
-            #ftranslated = m1.group(2)
-            pronun = m1.group(3)
-            try:
-                fromlang = self.langs[m1.group(4)]
-            except:
-                fromlang = m1.group(4)
-            resp = "Traducido del \2{0}\2 al \2{1}\2: {2}".format(fromlang,
-                                    self.langs[OUT], translated)
-            if pronun != "":
-                resp += " (" + pronun + ")"
-        else:
-            resp = "No se pudo traducir."
+                src = self.langs[trs['src']]
+            except KeyError:
+                src = trs['src']
+            resp = "Traducido del \2{0}\2 al \2{1}\2: {2}".format(src,
+                                                    self.langs[OUT], translated)
+            if translit != "":
+                resp += " ({0})".format(translit)
+        except KeyError:
+            resp = "Ocurrió un error al traducir."
+
+        #p1 = re.compile(
+            #"\[\[\[\"(.+)\",\"(.*)\",\"(.*)\",\"\"\]\],.*,\"(.{2,5})\",.*,.*")
+        #try:
+            #m1 = p1.search(res.decode('utf-8'))
+        #except:
+            #try:
+                #m1 = p1.search(res.decode('latin-1'))
+            #except:
+                #m1 = p1.search(res.decode('utf-8', 'replace'))
+        #if m1 is not None:
+            #translated = m1.group(1)
+            ##ftranslated = m1.group(2)
+            #pronun = m1.group(3)
+            #try:
+                #fromlang = self.langs[m1.group(4)]
+            #except:
+                #fromlang = m1.group(4)
+            #resp = "Traducido del \2{0}\2 al \2{1}\2: {2}".format(fromlang,
+                                    #self.langs[OUT], translated)
+            #if pronun != "":
+                #resp += " (" + pronun + ")"
+        #else:
+            #resp = "No se pudo traducir."
 
         cli.notice(to, resp)
         #res = res[4:res.index(b",\"\",\"\"]]")]
