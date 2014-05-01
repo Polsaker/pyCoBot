@@ -1,3 +1,4 @@
+import urllib2
 
 
 class translate:
