@@ -11,9 +11,9 @@ class translate:
 
     def traducir(self, bot, client, ev):
         if len(ev.splitd) < 2:
-            cli.notice(ev.target, "\00304Error\003: Faltan parametros")
+            bot.notice(ev.target, "\00304Error\003: Faltan parametros")
             return 0
-        cli.notice(ev.target, "Traducido: {0}".format(
+        bot.notice(ev.target, "Traducido: {0}".format(
             self.translate(" ".join(ev.splitd[2:]), ev.splitd[1], ev.splitd[0])))
     
     def translate(self, text, OUT, IN):
