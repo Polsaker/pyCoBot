@@ -26,18 +26,18 @@ class translate:
                     "&hl=" + IN + "&tl=" + OUT)
         res = conn.getresponse().read()
         p1 = re.compile("\[\[\[\"(.+)\",\"(.*)\",\"(.*)\",\"\"\]\],.*")
-        m1 = p1.search(res)
+        m1 = p1.search(res.decode('utf-8'))
         if m1 is not None:
             translated = m1.group(1)
             ftranslated = m1.group(2)
             pronun = m1.group(3)
-            res = "Traducido: " + ftranslated + " -> " + translated
+            resp = "Traducido: " + ftranslated + " -> " + translated
             if pronun != "":
-                res += " (" + pronun + ")"
+                resp += " (" + pronun + ")"
         else:
-            res = "No se pudo traducir."
+            resp = "No se pudo traducir."
 
-        cli.notice(to, res)
+        cli.notice(to, resp)
         #res = res[4:res.index(b",\"\",\"\"]]")]
         #res = res.split(b"],[")
         #for i in range(len(res)):
