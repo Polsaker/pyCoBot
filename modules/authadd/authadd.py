@@ -138,7 +138,8 @@ class authadd:
             self.whouid = bot.authd[ev.source2]
             cli.who(ev.source, "%atn,9")
         except KeyError:
-            pass
+            cli.notice(ev.source, "Debes estar identificado para enlazar tu cue"
+                "nta.")
 
     def addpriv(self, bot, cli, ev):
         if not len(ev.splitd) > 1:
