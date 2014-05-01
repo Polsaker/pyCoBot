@@ -81,7 +81,6 @@ class pyCoBot:
                 ")?(\S{1,52})[ ]?(.*)", re.IGNORECASE)
         m1 = p1.search(ev.arguments[0])
 
-
         # Buscamos por el nick como prefijo..
         p2 = re.compile("^" + re.escape(self.conf['nick']) +
             "[:, ]? (\S{1,52})[ ]?(.*)", re.IGNORECASE)
@@ -106,12 +105,12 @@ class pyCoBot:
                          commandhandlers[i]['alias'] == i:
                             comlist = comlist + i + " "
 
-                    con.privmsg(ev.target, "\2pyCoBot alpha\2. Comandos " +
+                    con.notice(ev.target, "\2pyCoBot alpha\2. Comandos " +
                     "empezar con \2" + self.conf["prefix"] + "\2. " +
                     "Escriba " + self.conf["prefix"] + "help \2<comando>" +
                     "\2 para mas información sobre un comando")
 
-                    con.privmsg(ev.target, "Comandos: " + comlist)
+                    con.notice(ev.target, "Comandos: " + comlist)
                 else:
                     if ev.splitd[0] == "help":  # Harcoded help :P
                         r = "Muestra la ayuda de un comando, o, si no " + \
@@ -133,10 +132,10 @@ class pyCoBot:
                         except KeyError:
                             pass
                     if not r:
-                        con.privmsg(ev.target, "No se ha encontrado el " +
+                        con.notice(ev.target, "No se ha encontrado el " +
                          "comando")
                     else:
-                        con.privmsg(ev.target, "Ayuda de \2" + ev.splitd[0]
+                        con.notice(ev.target, "Ayuda de \2" + ev.splitd[0]
                          + "\2: " + r)
             elif com == "auth" and ev.type == "privmsg":
                 self.auth(ev)
@@ -167,7 +166,7 @@ class pyCoBot:
                     getattr(self.commandhandlers[com]['mod'], ocom)(self,
                      self.server, ev)
                 else:
-                    self.server.privmsg(ev.target, "\00304Error\003: No a" +
+                    self.server.notice(ev.target, "\00304Error\003: No a" +
                     "utorizado")
 
         #if ev.type == "welcome":
@@ -241,9 +240,9 @@ class pyCoBot:
         try:
             if u[0].password == passw:
                 self.authd[event.source2] = u[0].uid
-                self.server.privmsg(event.target, "Autenticado exitosamente")
+                self.server.notice(event.target, "Autenticado exitosamente")
         except:
-            self.server.privmsg(event.target, "\00304Error\003: Usuario o " +
+            self.server.notice(event.target, "\00304Error\003: Usuario o " +
             "contraseña incorrectos")
 
     # Procesa timehandlers (función interna)
@@ -254,7 +253,8 @@ class pyCoBot:
                 getattr(c, f)(self, self.server)
         except:
             e = sys.exc_info()[0]
-            logging.error("Ha ocurrido un error al manejar los timehandlers: " + e)
+            logging.error("Ha ocurrido un error al manejar los timehandlers: "
+                 + e)
 
     # Añade un timehandler. Parametros: intervalo en segundos, modulo, funcion
     def addTimeHandler(self, interval, module, func):
