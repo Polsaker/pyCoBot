@@ -44,6 +44,8 @@ class authadd:
         core.addHandler("privmsg", self, "msghandler")
 
     def whoreply(self, cli, ev):
+        if ev.arguments[2] == "0":  # No loggeado
+            return 0
         if ev.arguments[0] == "9":
             NSAccount.create(acc=ev.arguments[2], uid=self.whouid)
             cli.notice(ev.arguments[1], "Su usuario ha sido enlazado con la cue"
