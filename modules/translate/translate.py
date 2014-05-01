@@ -16,7 +16,7 @@ class translate:
         cli.notice(ev.target, "Traducido: {0}".format(
             translate(" ".join(ev.splitd[2:]), ev.splitd[1], ev.splitd[0])))
     
-    def translate(text, OUT, IN):
+    def translate(self, text, OUT, IN):
         text = urllib.parse.quote(text)
         conn = http.client.HTTPConnection("translate.google.com")
         conn.request("GET", "/translate_a/t?client=t&text="+text+"&hl="+IN+"&tl="+OUT)
