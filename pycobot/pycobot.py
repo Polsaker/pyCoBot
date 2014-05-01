@@ -102,7 +102,8 @@ class pyCoBot:
                         if self.authchk(ev.source2, self.commandhandlers[i]
                          ['cpriv'], self.modname[self.commandhandlers[i]
                          ['mod']], ev.target) is True and self. \
-                         commandhandlers[i]['alias'] == i:
+                         commandhandlers[i]['alias'] == i and \
+                         self.commandhandlers[i]['chelp'] != "":
                             comlist = comlist + i + " "
 
                     con.notice(ev.target, "\2pyCoBot alpha\2. Comandos " +
