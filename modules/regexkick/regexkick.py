@@ -68,7 +68,7 @@ class regexkick:
             ul = regexKick.get(regexKick.rid == ev.arguments[1])
             ul.delete_instance()
             cli.notice(ev.target, "Se ha eliminado el akick.")
-        self.updatetechancache()
+        self.updatechancache()
 
 
 class regexKick(BaseModel):
