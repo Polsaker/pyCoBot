@@ -22,7 +22,7 @@ class iplocator:
         conn.request("GET", "/json/{0}?fields=65535".format(text))
         res = conn.getresponse().read().decode('utf-8')
         data = json.loads(res)
-        if data.status == "success":
+        if data['status'] == "success":
             resp = "IP \2{0}\2 ".format(ev.splitd[0])
             if data['reverse'] != "": 
                 resp += "- {0} ".format(data['reverse'])
