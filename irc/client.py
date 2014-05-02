@@ -7,6 +7,8 @@ import socket
 import _thread
 import time
 import re
+import textwrap
+
 
 logger = logging.getLogger('mustached-ironman')
 _rfc_1459_command_regexp = re.compile("^(:(?P<prefix>[^ ]+) +)?" +
@@ -324,7 +326,7 @@ class IRCConnection(object):
                         k = k + 1
                         avail = 400
                     else:
-                        x = self.split_len(word, 400)
+                        x = textwrap.wrap(word, 400)
                         for w in x:
                             result.append("")
                             k += 1
@@ -527,7 +529,7 @@ class IRCConnection(object):
                         k = k + 1
                         avail = 400
                     else:
-                        x = self.split_len(word, 400)
+                        x = textwrap.wrap(word, 400)
                         for w in x:
                             result.append("")
                             k += 1

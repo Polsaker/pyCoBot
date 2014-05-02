@@ -32,7 +32,7 @@ class calc:
                 return group + '.0'
             return group
         expr = expr.replace('^', '**')
-        expr = self.integers_regex.sub(whole_number_to_float, expr)
+        #expr = self.integers_regex.sub(whole_number_to_float, expr)
         if advanced:
             return safe_eval(expr, vars(math))
         else:
