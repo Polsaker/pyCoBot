@@ -17,12 +17,12 @@ class calc:
         #res = self.calculate(" ".join(event.splitd))
 
         res = self.try_slow_thing(self.calculate,
-                                        " ".join(event.splitd), self.q)
+                                " ".join(event.splitd), self.q)
         if res is None:
             cli.notice(event.target, "No se pudo calcular.")
         else:
             cli.notice(event.target,
-            textwrap.wrap(str(res), 500)[0])
+            textwrap.wrap(str(res), 400)[0])
 
     integers_regex = re.compile(r'\b[\d\.]+\b')
 
@@ -35,7 +35,7 @@ class calc:
         expr = expr.replace('^', '**')
         q.put(safe_eval(expr, vars(math)))
 
-    def try_slow_thing(self, function, *args):
+    def try_slow_thing(self, function, chan, *args):
         p = multiprocessing.Process(target=function, args=args)
         p.start()
         p.join(5)
