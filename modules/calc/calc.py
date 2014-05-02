@@ -54,12 +54,12 @@ class calc:
 
 
 def cosd(x):
-    return math.cos(x / 180)
+    return math.cos(x * math.pi / 180)
 
 
 def tand(x):
-    return math.tan(x / 180)
+    return math.tan(x * math.pi / 180)
 
 
 def sind(x):
-    return math.sin(x / 180)
+    return math.sin(x * math.pi / 180)
