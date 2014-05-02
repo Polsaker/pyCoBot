@@ -20,20 +20,11 @@ class calc:
 
     integers_regex = re.compile(r'\b[\d\.]+\b')
 
-    def calculate(self, expr, advanced=True):
+    def calculate(self, expr):
         def safe_eval(expr, symbols={}):
             if expr.find("_") != -1:
                 return None
             return eval(expr, dict(__builtins__=None), symbols)  # :(
 
-        def whole_number_to_float(match):
-            group = match.group()
-            if group.find('.') == -1:
-                return group + '.0'
-            return group
         expr = expr.replace('^', '**')
-        #expr = self.integers_regex.sub(whole_number_to_float, expr)
-        if advanced:
-            return safe_eval(expr, vars(math))
-        else:
-            return safe_eval(expr)
+        return safe_eval(expr, vars(math))
