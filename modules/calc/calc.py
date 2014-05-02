@@ -30,7 +30,10 @@ class calc:
         def safe_eval(expr, symbols={}):
             if expr.find("_") != -1:
                 return None
-            return eval(expr, dict(__builtins__=None), symbols)  # :(
+            try:
+                return eval(expr, dict(__builtins__=None), symbols)  # :(
+            except:
+                return "Error de sintaxis o algo por el estilo."
 
         expr = expr.replace('^', '**')
         q.put(safe_eval(expr, vars(math)))
