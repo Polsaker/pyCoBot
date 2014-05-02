@@ -20,7 +20,7 @@ class iplocator:
         text = urllib.parse.quote(ev.splitd[0])
         conn = http.client.HTTPConnection("ip-api.com")
         conn.request("GET", "json/{0}?fields=65535 ".format(text))
-        res = conn.getresponse().read()
+        res = conn.getresponse().read().decode('utf-8')
         data = json.loads(res)
         if data.status == "success":
             resp = "IP \2{0}\2 ".format(ev.splitd[0])
