@@ -1,0 +1,14 @@
+{
+    "type": "github",
+    "user": "irc-CoBot",
+    "repo": "pyCoBot",
+    "url": ""
+    "extrafiles": [
+        "geoip2/__init__.py",
+        "geoip2/database.py",
+        "geoip2/errors.py",
+        "geoip2/models.py",
+        "geoip2/records.py",
+        "geoip2/webservice.py"
+    ]
+}
