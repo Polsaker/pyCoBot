@@ -23,24 +23,24 @@ class iplocator:
         res = conn.getresponse().read().decode('utf-8')
         data = json.loads(res)
         if data['status'] == "success":
-            resp = "IP \2{0}\2 ".format(ev.splitd[0])
+            resp = "IP \2{0}\2  ".format(ev.splitd[0])
             if data['reverse'] != "": 
-                resp += "- {0} ".format(data['reverse'])
+                resp += "- {0}  ".format(data['reverse'])
             if data['country'] != "":
-                resp += "\2País\2: {0} ".format(data['country'])
+                resp += "\2País\2: {0}, ".format(data['country'])
             if data['region'] != "":
-                resp += "\2Región\2: {0} ".format(data['region'])
+                resp += "\2Región\2: {0}, ".format(data['region'])
             if data['city'] != "":
-                resp += "\2Ciudad\2: {0} ".format(data['city'])
+                resp += "\2Ciudad\2: {0}, ".format(data['city'])
             if data['isp'] != "":
-                resp += "\2ISP\2: {0} ".format(data['isp'])
+                resp += "\2ISP\2: {0}, ".format(data['isp'])
             if data['org'] != "":
-                resp += "\2Organización\2: {0} ".format(data['org'])
+                resp += "\2Organización\2: {0}, ".format(data['org'])
             if data['as'] != "":
-                resp += "\2ASN\2: {0} ".format(data['as'])
+                resp += "\2ASN\2: {0}, ".format(data['as'])
             if data['timezone'] != "":
-                resp += "\2Zona horaria\2: {0} ".format(data['timezone'])
-            cli.notice(ev.target, resp)
+                resp += "\2Zona horaria\2: {0}, ".format(data['timezone'])
+            cli.notice(ev.target, resp[0:len(resp)-2])
         else:
             cli.notice(ev.target, "\00304Error\003: No se pudo procesar la IP.")
     
