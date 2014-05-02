@@ -36,7 +36,11 @@ class calc:
                 return "Error de sintaxis o algo por el estilo."
 
         expr = expr.replace('^', '**')
-        q.put(safe_eval(expr, vars(math)))
+        vrs = vars(math)
+        vrs['cosd'] = cosd
+        vrs['tand'] = tand
+        vrs['sind'] = sind
+        q.put(safe_eval(expr, vrs))
 
     def try_slow_thing(self, function, *args):
         p = multiprocessing.Process(target=function, args=args)
@@ -47,3 +51,15 @@ class calc:
             return "La operación se ha demorado mucho en finalizar"
         else:
             return self.q.get(True)
+
+
+def cosd(x):
+    return math.cos(x / 180)
+
+
+def tand(x):
+    return math.tan(x / 180)
+
+
+def sind(x):
+    return math.sin(x / 180)
