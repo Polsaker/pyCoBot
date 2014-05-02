@@ -7,7 +7,7 @@ import urllib.error
 import json
 
 
-class nickserv:
+class iplocator:
 
     def __init__(self, core, client):
         core.addCommandHandler("ip", self, chelp=
