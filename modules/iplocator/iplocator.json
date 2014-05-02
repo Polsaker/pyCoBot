@@ -2,7 +2,7 @@
     "type": "github",
     "user": "irc-CoBot",
     "repo": "pyCoBot",
-    "url": ""
+    "url": "",
     "extrafiles": [
         "geoip2/__init__.py",
         "geoip2/database.py",
