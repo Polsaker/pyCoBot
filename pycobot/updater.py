@@ -116,7 +116,8 @@ class pyCoUpdater:
                                 self.bot.loadmod(val, self.cli)
                             except:
                                 pass  # ???
-                        potato = json.load("modules/%s/%s.json" % (val, val))
+                        fp = open("modules/%s/%s.json" % (val, val))
+                        potato = json.load(fp)
                         try:
                             potato['extrafiles']
                         except KeyError:
