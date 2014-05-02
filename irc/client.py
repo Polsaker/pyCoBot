@@ -544,6 +544,8 @@ class IRCConnection(object):
 
             w = 0
             for v in result:
+                if v == "":
+                    continue
                 sg = (v + footer).strip()
                 if w == k:
                     sg = sg.strip(footer + ", ")
