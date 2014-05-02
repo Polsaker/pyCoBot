@@ -43,4 +43,4 @@ class calc:
             p.terminate()
             return "La operación se ha demorado mucho en finalizar"
         else:
-            return self.q.get()
+            return self.q.get(False)
