@@ -38,7 +38,7 @@ class calc:
         expr = expr.replace('^', '**')
         q.put(safe_eval(expr, vars(math)))
 
-    def try_slow_thing(self, function, chan, *args):
+    def try_slow_thing(self, function, *args):
         p = multiprocessing.Process(target=function, args=args)
         p.start()
         p.join(5)
@@ -46,4 +46,4 @@ class calc:
             p.terminate()
             return "La operación se ha demorado mucho en finalizar"
         else:
-            return self.q.get(False)
+            return self.q.get(True)
