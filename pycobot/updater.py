@@ -116,26 +116,6 @@ class pyCoUpdater:
                                 self.bot.loadmod(val, self.cli)
                             except:
                                 pass  # ???
-                        try:
-                            fp = open("modules/%s/%s.json" % (val, val))
-                            potato = json.load(fp)
-                            potato['extrafiles']
-                            for kk in potato['extrafiles']:
-                            if self.processgithttp(i, "modules/" + val + "/" + kk) is True:
-                                self.cli.privmsg(self.ev.target,
-                                 "\2Actualizando \00303%s" % "modules/" + val + "/" + kk)
-                                self.upd = True
-                                try:
-                                    # si esta cargado...
-                                    self.bot.modinfo[val]
-                                    # ... lo recargamos...
-                                    self.bot.unloadmod(val)
-                                    self.bot.loadmod(val, self.cli)
-                                except:
-                                    pass  # ???
-                        except:
-                            pass
-                                
 
     def processgithttp(self, repo, path):
         response = urllib.request.urlopen('https://github.com/%s/raw' % (repo) +
