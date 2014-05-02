@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import geoip2.database
+import .geoip2.database
 import os
 import logging
 
