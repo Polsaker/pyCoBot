@@ -19,7 +19,8 @@ class calc:
             self.vrs = vars(mp)
             mp.dps = 128
             self.vrs['pi'] = mp.mpf(mp.pi)
-            print(self.vrs['pi'])
+            core.addCommandHandler("calcdps", self, cpriv=2, chelp=
+                "Ajusta la cantidad de decimales que mostrara calc. Sintaxis: calcdps <numero>")
         except ImportError:
             pass
         self.vrs['cosd'] = cosd
@@ -27,6 +28,10 @@ class calc:
         self.vrs['sind'] = sind
             
 
+    def calcdps(self, bot, cli, event):
+        mp.dps = int(ev.splitd[0])
+        cli.notice(ev.source, "Presición ajustada a \2{0}\2 decimales".format(ev.splitd[0]))
+        
     def calc(self, bot, cli, event):
         #res = self.calculate(" ".join(event.splitd))
 
