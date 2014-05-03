@@ -21,8 +21,24 @@ class calc:
         if res is None:
             cli.notice(event.target, "No se pudo calcular.")
         else:
+            restr = "%.50f" % res
+            restr = self.adjust_decimals(restr)
+            restr = self.adjust_decimals(restr)
             cli.notice(event.target,
-            textwrap.wrap(str(round(res, 15)), 400)[0])
+            textwrap.wrap(restr, 400)[0])
+
+    def adjust_decimals(self, s):
+        i = 0
+        while i != len(s):
+            ik = i + 1
+            if s[len(s) - ik:len(s) - i] == "0":
+                s = s[0:len(s) - ik]
+            elif s[len(s) - ik:len(s) - i] == ".":
+                s = s[0:len(s) - ik]
+            else:
+                return s
+            i += 1
+        return s
 
     integers_regex = re.compile(r'\b[\d\.]+\b')
 
