@@ -18,7 +18,6 @@ class calc:
             from mpmath import mp
             self.vrs = vars(mp)
             mp.dps = 128
-            self.vrs['pi'] = mp.mpf(mp.pi)
             core.addCommandHandler("calcdps", self, cpriv=2, chelp=
                 "Ajusta la cantidad de decimales que mostrara calc. Sintaxis: calcdps <numero>")
         except ImportError:
@@ -29,6 +28,7 @@ class calc:
             
 
     def calcdps(self, bot, cli, ev):
+        from mpmath import mp
         mp.dps = int(ev.splitd[0])
         cli.notice(ev.source, "Presición ajustada a \2{0}\2 decimales".format(ev.splitd[0]))
         
@@ -44,7 +44,7 @@ class calc:
             restr = self.adjust_decimals(restr)
             restr = self.adjust_decimals(restr)
             cli.notice(event.target,
-            textwrap.wrap(restr, 400)[0])
+            textwrap.wrap(restr, 800)[0])
 
     def adjust_decimals(self, s):
         i = 0
