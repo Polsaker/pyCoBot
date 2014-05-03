@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import time
+import locale
 
 
 class ping:
@@ -31,6 +32,6 @@ class ping:
             return 0
         current_milli_time = int(round(time.time() * 1000))
         diff = current_milli_time - int(event.arguments[1])
-        secs = str(diff / 1000)  # milisegudos -> segundos
+        secs = locale.str(diff / 1000)  # milisegudos -> segundos
         client.notice(self.chan, event.source + " tiene un lag de " + secs +
         " segundos.")
