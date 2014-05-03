@@ -4,6 +4,10 @@ import re
 import textwrap
 import multiprocessing
 import sys
+try:
+    from mpmath import mp
+except:
+    pass
 
 
 class calc:
@@ -15,23 +19,26 @@ class calc:
         self.q = multiprocessing.Queue()
         self.vrs = vars(math)
         try:
-            from mpmath import mp
+            mp
             self.vrs = vars(mp)
             mp.dps = 128
             core.addCommandHandler("calcdps", self, cpriv=2, chelp=
-                "Ajusta la cantidad de decimales que mostrara calc. Sintaxis: calcdps <numero>")
-        except ImportError:
+                "Ajusta la cantidad de decimales que mostrara calc. Sintaxis:"
+                                                            " calcdps <numero>")
+        except:
             pass
         self.vrs['cosd'] = cosd
         self.vrs['tand'] = tand
         self.vrs['sind'] = sind
-            
 
     def calcdps(self, bot, cli, ev):
         from mpmath import mp
         mp.dps = int(ev.splitd[0])
-        cli.notice(ev.source, "Presición ajustada a \2{0}\2 decimales".format(ev.splitd[0]))
-        
+        self.vrs['pi'] = mp.quad(lambda x: mp.exp(-x ** 2),
+                                                    [-mp.inf, mp.inf]) ** 2
+        cli.notice(ev.source, "Presición ajustada a \2{0}\2 decimales"
+                                                        .format(ev.splitd[0]))
+
     def calc(self, bot, cli, event):
         #res = self.calculate(" ".join(event.splitd))
 
@@ -73,8 +80,11 @@ class calc:
                 return "Error de sintaxis o algo por el estilo: " + str(e)
 
         expr = expr.replace('^', '**')
-        
-        q.put(str(safe_eval(expr, self.vrs)))
+
+        resp = safe_eval(expr, self.vrs)
+        resp = mp.nstr(resp, mp.dps, min_fixed=-mp.inf)
+
+        q.put(str(resp))
 
     def try_slow_thing(self, function, *args):
         p = multiprocessing.Process(target=function, args=args)
