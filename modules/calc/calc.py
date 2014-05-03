@@ -28,7 +28,7 @@ class calc:
         self.vrs['sind'] = sind
             
 
-    def calcdps(self, bot, cli, event):
+    def calcdps(self, bot, cli, ev):
         mp.dps = int(ev.splitd[0])
         cli.notice(ev.source, "Presición ajustada a \2{0}\2 decimales".format(ev.splitd[0]))
         
