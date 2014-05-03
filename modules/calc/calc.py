@@ -17,7 +17,7 @@ class calc:
         try:
             from mpmath import mp
             self.vrs = vars(mp)
-            mp.dps = 64
+            mp.dps = 128
             self.vrs['pi'] = mp.mpf(mp.pi)
             print(self.vrs['pi'])
         except ImportError:
