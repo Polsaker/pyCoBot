@@ -21,7 +21,7 @@ class calc:
         if res is None:
             cli.notice(event.target, "No se pudo calcular.")
         else:
-            restr = "%.50f" % res
+            restr = "%.64f" % res
             restr = self.adjust_decimals(restr)
             restr = self.adjust_decimals(restr)
             cli.notice(event.target,
