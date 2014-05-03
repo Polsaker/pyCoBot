@@ -34,10 +34,32 @@ class calc:
     def calcdps(self, bot, cli, ev):
         from mpmath import mp
         mp.dps = int(ev.splitd[0])
-        self.vrs['pi'] = mp.quad(lambda x: mp.exp(-x ** 2),
-                                                    [-mp.inf, mp.inf]) ** 2
+        self.vrs['pi'] = self.calcpi()
         cli.notice(ev.source, "Presición ajustada a \2{0}\2 decimales"
                                                         .format(ev.splitd[0]))
+
+    def calcpi(self):
+        epsilon = 1 / mp.mpf(10 ** mp.dps)
+
+        # set a = 1 and b = 1/sqrt(2) as multi-precision numbers
+        a = mp.mpf(1)
+        b = 1 / mp.sqrt(mp.mpf(2))
+
+        diff = a - b
+        series = mp.mpf(0)
+
+        n = 0
+        while diff > epsilon:
+            n += 1
+            arith = (a + b) / 2
+            geom = mp.sqrt(a * b)
+            a, b = arith, geom
+            series += 2 ** (n + 1) * (a * a - b * b)
+            diff = a - b
+
+        # a and b have converged to the AGM
+        my_pi = 4 * a * a / (1 - series)
+        return my_pi
 
     def calc(self, bot, cli, event):
         #res = self.calculate(" ".join(event.splitd))
