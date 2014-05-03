@@ -3,6 +3,7 @@ import math
 import re
 import textwrap
 import multiprocessing
+import sys
 
 
 class calc:
@@ -12,6 +13,19 @@ class calc:
         "Calculadora. Sintaxis: calc <cálculo>")
         self.res = None
         self.q = multiprocessing.Queue()
+        self.vrs = vars(math)
+        try:
+            from mpmath import mp
+            self.vrs = vars(mp)
+            mp.dps = 64
+            self.vrs['pi'] = mp.mpf(mp.pi)
+            print(self.vrs['pi'])
+        except ImportError:
+            pass
+        self.vrs['cosd'] = cosd
+        self.vrs['tand'] = tand
+        self.vrs['sind'] = sind
+            
 
     def calc(self, bot, cli, event):
         #res = self.calculate(" ".join(event.splitd))
@@ -21,7 +35,7 @@ class calc:
         if res is None:
             cli.notice(event.target, "No se pudo calcular.")
         else:
-            restr = "%.64f" % res
+            restr = res
             restr = self.adjust_decimals(restr)
             restr = self.adjust_decimals(restr)
             cli.notice(event.target,
@@ -50,14 +64,12 @@ class calc:
             try:
                 return eval(expr, dict(__builtins__=None), symbols)  # :(
             except:
-                return "Error de sintaxis o algo por el estilo."
+                e = sys.exc_info()[0]
+                return "Error de sintaxis o algo por el estilo: " + str(e)
 
         expr = expr.replace('^', '**')
-        vrs = vars(math)
-        vrs['cosd'] = cosd
-        vrs['tand'] = tand
-        vrs['sind'] = sind
-        q.put(safe_eval(expr, vrs))
+        
+        q.put(str(safe_eval(expr, self.vrs)))
 
     def try_slow_thing(self, function, *args):
         p = multiprocessing.Process(target=function, args=args)
@@ -71,12 +83,21 @@ class calc:
 
 
 def cosd(x):
-    return math.cos(x * math.pi / 180)
+    try:
+        return mp.cos(x * mp.pi / 180)
+    except:
+        return math.cos(x * math.pi / 180)
 
 
 def tand(x):
-    return math.tan(x * math.pi / 180)
+    try:
+        return mp.tan(x * mp.pi / 180)
+    except:
+        return math.tan(x * math.pi / 180)
 
 
 def sind(x):
-    return math.sin(x * math.pi / 180)
+    try:
+        return mp.sin(x * mp.pi / 180)
+    except:
+        return math.sin(x * math.pi / 180)
