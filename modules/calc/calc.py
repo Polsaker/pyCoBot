@@ -22,7 +22,7 @@ class calc:
             cli.notice(event.target, "No se pudo calcular.")
         else:
             cli.notice(event.target,
-            textwrap.wrap(str(res), 400)[0])
+            textwrap.wrap(str(round(res, 15)), 400)[0])
 
     integers_regex = re.compile(r'\b[\d\.]+\b')
 
