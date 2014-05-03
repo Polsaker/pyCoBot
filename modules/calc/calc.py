@@ -35,6 +35,7 @@ class calc:
                 s = s[0:len(s) - ik]
             elif s[len(s) - ik:len(s) - i] == ".":
                 s = s[0:len(s) - ik]
+                return s
             else:
                 return s
             i += 1
