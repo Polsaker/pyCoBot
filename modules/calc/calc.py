@@ -43,12 +43,12 @@ class calc:
         res = self.try_slow_thing(self.calculate,
                                 " ".join(event.splitd), self.q)
         if res is None:
-            cli.notice(event.target, "No se pudo calcular.")
+            cli.privmsg(event.target, "No se pudo calcular.")
         else:
             restr = res
             restr = self.adjust_decimals(restr)
             restr = self.adjust_decimals(restr)
-            cli.notice(event.target,
+            cli.privmsg(event.target,
             textwrap.wrap(restr, 800)[0])
 
     def adjust_decimals(self, s):
