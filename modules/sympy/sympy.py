@@ -6,10 +6,10 @@ try:
     from sympy import Symbol
     from sympy.core import sympify
 except ImportError:
-    logging.error("m_algebra: Sympy no está instalado.")
+    logging.error("m_sympy: Sympy no está instalado.")
 
 
-class algebra:
+class sympy:
     def __init__(self, core, client):
         try:
             solve
