@@ -41,8 +41,11 @@ class algebra:
         expr = " ".join(ev.splitd)
 
         expr = expr.replace("=", "-")
-
-        pr = sympify(expr)
+        try:
+            pr = sympify(expr)
+        except:
+            cli.notice(ev.target, "Error de sintaxis o algo por el estilo.")
+            return 0
         x = Symbol('x')
         y = Symbol('y')
         res = solve(pr, x, y)
