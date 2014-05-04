@@ -20,6 +20,7 @@
         "antiflood",
         "regexkick",
         "translate",
-        "calc"
+        "calc",
+        "sympy"
     ]
 }
