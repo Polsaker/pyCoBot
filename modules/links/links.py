@@ -43,15 +43,15 @@ class links:
                     ev.splitd[0]))
             else:
                 linkChan.create(chan=ev.splitd[0].lower())
-                cli.privmsg(ev.target, "Se han activado los titulos de links "
+                cli.notice(ev.target, "Se han activado los titulos de links "
                                                 "en \2{0}".format(ev.splitd[0]))
         elif ev.splitd[1] == "off":
             if ul is False:
-                cli.privmsg(ev.target, "\00304Error\003: Los links no están"
+                cli.notice(ev.target, "\00304Error\003: Los links no están"
                                                     " activado en ese canal.")
             else:
                 ul.delete_instance()
-                cli.privmsg(ev.target, "Se han desactivado los links en "
+                cli.notice(ev.target, "Se han desactivado los links en "
                                                 "\2{0}\2".format(ev.splitd[0]))
         self.updatechancache()
 
