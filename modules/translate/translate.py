@@ -161,7 +161,7 @@ class translate:
         #else:
             #resp = "No se pudo traducir."
 
-        cli.notice(to, resp)
+        cli.privmsg(to, resp)
         #res = res[4:res.index(b",\"\",\"\"]]")]
         #res = res.split(b"],[")
         #for i in range(len(res)):
