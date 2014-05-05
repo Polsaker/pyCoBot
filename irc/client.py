@@ -73,11 +73,11 @@ class IRCConnection(object):
         # Comenzamos a procesar la cola..
         _thread.start_new_thread(self.process_queue, ())
         self.connected = True
+        self._handle_event(Event("connect", None, None))
+        time.sleep(1)  # Le damos tiempo de actuar a los handlers del ircv3
         # Nos registramos...
         self.user(user, realname)
         self.nick(nick, True)
-        self._handle_event(Event("connect", None, None))
-
         _thread.start_new_thread(self.process_forever, ())
 
     def process_forever(self):
