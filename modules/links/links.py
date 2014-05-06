@@ -93,7 +93,7 @@ class links:
     def ytlinks(self, cli, ev, res):
 
         r = urllib.request.urlopen("https://www.googleapis.com/youtube/v"
-           "3/videos?id=" + res.group(1) + "&part=id,contentDetails,statist"
+           "3/videos?id=" + res.group(2) + "&part=id,contentDetails,statist"
            "ics,snippet&key=" + self.apikey)
         jao = json.loads(r.read().decode('utf-8'))
         vtitle = jao['items'][0]['snippet']['title']
