@@ -21,6 +21,7 @@
         "regexkick",
         "translate",
         "calc",
-        "sympy"
+        "sympy",
+	"ircv3"
     ]
 }
