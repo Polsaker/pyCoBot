@@ -24,7 +24,7 @@ class ircv3:
                 client.send('AUTHENTICATE PLAIN')
                 bs = self.conf['user'] + "\0" + self.conf['user'] + "\0" + self.conf['password']
                 bs = base64.b64encode(bs.encode('utf-8'))
-                client.send('AUTHENTICATE ' + b64.decode('utf-8'))
+                client.send('AUTHENTICATE ' + bs.decode('utf-8'))
                 client.cap('END')
             
     def onconnect(self, client, event):
