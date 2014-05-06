@@ -52,6 +52,8 @@ class calc:
             textwrap.wrap(restr, 800)[0])
 
     def adjust_decimals(self, s):
+		if "." not in s:
+			return s
         i = 0
         while i != len(s):
             ik = i + 1
