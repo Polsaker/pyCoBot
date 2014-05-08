@@ -60,13 +60,16 @@ class pyCoBot:
         self.modinfo = {}
         self.modname = {}
         self.commandhandlers = {}
+        print(self.writeConf("nyancat.nya.nya", "nyaaa"))
 
         self.authd = {}  # Usuarios autenticados..
         self.server.addhandler("pubmsg", self._cproc)
         self.server.addhandler("privmsg", self._cproc)
         self.server.addhandler("welcome", self._joinchans)
         for i, val in enumerate(conf['modules']):
-            self.loadmod(conf['modules'][i], conf['server'])
+            #self.loadmod(conf['modules'][i], conf['server'])
+            self.loadmod(self.readConf("network.modules")[i],
+                                                self.readConf("network.server"))
 
         try:
             self.server.connect(server, conf['port'], conf['nick'],
@@ -184,6 +187,66 @@ class pyCoBot:
         #        con.ctcp_reply(ev.source, "VERSION CoBot/%s" % VER_STRING)
         #    elif ev.arguments[0] == "PING":
         #        con.ctcp_reply(ev.source, "PING " + ev.arguments[1])
+
+    def readConf(self, key, chan=None):
+        """Lee configuraciones. (Formato: key1.key2.asd)"""
+        key = key.replace("network", "irc." + str(self.sid))
+        if chan is not None:
+            key = key.replace("channel", chan)
+        a = key.split(".")
+        asd = self.mconf
+        for k in a:
+            oasd = asd
+            try:
+                asd = asd.get(k)
+            except:
+                try:
+                    asd = oasd[int(k)]
+                except:
+                    return None
+
+            if asd is None:
+                return None
+        return asd
+
+    def writeConf(self, key, value, chan=None):
+        key = key.replace("network", "irc." + str(self.sid))
+        if chan is not None:
+            key = key.replace("channel", chan)
+        a = key.split(".")
+        asd = self.mconf
+        oldasd = []
+        oldasd.insert(len(oldasd), asd)
+        for k in a:
+            oasd = asd
+            try:
+                asd = asd.get(k)
+            except:
+                try:
+                    asd = oasd[int(k)]
+                except:
+                    asd = None
+            if asd is None:
+                asd = {}
+                asd[k] = None
+
+            oldasd.insert(len(oldasd), k + "||" + str(asd))
+
+        oldasd[len(oldasd) - 1] = value
+        olsd = oldasd[::-1]
+        i = 0
+        for w in olsd:
+            i += 1
+            try:
+                n = w.split("||")
+                if len(n) > 1:
+                    try:
+                        olsd[i] = dict(w[1])
+                    except ValueError:
+                        olsd[i] = w[1]
+            except AttributeError:
+                pass
+        print(olsd)
 
     def _joinchans(self, con, ev):
         for i, val in enumerate(self.conf['autojoin']):
