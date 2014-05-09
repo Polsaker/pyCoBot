@@ -247,7 +247,7 @@ class IRCConnection(object):
         except:
             self.handlers[message] = []
             self.handlers[message].append(function)
-        logger.info("Se ha añadido un handler para '{0}'".format(message))
+        logger.debug("Se ha añadido un handler para '{0}'".format(message))
         return [len(self.handlers[message]), message]
 
     def delhandler(self, identif):
