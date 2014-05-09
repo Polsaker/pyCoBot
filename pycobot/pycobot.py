@@ -60,7 +60,6 @@ class pyCoBot:
         self.modinfo = {}
         self.modname = {}
         self.commandhandlers = {}
-        print(self.writeConf("nyancat.nya.nya", "nyaaa"))
 
         self.authd = {}  # Usuarios autenticados..
         self.server.addhandler("pubmsg", self._cproc)
@@ -68,7 +67,7 @@ class pyCoBot:
         self.server.addhandler("welcome", self._joinchans)
         for i, val in enumerate(conf['modules']):
             #self.loadmod(conf['modules'][i], conf['server'])
-            self.loadmod(self.readConf("network.modules")[i],
+            self.loadmod(val,
                                                 self.readConf("network.server"))
 
         try:
@@ -212,15 +211,19 @@ class pyCoBot:
     def writeConf(self, key, value, chan=None):
         key = key.replace("network", "irc." + str(self.sid))
         if chan is not None:
-            key = key.replace("channel", chan)
+            key = key.replace("channel", "irc." + str(self.sid) + ".channels."
+                                                                         + chan)
         a = key.split(".")
         asd = self.mconf
         oldasd = []
-        oldasd.insert(len(oldasd), asd)
+        oldasd2 = []
+        #oldasd.insert(len(oldasd), asd)
         for k in a:
             oasd = asd
             try:
-                asd = asd.get(k)
+                if not isinstance(asd.get(k), str):
+                    asd = asd.get(k)
+                    continue
             except:
                 try:
                     asd = oasd[int(k)]
@@ -230,27 +233,32 @@ class pyCoBot:
                 asd = {}
                 asd[k] = None
 
-            oldasd.insert(len(oldasd), k + "||" + str(asd))
+            oldasd.insert(len(oldasd), asd)
+            oldasd2.insert(len(oldasd2), k)
 
-        oldasd[len(oldasd) - 1] = value
         olsd = oldasd[::-1]
+        olsd2 = oldasd2[::-1]
         i = 0
+        td = False
         for w in olsd:
-            i += 1
+            if td is False:
+                olsd[0][olsd2[0]] = value
+                td = True
             try:
-                n = w.split("||")
-                if len(n) > 1:
-                    try:
-                        olsd[i] = dict(w[1])
-                    except ValueError:
-                        olsd[i] = w[1]
-            except AttributeError:
+                olsd[i + 1][olsd2[i + 1]] = w
+                #del olsd[i]
+            except:
                 pass
-        print(olsd)
+            i += 1
+        finalconf = dict(list(self.mconf.items()) +
+                            list(olsd[len(olsd) - 1].items()))
+        fp = open("pycobot.conf", "w")
+        json.dump(finalconf, fp, indent=2)
 
     def _joinchans(self, con, ev):
-        for i, val in enumerate(self.conf['autojoin']):
-            con.join(self.conf['autojoin'][i])
+        autojoin = self.readConf('network.channels')
+        for i, val in enumerate(autojoin):
+            con.join(val)
 
     def authchk(self, host, cpriv, modsec, chan=False):
         # Verificación de autenticación
