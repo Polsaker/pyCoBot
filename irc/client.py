@@ -288,6 +288,10 @@ class IRCConnection(object):
             self.disconnect("Connection reset by peer.")
 
     def msg(self, target, message):
+        if not is_channel(target):
+            self.notice(target, message)
+            return
+
         if self.core.readConf("channel.notices", chan=target) == "False":
             self.privmsg(target, message)
         else:

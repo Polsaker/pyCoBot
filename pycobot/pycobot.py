@@ -77,7 +77,6 @@ class pyCoBot:
             pass  # :P
 
     def _cproc(self, con, ev):
-        con.msg(ev.target, "potatong")
         if ev.type == "pubmsg":
             p1 = re.compile("^" + re.escape(self.conf['prefix']) +
                 "(\S{1,52})[ ]?(.*)", re.IGNORECASE)
@@ -256,6 +255,7 @@ class pyCoBot:
                             list(olsd[len(olsd) - 1].items()))
         fp = open("pycobot.conf", "w")
         json.dump(finalconf, fp, indent=2)
+        return True
 
     def _joinchans(self, con, ev):
         autojoin = self.readConf('network.channels')
