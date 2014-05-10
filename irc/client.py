@@ -19,8 +19,8 @@ class ClientPool(object):
     def __init__(self):
         self.clients = []
 
-    def server(self):
-        client = IRCConnection()
+    def server(self, bot):
+        client = IRCConnection(bot)
         self.clients.append(client)
         return client
 
@@ -36,12 +36,13 @@ class ClientPool(object):
 
 
 class IRCConnection(object):
-    def __init__(self):
+    def __init__(self, bot):
         self.connected = False
         self.features = features.FeatureSet()
         self.queue = []
         self.handlers = {}
         self.socket = False
+        self.core = bot
 
         # Handlers internos
         #self.addhandler("ping", self._ping_ponger)
@@ -285,6 +286,12 @@ class IRCConnection(object):
         except socket.error:
             # Ouch!
             self.disconnect("Connection reset by peer.")
+
+    def msg(self, target, message):
+        if self.core.readConf("channel.notices", chan=target) == "False":
+            self.privmsg(target, message)
+        else:
+            self.notice(target, message)
 
     # TODO: Toooodos los mensajes que se puedan enviar...
     def quit(self, message="Bye", urgent=True):

@@ -54,7 +54,7 @@ class pyCoBot:
         self.handlers = []
         self.timehandlers = []
         self.mconf = mconf
-        self.server = client.server()
+        self.server = client.server(self)
         self.conf = conf
         self.modules = {}
         self.modinfo = {}
@@ -77,6 +77,7 @@ class pyCoBot:
             pass  # :P
 
     def _cproc(self, con, ev):
+        con.msg(ev.target, "potatong")
         if ev.type == "pubmsg":
             p1 = re.compile("^" + re.escape(self.conf['prefix']) +
                 "(\S{1,52})[ ]?(.*)", re.IGNORECASE)
@@ -191,7 +192,8 @@ class pyCoBot:
         """Lee configuraciones. (Formato: key1.key2.asd)"""
         key = key.replace("network", "irc." + str(self.sid))
         if chan is not None:
-            key = key.replace("channel", chan)
+            key = key.replace("channel", "irc." + str(self.sid) + ".channels."
+                                                                + chan)
         a = key.split(".")
         asd = self.mconf
         for k in a:
@@ -316,7 +318,7 @@ class pyCoBot:
                 self.authd[event.source2] = u[0].uid
                 self.server.notice(event.target, "Autenticado exitosamente")
         except:
-            self.server.notice(event.target, "\00304Error\003: Usuario o " +
+            self.server.msg(event.target, "\00304Error\003: Usuario o " +
             "contraseña incorrectos")
 
     # Procesa timehandlers (función interna)
