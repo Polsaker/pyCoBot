@@ -22,6 +22,7 @@
         "translate",
         "calc",
         "sympy",
-	"ircv3"
+        "ircv3",
+        "config"
     ]
 }
