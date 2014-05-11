@@ -38,7 +38,7 @@ except:
     pass
 
 # Si no hay usuarios...
-if len(User.select()) == 0:
+if User.select().count() == 0:
     print("Al parecer no hay ningún usuario!")
     print("Registre un usuario administrador:")
     user = raw_input("Usuario: ")
