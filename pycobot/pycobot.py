@@ -11,8 +11,6 @@ import shutil
 from peewee import peewee
 from . import updater
 import pprint
-import locale
-locale.setlocale(locale.LC_ALL, 'es_AR.UTF-8')  # :D
 
 ########
 VER_MAJOR = "2"
