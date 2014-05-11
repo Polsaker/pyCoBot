@@ -10,12 +10,11 @@ import sys
 import shutil
 from peewee import peewee
 from . import updater
-import pprint
 
 ########
 VER_MAJOR = "2"
 VER_MINOR = "0"
-VER_STS = " Alpha"
+VER_STS = " Alpha 2"
 VER_CODENAME = "Gizkard"
 VER_STRING = "%s.%s%s (%s)" % (VER_MAJOR, VER_MINOR, VER_STS, VER_CODENAME)
 #######
@@ -42,7 +41,7 @@ except:
 class pyCoBot:
     def __init__(self, server, client, conf, mconf, sid):
         # zona de millones de definiciones de variables que se usan y no se usan
-        self.sid = sid  # server id aka: el lugar que ocupa en el array de conf.
+        self.sid = sid
         self.botcli = client
         try:
             self.botcli.bots
@@ -58,15 +57,21 @@ class pyCoBot:
         self.modinfo = {}
         self.modname = {}
         self.commandhandlers = {}
+        self.lang = {}
+        self.lang['core'] = {}
+        # Cargar los idiomas del core...
+        for the_file in os.listdir("pycobot/lang"):
+            self.lang['core'][the_file] = {}
+            self.lang['core'][the_file] = json.load(
+                        open("pycobot/lang/{0}".format(the_file)))
 
         self.authd = {}  # Usuarios autenticados..
         self.server.addhandler("pubmsg", self._cproc)
         self.server.addhandler("privmsg", self._cproc)
         self.server.addhandler("welcome", self._joinchans)
+        self.server.addhandler("ctcp", self._ctcp)
         for i, val in enumerate(self.readConf("network.modules")):
-            #self.loadmod(conf['modules'][i], conf['server'])
-            self.loadmod(val,
-                                                self.readConf("network.server"))
+            self.loadmod(val, self.readConf("network.server"))
 
         try:
             self.server.connect(server, self.readConf("network.port"),
@@ -123,10 +128,11 @@ class pyCoBot:
             com = m2.group(1)
 
         if not m1 is None or not m2 is None:
-            if com == "help" or com == "ayuda":
+            if com == "help" or com == "ayuda" or com == self._(
+                                                        ev, 'core', 'help.cmd'):
                 r = False
                 if not len(ev.splitd) > 0:
-                    comlist = "help auth "
+                    comlist = self._(ev, 'core', 'help.cmd') + " auth "
                     for i in list(self.commandhandlers.keys()):
                         if self.authchk(ev.source2, self.commandhandlers[i]
                          ['cpriv'], self.modname[self.commandhandlers[i]
@@ -135,38 +141,31 @@ class pyCoBot:
                          self.commandhandlers[i]['chelp'] != "":
                             comlist = comlist + i + " "
 
-                    con.msg(ev.target, "\2pyCoBot alpha\2. Comandos " +
-                    "empezar con \2" + self.conf["prefix"] + "\2. " +
-                    "Escriba " + self.conf["prefix"] + "help \2<comando>" +
-                    "\2 para mas información sobre un comando")
+                    con.msg(ev.target, "\2pyCoBot {0}\2. ".format(VER_STRING) +
+                        self._(ev, 'core', 'help.introstr')
+                            .format(self._getprefix(ev)))
 
-                    con.msg(ev.target, "Comandos: " + comlist)
+                    con.msg(ev.target, self._(ev, 'core', 'help.commands')
+                                                                    + comlist)
                 else:
-                    if ev.splitd[0] == "help":  # Harcoded help :P
-                        r = "Muestra la ayuda de un comando, o, si no " + \
-                         " tiene parametros, la lista de comandos." + \
-                         " Sintaxis: help [comando]"
+                    if ev.splitd[0] == "help":
+                        r = self._(ev, 'core', 'help.help')
                     elif ev.splitd[0] == "auth":
-                        r = "Identifica a un usuario registrado con el " + \
-                         " Bot." + "Sintaxis: auth <usuario> <contraseña>" \
-                         ". Este comando debe usarse vía mensaje privado."
+                        r = self._(ev, 'core', 'help.auth').format(con.nickname)
                     else:
-                        pprint.pprint(self.commandhandlers[ev.splitd[0]])
                         try:
                             r = self.commandhandlers[ev.splitd[0]]['chelp']
                             if self.commandhandlers[ev.splitd[0]][
                             'alias'] != ev.splitd[0]:
-                                r = "(Alias de " + self.commandhandlers[ev.
-                                splitd[0]]['alias'] + ") " + r
-
+                                r = self._(ev, 'core', 'help.alias').format(
+                                self.commandhandlers[ev.splitd[0]]['alias']) + r
                         except KeyError:
                             pass
                     if not r:
-                        con.msg(ev.target, "No se ha encontrado el " +
-                         "comando")
+                        con.msg(ev.target, self._(ev, 'core', 'help.404'))
                     else:
-                        con.msg(ev.target, "Ayuda de \2" + ev.splitd[0]
-                         + "\2: " + r)
+                        con.msg(ev.target, self._(ev, 'core', 'help.helpof')
+                            .format(ev.splitd[0], r))
             elif com == "auth" and ev.type == "privmsg":
                 self.auth(ev)
             elif com == "update":
@@ -196,21 +195,13 @@ class pyCoBot:
                     getattr(self.commandhandlers[com]['mod'], ocom)(self,
                      self.server, ev)
                 else:
-                    self.server.msg(ev.target, "\00304Error\003: No a" +
-                    "utorizado")
+                    self.server.msg(ev.target, self._(ev, 'core', 'noauth'))
 
-        #if ev.type == "welcome":
-        #    import pprint
-        #    pprint.pprint(self.conf)
-        #    for i, val in enumerate(self.conf['autojoin']):
-        #        con.join(self.conf['autojoin'][i])
-        #elif ev.type == "ping":
-        #    con.pong(ev.target)
-        #elif ev.type == "ctcp":
-        #    if ev.arguments[0] == "VERSION":
-        #        con.ctcp_reply(ev.source, "VERSION CoBot/%s" % VER_STRING)
-        #    elif ev.arguments[0] == "PING":
-        #        con.ctcp_reply(ev.source, "PING " + ev.arguments[1])
+    def _ctcp(self, con, ev):
+        if ev.arguments[0] == "VERSION":
+            con.ctcp_reply(ev.source, "VERSION CoBot/%s" % VER_STRING)
+        elif ev.arguments[0] == "PING":
+            con.ctcp_reply(ev.source, "PING " + ev.arguments[1])
 
     def readConf(self, key, chan=None, default=object()):
         """Lee configuraciones. (Formato: key1.key2.asd)"""
@@ -287,7 +278,8 @@ class pyCoBot:
             except IOError:
                 pass
         if upd.update() is True:
-            self.restart_program("[UPDATE] Aplicando actualizaciones")
+            self.restart_program("[UPDATE] " +
+                self._(event, 'core', 'update.quitmsg'))
 
     def auth(self, event):
         #session = self.session()
@@ -296,10 +288,9 @@ class pyCoBot:
         try:
             if u[0].password == passw:
                 self.authd[event.source2] = u[0].uid
-                self.server.msg(event.target, "Autenticado exitosamente")
+                self.server.msg(event.target, self._(event, 'core', 'auth.ok'))
         except:
-            self.server.msg(event.target, "\00304Error\003: Usuario o " +
-            "contraseña incorrectos")
+            self.server.msg(event.target, self._(event, 'core', 'auth.err'))
 
     # Procesa timehandlers (función interna)
     def timehandler(self, hid, tme, c, f):
@@ -457,6 +448,31 @@ class pyCoBot:
                 pass  # guh..
         python = sys.executable
         os.execl(python, python, * sys.argv)
+
+    def _(self, ev, mod, txt):
+        lang = self.readConf("channel.lang", chan=ev.target,
+                    default=self.readConf("config.lang", default="missigno"))
+        try:
+            return self.lang[mod][lang][txt]
+        except:
+            return txt
+
+    def _getprefix(self, ev):
+        if self.readConf("channel.overridemainprefix", chan=ev.target,
+                                                         default=False):
+            x = self.readConf("channel.prefix", chan=ev.target, default=False)
+            try:
+                if x is not False:
+                    if isinstance(x, list):
+                        return x[0]
+                    elif isinstance(x, str):
+                        return x
+            except:
+                return self.server.nickname + ":"
+            else:
+                return self.server.nickname + ":"
+        else:
+            return self.readConf("network.prefix")
 
 
 def my_import(cl):
