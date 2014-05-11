@@ -1,5 +1,6 @@
 [
     "pycobot.py",
     "tables.py",
-    "updater.py"
+    "updater.py",
+    "kaptan.py"
 ]

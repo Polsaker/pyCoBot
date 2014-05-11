@@ -65,25 +65,47 @@ class pyCoBot:
         self.server.addhandler("pubmsg", self._cproc)
         self.server.addhandler("privmsg", self._cproc)
         self.server.addhandler("welcome", self._joinchans)
-        for i, val in enumerate(conf['modules']):
+        for i, val in enumerate(self.readConf("network.modules")):
             #self.loadmod(conf['modules'][i], conf['server'])
             self.loadmod(val,
                                                 self.readConf("network.server"))
 
         try:
-            self.server.connect(server, conf['port'], conf['nick'],
-                conf['nick'], "CoBot/" + VER_STRING)
+            self.server.connect(server, self.readConf("network.port"),
+                self.readConf("network.nick"), self.readConf("network.nick"),
+                "CoBot/" + VER_STRING)
         except:
             pass  # :P
 
-    def _cproc(self, con, ev):
+    def _iscommand(self, ev):
         if ev.type == "pubmsg":
+            try:
+                x = self.readConf("channel.prefix", chan=ev.target)
+                if isinstance(x, list):
+                    for i in x:
+                        p1 = re.compile("^" + re.escape(i) +
+                            "(\S{1,52})[ ]?(.*)", re.IGNORECASE)
+                        m1 = p1.search(ev.arguments[0])
+                        if m1 is not None:
+                            return m1
+                elif isinstance(x, str):
+                    p1 = re.compile("^" + re.escape(x) +
+                        "(\S{1,52})[ ]?(.*)", re.IGNORECASE)
+                    m1 = p1.search(ev.arguments[0])
+                    if m1 is not None:
+                        return m1
+            except:
+                pass
             p1 = re.compile("^" + re.escape(self.conf['prefix']) +
                 "(\S{1,52})[ ]?(.*)", re.IGNORECASE)
         else:
             p1 = re.compile("^(?:" + re.escape(self.conf['prefix']) +
                 ")?(\S{1,52})[ ]?(.*)", re.IGNORECASE)
         m1 = p1.search(ev.arguments[0])
+        return m1
+
+    def _cproc(self, con, ev):
+        m1 = self._iscommand(ev)
 
         # Buscamos por el nick como prefijo..
         p2 = re.compile("^" + re.escape(self.conf['nick']) +
@@ -187,74 +209,29 @@ class pyCoBot:
         #    elif ev.arguments[0] == "PING":
         #        con.ctcp_reply(ev.source, "PING " + ev.arguments[1])
 
-    def readConf(self, key, chan=None):
+    def readConf(self, key, chan=None, default=object()):
         """Lee configuraciones. (Formato: key1.key2.asd)"""
         key = key.replace("network", "irc." + str(self.sid))
         if chan is not None:
-            key = key.replace("channel", "irc." + str(self.sid) + ".channels."
-                                                                + chan)
-        a = key.split(".")
-        asd = self.mconf
-        for k in a:
-            oasd = asd
-            try:
-                asd = asd.get(k)
-            except:
-                try:
-                    asd = oasd[int(k)]
-                except:
-                    return None
-
-            if asd is None:
-                return None
-        return asd
+            key = key.replace("channel.", "irc." + str(self.sid) + ".channels."
+                                                        + chan.lower() + ".")
+        return self.mconf.get(key, default)
 
     def writeConf(self, key, value, chan=None):
         key = key.replace("network", "irc." + str(self.sid))
         if chan is not None:
-            key = key.replace("channel", "irc." + str(self.sid) + ".channels."
-                                                                         + chan)
-        a = key.split(".")
-        asd = self.mconf
-        oldasd = []
-        oldasd2 = []
-        #oldasd.insert(len(oldasd), asd)
-        for k in a:
-            oasd = asd
-            try:
-                if not isinstance(asd.get(k), str):
-                    asd = asd.get(k)
-                    continue
-            except:
-                try:
-                    asd = oasd[int(k)]
-                except:
-                    asd = None
-            if asd is None:
-                asd = {}
-                asd[k] = None
+            key = key.replace("channel.", "irc." + str(self.sid) + ".channels."
+                                                        + chan.lower() + ".")
+        # D:!!
 
-            oldasd.insert(len(oldasd), asd)
-            oldasd2.insert(len(oldasd2), k)
-
-        olsd = oldasd[::-1]
-        olsd2 = oldasd2[::-1]
-        i = 0
-        td = False
-        for w in olsd:
-            if td is False:
-                olsd[0][olsd2[0]] = value
-                td = True
-            try:
-                olsd[i + 1][olsd2[i + 1]] = w
-                #del olsd[i]
-            except:
-                pass
-            i += 1
-        finalconf = dict(list(self.mconf.items()) +
-                            list(olsd[len(olsd) - 1].items()))
-        fp = open("pycobot.conf", "w")
-        json.dump(finalconf, fp, indent=2)
+        try:
+            value2 = value.replace("'", "\"")
+            value = json.loads(value2)
+        except:
+            pass
+        self.mconf.put(key, value)
+        dump = self.mconf.export('json', indent=4)
+        open("pycobot.conf", "w").write(dump)
         return True
 
     def _joinchans(self, con, ev):
@@ -412,11 +389,11 @@ class pyCoBot:
             pass
         try:
             nclassname = "m" + str(int(time.time())) + "x" + module
-            shutil.copytree("modules/%s/" % module, "tmp/%s/%s" % (self.conf
-             ['pserver'], nclassname))
-            touch("tmp/%s/%s/__init__.py" % (self.conf['pserver'], nclassname))
+            shutil.copytree("modules/%s/" % module, "tmp/%s/%s" % (self.sid,
+             nclassname))
+            touch("tmp/%s/%s/__init__.py" % (self.sid, nclassname))
             try:
-                self.modules[module] = my_import("tmp." + self.conf['pserver'] +
+                self.modules[module] = my_import("tmp." + self.sid +
                 "." + nclassname + "." + module + "." + module)(self,
                  self.server)
             except AttributeError as q:
@@ -444,7 +421,7 @@ class pyCoBot:
         except KeyError:
             logging.error("El modulo %s no existe o no esta cargado" % module)
             return 1
-        shutil.rmtree("tmp/%s/%s" % (self.conf['pserver'], self.modinfo
+        shutil.rmtree("tmp/%s/%s" % (self.sid, self.modinfo
          [module]))
         del self.modinfo[module]
         # Eliminamos los handlers..

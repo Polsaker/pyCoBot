@@ -3,7 +3,6 @@ from pycobot.tables import User, UserPriv
 from pycobot.pycobot import BaseModel
 from peewee.peewee import CharField, IntegerField
 import hashlib
-import re
 
 
 class authadd:
@@ -61,13 +60,7 @@ class authadd:
                 "te a través de su cuenta de NickServ.")
 
     def msghandler(self, cli, ev):
-        if ev.type == "privmsg":
-            p1 = re.compile("^(?:" + re.escape(self.conf['prefix']) +
-                ")?(\S{1,52})[ ]?(.*)", re.IGNORECASE)
-        else:
-            p1 = re.compile("^" + re.escape(self.conf['prefix']) +
-                "(\S{1,52})[ ]?(.*)", re.IGNORECASE)
-        m1 = p1.search(ev.arguments[0])
+        m1 = self.core._iscommand(ev)
         if not m1 is None:
             try:
                 self.nickbl[ev.source]

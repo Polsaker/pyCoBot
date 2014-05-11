@@ -292,7 +292,8 @@ class IRCConnection(object):
             self.notice(target, message)
             return
 
-        if self.core.readConf("channel.notices", chan=target) == "False":
+        if self.core.readConf("channel.notices", chan=target,
+                                                        default=True) is False:
             self.privmsg(target, message)
         else:
             self.notice(target, message)

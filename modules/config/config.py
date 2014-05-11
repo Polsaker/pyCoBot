@@ -8,8 +8,12 @@ class config:
         alias=["config"])
 
     def conf(self, bot, cli, ev):
+        if len(ev.splitd) == 0:
+            cli.msg("\00304Error:\003 Faltan parametros")
+            return
         if len(ev.splitd) > 1:
-            res = bot.writeConf(ev.splitd[0], ev.splitd[1], ev.target)
+            val = " ".join(ev.splitd[1:])
+            res = bot.writeConf(ev.splitd[0], val, ev.target)
             if res is True:
                 cli.msg(ev.target, "Se ha guardado la configuración")
             else:
