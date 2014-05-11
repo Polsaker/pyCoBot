@@ -13,6 +13,6 @@
     "auth.err": "\u000304Error\u0003: Usuario o contraseña incorrectos",
     "update.noupdate": "No hay actualizaciones disponibles",
     "update.newfile": "Actualizando \u0002{0}\u0002 \u000307[Nuevo]\u0003",
-    "update.file": "Actualizando \u0002{0}\u0002"
+    "update.file": "Actualizando \u0002{0}\u0002",
     "generic.missigparam": "\u000304Error\u0003: Faltan parámetros"
 }
