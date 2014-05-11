@@ -112,7 +112,10 @@ class pyCoBot:
             "[:, ]? (\S{1,52})[ ]?(.*)", re.IGNORECASE)
         m2 = p2.search(ev.arguments[0])
         if not m1 is None:
-            del ev.splitd[0]
+            try:
+                del ev.splitd[0]
+            except:
+                pass  # ???
             com = m1.group(1)
         elif not m2 is None:
             del ev.splitd[0]
