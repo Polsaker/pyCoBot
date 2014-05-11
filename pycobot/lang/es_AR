@@ -10,5 +10,8 @@
     "help.helpof": "Ayuda de \u0002{0}\u0002: {1}",
     "update.quitmsg": "Aplicando actualizaciones",
     "auth.ok": "Autenticado exitosamente",
-    "auth.err": "\u000304Error\u0003: Usuario o contraseña incorrectos"
+    "auth.err": "\u000304Error\u0003: Usuario o contraseña incorrectos",
+    "update.noupdate": "No hay actualizaciones disponibles",
+    "update.newfile": "Actualizando \u0002{0}\u0002 \u000307[Nuevo]\u0003",
+    "update.file": "Actualizando \u0002{0}\u0002"
 }

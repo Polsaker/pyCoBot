@@ -42,8 +42,8 @@ class pyCoUpdater:
         self.coreupdate()
 
         if self.upd is False:
-            self.cli.msg(self.ev.target, "No hay actualizaciones " +
-             " disponibles")
+            self.cli.msg(self.ev.target,
+                self.bot._(self.ev, 'core', 'update.noupdate'))
         print("updend")
         return self.restartupd
 
@@ -62,8 +62,10 @@ class pyCoUpdater:
                          is True:
                             self.processgithttp(xval['location'], val + ".json")
                             self.upd = True
-                            self.cli.msg(self.ev.target, "\2Actualizando " +
-                             "\00303" + val + "\00307\2 [Nuevo]")
+
+                            #self.cli.msg(self.ev.target,
+                            #    self.bot._(self.ev, 'core', 'update.newfile')
+                            #        .format(val))
 
     def coreupdate(self):
         # TODO: Descargar archivos nuevos
@@ -74,19 +76,21 @@ class pyCoUpdater:
         for x, xval in enumerate(index):
             if self.processgithttp("irc-CoBot/pyCoBot", "pycobot/" + xval) is \
              True:
-                self.cli.msg(self.ev.target, "\2Actualizando \00303" +
-                 "pycobot/" + xval)
+
+                #self.cli.msg(self.ev.target, self.bot._(self.ev, 'core',
+                #         'update.file').format("pycobot/" + xval))
                 self.upd = True
                 self.restartupd = True
 
         # \o/
         if self.processgithttp("irc-CoBot/pyCoBot", "pycobot.py") is True:
-            self.cli.msg(self.ev.target, "\2Actualizando \00303pycobot.py")
+            #self.cli.msg(self.ev.target, self.bot._(self.ev, 'core',
+            #             'update.file').format("pycobot.py"))
             self.upd = True
             self.restartupd = True
         if self.processgithttp("irc-CoBot/pyCoBot", "irc/client.py") is True:
-            self.cli.msg(self.ev.target, "\2Actualizando \00303irc/clien" +
-            "t.py")
+            #self.cli.msg(self.ev.target, self.bot._(self.ev, 'core',
+            #             'update.file').format("irc/client.py"))
             self.upd = True
             self.restartupd = True
 
@@ -102,11 +106,21 @@ class pyCoUpdater:
             for k, val in enumerate(self.githttpupd[i]):
                 for x, xval in enumerate(index['modules']):
                     if val == xval:
-
+                        self.processgithttp(i, "modules/" + val + "/" + val +
+                         ".json")
+                        foobar = json.load(open("modules/" + val + "/" + val +
+                         ".json"))
+                        try:
+                            for f1 in foobar['files']:
+                                self.processgithttp(i, "modules/" + val + "/" +
+                                                    f1)
+                        except:
+                            pass
                         if self.processgithttp(i, "modules/" + val + "/" + val +
                          ".py") is True:
-                            self.cli.msg(self.ev.target,
-                             "\2Actualizando \00303%s" % "modules/" + val)
+                            #self.cli.msg(self.ev.target,
+                            #    self.bot._(self.ev, 'core', 'update.file')
+                            #        .format("modules/" + val))
                             self.upd = True
                             try:
                                 # si esta cargado...
@@ -136,6 +150,8 @@ class pyCoUpdater:
             f = open(path, "wb")
             f.write(response)
             f.close()
+            self.cli.msg(self.ev.target,
+                self.bot._(self.ev, 'core', 'update.file').format(path))
             return True
         else:
             return False

@@ -64,7 +64,6 @@ class pyCoBot:
             self.lang['core'][the_file] = {}
             self.lang['core'][the_file] = json.load(
                         open("pycobot/lang/{0}".format(the_file)))
-
         self.authd = {}  # Usuarios autenticados..
         self.server.addhandler("pubmsg", self._cproc)
         self.server.addhandler("privmsg", self._cproc)
@@ -154,7 +153,8 @@ class pyCoBot:
                         r = self._(ev, 'core', 'help.auth').format(con.nickname)
                     else:
                         try:
-                            r = self.commandhandlers[ev.splitd[0]]['chelp']
+                            r = self.commandhandlers[ev.splitd[0]]
+                            r = self._(ev, self.modname[r['mod']], r['chelp'])
                             if self.commandhandlers[ev.splitd[0]][
                             'alias'] != ev.splitd[0]:
                                 r = self._(ev, 'core', 'help.alias').format(
@@ -395,17 +395,27 @@ class pyCoBot:
                     "'":
                     logging.error("No se pudo cargar el modulo '%s'. No se ha" %
                      module + " encontrado la clase principal.")
+                    return 2
                 else:
                     logging.error("No se ha podido cargar el módulo '%s'"
                         " debido a algun error interno en su __init__: %s" % (
                         module, q))
-                return 2
+                    return 3
             self.modinfo[module] = nclassname
             self.modname[self.modules[module]] = module
         except IOError:
             logging.error("No se pudo cargar el modulo '%s'. No se ha" %
              module + " encontrado el archivo.")
             return 1
+        # Cargar idiomas....
+        try:
+            self.lang[module] = {}
+            for the_file in os.listdir("modules/{0}/lang".format(module)):
+                self.lang[module][the_file] = {}
+                self.lang[module][the_file] = json.load(
+                        open("modules/{0}/lang/{1}".format(module, the_file)))
+        except:
+            pass
 
     def unloadmod(self, module):
         logging.info('Des-cargando modulo "%s" en %s'
