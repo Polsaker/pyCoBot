@@ -48,7 +48,7 @@ class pyCoUpdater:
         return self.restartupd
 
     def modrepos(self):
-        for x, xval in enumerate(self.conf['modulerepos']):
+        for x, xval in enumerate(self.conf.get('modulerepos')):
             if xval['autodownload'] is True:
                 ix = urllib.request.urlopen('https://github.com/%s/ra' % (xval[
                  'location']) + 'w/master/index.json').read()
