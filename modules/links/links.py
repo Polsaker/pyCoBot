@@ -34,24 +34,24 @@ class links:
 
     def links(self, bot, cli, ev):
         if not len(ev.splitd) > 1:
-            cli.notice(ev.target, "\00304Error\003: Faltan parametros.")
+            cli.msg(ev.target, "\00304Error\003: Faltan parametros.")
             return 0
         ul = linkChan.get(linkChan.chan == ev.splitd[0])
         if ev.splitd[1] == "on":
             if not ul is False:
-                cli.notice(ev.target, "Esto ya está activado en \2{0}\2".format(
+                cli.msg(ev.target, "Esto ya está activado en \2{0}\2".format(
                     ev.splitd[0]))
             else:
                 linkChan.create(chan=ev.splitd[0].lower())
-                cli.notice(ev.target, "Se han activado los titulos de links "
+                cli.msg(ev.target, "Se han activado los titulos de links "
                                                 "en \2{0}".format(ev.splitd[0]))
         elif ev.splitd[1] == "off":
             if ul is False:
-                cli.notice(ev.target, "\00304Error\003: Los links no están"
+                cli.msg(ev.target, "\00304Error\003: Los links no están"
                                                     " activado en ese canal.")
             else:
                 ul.delete_instance()
-                cli.notice(ev.target, "Se han desactivado los links en "
+                cli.msg(ev.target, "Se han desactivado los links en "
                                                 "\2{0}\2".format(ev.splitd[0]))
         self.updatechancache()
 
@@ -88,7 +88,7 @@ class links:
         if title is None:
             return 1
 
-        cli.privmsg(ev.target, title.group(1))
+        cli.msg(ev.target, title.group(1))
 
     def ytlinks(self, cli, ev, res):
 
@@ -128,7 +128,7 @@ class links:
             "\2 veces, con \00303%s \2Me gusta\2\003, \00305%s \2No me " \
             "gusta\2\003 (%s%%) y %s \2comentarios\2" % (vtitle, h, m, s,
             views, likes, dislikes, rank, comments)
-        cli.privmsg(ev.target, resp)
+        cli.msg(ev.target, resp)
 
 
 class linkChan(BaseModel):

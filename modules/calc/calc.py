@@ -34,7 +34,7 @@ class calc:
     def calcdps(self, bot, cli, ev):
         from mpmath import mp
         mp.dps = int(ev.splitd[0])
-        cli.notice(ev.source, "Presición ajustada a \2{0}\2 decimales"
+        cli.msg(ev.source, "Presición ajustada a \2{0}\2 decimales"
                                                         .format(ev.splitd[0]))
 
     def calc(self, bot, cli, event):
@@ -43,12 +43,12 @@ class calc:
         res = self.try_slow_thing(self.calculate,
                                 " ".join(event.splitd), self.q)
         if res is None:
-            cli.privmsg(event.target, "No se pudo calcular.")
+            cli.msg(event.target, "No se pudo calcular.")
         else:
             restr = res
             restr = self.adjust_decimals(restr)
             restr = self.adjust_decimals(restr)
-            cli.privmsg(event.target,
+            cli.msg(event.target,
             textwrap.wrap(restr, 800)[0])
 
     def adjust_decimals(self, s):

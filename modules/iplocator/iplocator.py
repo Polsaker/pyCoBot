@@ -15,7 +15,7 @@ class iplocator:
 
     def ip(self, bot, cli, ev):
         if len(ev.splitd) < 1:
-            cli.notice(ev.target, "\00304Error\003: Faltan parametros")
+            cli.msg(ev.target, "\00304Error\003: Faltan parametros")
             return 0
         text = urllib.parse.quote(ev.splitd[0])
         conn = http.client.HTTPConnection("ip-api.com")
@@ -40,9 +40,9 @@ class iplocator:
                 resp += "\2ASN\2: {0}, ".format(data['as'])
             if data['timezone'] != "":
                 resp += "\2Zona horaria\2: {0}, ".format(data['timezone'])
-            cli.notice(ev.target, resp[0:len(resp)-2])
+            cli.msg(ev.target, resp[0:len(resp)-2])
         else:
-            cli.notice(ev.target, "\00304Error\003: No se pudo procesar la IP.")
+            cli.msg(ev.target, "\00304Error\003: No se pudo procesar la IP.")
     
 def isset(variable):
 	return variable in locals() or variable in globals()

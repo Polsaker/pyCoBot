@@ -23,7 +23,7 @@ class weather:
             ts = urllib.parse.quote_plus(" ".join(event.splitd)).replace("+",
                 "%20")
         else:
-            cli.privmsg(event.target, "\00304Error\003: Faltan parametros")
+            cli.msg(event.target, "\00304Error\003: Faltan parametros")
 
         r = urllib.request.urlopen("http://api.wunderground.com/api/%s/conditi"
         "ons/forecast/lang:es/q/%s.json" %
@@ -45,7 +45,7 @@ class weather:
                         continue
             except:
                 pass
-            cli.privmsg(event.target, resp)
+            cli.msg(event.target, resp)
             return 1
         resp = "El tiempo en \00310\2%s\003\2: Viento a \2%s\2 km/h (\2%s" \
         "\2), " % (w['current_observation']['display_location']['full'],
@@ -70,7 +70,7 @@ class weather:
         ['weekday']), self._conv(fc[2]['icon']), fc[2]['high']['celsius'],
         fc[2]['low']['celsius'])
 
-        cli.privmsg(event.target, resp)
+        cli.msg(event.target, resp)
 
     def _convday(self, c):
         if c == "Monday":

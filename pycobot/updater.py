@@ -42,7 +42,7 @@ class pyCoUpdater:
         self.coreupdate()
 
         if self.upd is False:
-            self.cli.privmsg(self.ev.target, "No hay actualizaciones " +
+            self.cli.msg(self.ev.target, "No hay actualizaciones " +
              " disponibles")
         print("updend")
         return self.restartupd
@@ -62,7 +62,7 @@ class pyCoUpdater:
                          is True:
                             self.processgithttp(xval['location'], val + ".json")
                             self.upd = True
-                            self.cli.privmsg(self.ev.target, "\2Actualizando " +
+                            self.cli.msg(self.ev.target, "\2Actualizando " +
                              "\00303" + val + "\00307\2 [Nuevo]")
 
     def coreupdate(self):
@@ -74,18 +74,18 @@ class pyCoUpdater:
         for x, xval in enumerate(index):
             if self.processgithttp("irc-CoBot/pyCoBot", "pycobot/" + xval) is \
              True:
-                self.cli.privmsg(self.ev.target, "\2Actualizando \00303" +
+                self.cli.msg(self.ev.target, "\2Actualizando \00303" +
                  "pycobot/" + xval)
                 self.upd = True
                 self.restartupd = True
 
         # \o/
         if self.processgithttp("irc-CoBot/pyCoBot", "pycobot.py") is True:
-            self.cli.privmsg(self.ev.target, "\2Actualizando \00303pycobot.py")
+            self.cli.msg(self.ev.target, "\2Actualizando \00303pycobot.py")
             self.upd = True
             self.restartupd = True
         if self.processgithttp("irc-CoBot/pyCoBot", "irc/client.py") is True:
-            self.cli.privmsg(self.ev.target, "\2Actualizando \00303irc/clien" +
+            self.cli.msg(self.ev.target, "\2Actualizando \00303irc/clien" +
             "t.py")
             self.upd = True
             self.restartupd = True
@@ -105,7 +105,7 @@ class pyCoUpdater:
 
                         if self.processgithttp(i, "modules/" + val + "/" + val +
                          ".py") is True:
-                            self.cli.privmsg(self.ev.target,
+                            self.cli.msg(self.ev.target,
                              "\2Actualizando \00303%s" % "modules/" + val)
                             self.upd = True
                             try:

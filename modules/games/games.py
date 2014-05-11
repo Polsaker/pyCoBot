@@ -70,7 +70,7 @@ class games:
 
     def enablegame(self, bot, cli, ev, dis=False):
         if len(ev.splitd) < 1:
-            cli.privmsg(ev.target, "\00304Error\003: Faltan parametros.")
+            cli.msg(ev.target, "\00304Error\003: Faltan parametros.")
             return 1
         c = GameChannel.get(GameChannel.channel == ev.splitd[0])
         if dis is False:
@@ -94,7 +94,7 @@ class games:
 
     def congelar(self, bot, cli, ev, des=False):
         if len(ev.splitd) < 1:
-            cli.privmsg(ev.target, "\00304Error\003: Faltan parametros.")
+            cli.msg(ev.target, "\00304Error\003: Faltan parametros.")
             return 1
         user = GameUser.get(GameUser.nick == ev.splitd[0])
         if user is False:
@@ -504,7 +504,7 @@ class games:
             self.rcnt = 0
             self.rbal = random.randint(0, 5)
         else:
-            cli.privmsg(ev.target, ev.source + ": *CLICK*")
+            cli.msg(ev.target, ev.source + ": *CLICK*")
 
         if self.rcnt == 5:
             self.rcnt = 0
@@ -549,7 +549,7 @@ class games:
         msg = "\x0f" + msg  # >:D
         if error is True:
             msg = "\00304Error\003: " + msg
-        self.cli.privmsg(ev.target, msg)
+        self.cli.msg(ev.target, msg)
 
     # función para realizar operaciones usuario-banco. Si el parametro "pozo"
     # es True, la mitad del dinero va al pozo y la otra mitad va al banco. Si

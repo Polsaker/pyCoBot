@@ -99,7 +99,7 @@ class translate:
 
     def traducir(self, bot, cli, ev):
         if len(ev.splitd) < 2:
-            cli.notice(ev.target, "\00304Error\003: Faltan parametros")
+            cli.msg(ev.target, "\00304Error\003: Faltan parametros")
             return 0
         self.translate(" ".join(ev.splitd[2:]), ev.splitd[1], ev.splitd[0], cli,
                 ev.target)
@@ -114,7 +114,7 @@ class translate:
             resp += "mas disponibles son: "
             for c, n in self.langs.items():
                 resp += n + " (" + c + "), "
-            cli.notice(to, resp[0:len(resp) - 2])
+            cli.msg(to, resp[0:len(resp) - 2])
             return 0
         text = urllib.parse.quote(text)
         conn = http.client.HTTPConnection("translate.google.com")
@@ -161,7 +161,7 @@ class translate:
         #else:
             #resp = "No se pudo traducir."
 
-        cli.privmsg(to, resp)
+        cli.msg(to, resp)
         #res = res[4:res.index(b",\"\",\"\"]]")]
         #res = res.split(b"],[")
         #for i in range(len(res)):

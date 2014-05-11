@@ -12,5 +12,5 @@ class test:
         print("Esto funciona :O")
 
     def helloworld(self, bot, cli, event):
-        cli.privmsg(event.target, irc.client.parse_nick(event.source)[1] +
+        cli.msg(event.target, irc.client.parse_nick(event.source)[1] +
          ": Esto es una prueba!")

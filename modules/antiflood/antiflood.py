@@ -80,12 +80,12 @@ class antiflood:
 
     def antiflood(self, bot, cli, ev):
         if not len(ev.splitd) > 1:
-            cli.privmsg(ev.target, "\00304Error\003: Faltan parametros.")
+            cli.msg(ev.target, "\00304Error\003: Faltan parametros.")
             return 0
         ul = AntiFloodChan.get(AntiFloodChan.chan == ev.splitd[0])
         if ev.splitd[1] == "on":
             if not len(ev.splitd) > 3:
-                cli.privmsg(ev.target, "\00304Error\003: Faltan parametros.")
+                cli.msg(ev.target, "\00304Error\003: Faltan parametros.")
                 return 0
             if not ul is False:
                 ul.ratesec = ev.splitd[3]
@@ -94,15 +94,15 @@ class antiflood:
             else:
                 AntiFloodChan.create(chan=ev.splitd[0], ratesec=ev.splitd[3],
                                                          ratemsg=ev.splitd[2])
-            cli.privmsg(ev.target, "Se ha activado el antiflood en \2{0}\2"
+            cli.msg(ev.target, "Se ha activado el antiflood en \2{0}\2"
                                                         .format(ev.splitd[0]))
         elif ev.splitd[1] == "off":
             if ul is False:
-                cli.privmsg(ev.target, "\00304Error\003: El antiflood no esta"
+                cli.msg(ev.target, "\00304Error\003: El antiflood no esta"
                                                     " activado en ese canal.")
             else:
                 ul.delete_instance()
-                cli.privmsg(ev.target, "Se ha desactivado el antiflood en "
+                cli.msg(ev.target, "Se ha desactivado el antiflood en "
                                                 "\2{0}\2".format(ev.splitd[0]))
         self.updatechancache()
 

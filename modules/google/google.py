@@ -20,7 +20,7 @@ class google:
         if len(event.splitd) > 0:
             stext = urllib.parse.quote_plus(" ".join(event.splitd))
         else:
-            cli.privmsg(event.target, "\00304Error\003: Faltan parametros")
+            cli.msg(event.target, "\00304Error\003: Faltan parametros")
             return 0
         r = urllib.request.urlopen("https://www.googleapis.com/customsearch/v1?"
          "num=3&key=%s&cx=001206920739550302428:fozo2qblwzc&q=%s&alt=json" %
@@ -35,4 +35,4 @@ class google:
         search['items'][1]['link']) + ", \2%s\2 \037\00310%s\003\037" % \
         (search['items'][2]['title'], search['items'][2]['link'])
 
-        cli.privmsg(event.target, resp)
+        cli.msg(event.target, resp)

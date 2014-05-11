@@ -33,7 +33,7 @@ class quit:
             conf = json.loads(jsonConf)
         except:
             logging.error('No se ha podido abrir el archivo de configuración')
-            cli.privmsg(event.target, "\00304Error\003: No se han podido "
+            cli.msg(event.target, "\00304Error\003: No se han podido "
             "abrir los archivos de configuración")
             return 0
 
@@ -42,7 +42,7 @@ class quit:
             conf['irc'][k.sid]['pserver'] = conf['irc'][k.sid]['server'] \
              .replace(".", "")
             k.conf = conf['irc'][k.sid]
-        cli.privmsg(event.target, "Se han recargado las configuraciones.")
+        cli.msg(event.target, "Se han recargado las configuraciones.")
 
     def reconnect(self, bot, cli, event):
         quitmsg = "Salida ordenada por un administrador"

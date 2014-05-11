@@ -21,7 +21,7 @@ class joinpart:
         if len(event.splitd) > 0:
             cli.join(event.splitd[0])
         else:
-            cli.privmsg(event.target, "\00304Error\003: Faltan parametros. Si" +
+            cli.msg(event.target, "\00304Error\003: Faltan parametros. Si" +
              "ntaxis: join <canal>")
 
     def part_p(self, bot, cli, event):

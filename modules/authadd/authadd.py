@@ -47,7 +47,7 @@ class authadd:
             return 0
         if ev.arguments[0] == "9":
             NSAccount.create(acc=ev.arguments[2], uid=self.whouid)
-            cli.notice(ev.arguments[1], "Su usuario ha sido enlazado con la cue"
+            cli.msg(ev.arguments[1], "Su usuario ha sido enlazado con la cue"
                 "nta de nickserv \2{0}\2".format(ev.arguments[2]))
         elif ev.arguments[0] == "8":
             ul = NSAccount.get(NSAccount.acc == ev.arguments[2])
@@ -56,7 +56,7 @@ class authadd:
             else:
                 self.core.authd[self.mask] = ul.uid
 
-                cli.notice(ev.arguments[1], "Ha sido identificado automáticamen"
+                cli.msg(ev.arguments[1], "Ha sido identificado automáticamen"
                 "te a través de su cuenta de NickServ.")
 
     def msghandler(self, cli, ev):
@@ -73,7 +73,7 @@ class authadd:
 
     def register(self, bot, cli, ev):
         if len(ev.splitd) != 2:
-            cli.privmsg(ev.target, "\00304Error\003: Faltan parametros.")
+            cli.msg(ev.target, "\00304Error\003: Faltan parametros.")
             return 0
         passw = hashlib.sha1(ev.splitd[1].encode('utf-8')).hexdigest()
 
@@ -86,28 +86,28 @@ class authadd:
             # Si no hago esto no puedo obtener el uid :\
             user = User.get(User.name == ev.splitd[0].lower())
             UserPriv.create(uid=user.uid, priv=0, secmod="*", secchan="*")
-            cli.privmsg(ev.target, "Te has registrado exitosamente. Ahora"
+            cli.msg(ev.target, "Te has registrado exitosamente. Ahora"
             " debes identificarte (\2{0}help auth\2)".format(bot.conf['prefix']
             ))
             self.whouid = user.uid
             cli.who(ev.target, "%atn,9")
         else:
-            cli.privmsg(ev.target, "\00304Error\003: Ya estás registrado.")
+            cli.msg(ev.target, "\00304Error\003: Ya estás registrado.")
 
     def listusers(self, bot, cli, ev):
         users = User.select()
         resp = "Usuarios registrados: "
         for user in users:
             resp += user.name + " "
-        cli.privmsg(ev.target, resp)
+        cli.msg(ev.target, resp)
 
     def listpriv(self, bot, cli, ev):
         if not len(ev.splitd) > 0:
-            cli.privmsg(ev.target, "\00304Error\003: Faltan parametros.")
+            cli.msg(ev.target, "\00304Error\003: Faltan parametros.")
             return 0
         user = User.get(User.name == ev.splitd[0].lower())
         if user is False:
-            cli.privmsg(ev.target, "\003Error\003: El usuario no existe.")
+            cli.msg(ev.target, "\003Error\003: El usuario no existe.")
         else:
             resp = "El usuario \2{0}\2 tiene los siguientes privilegios:" \
                 .format(user.name)
@@ -115,7 +115,7 @@ class authadd:
             for priv in privs:
                 resp += " \2{0}\2 en el módulo \2{1}\2 en el canal \2{2}\2" \
                     .format(priv.priv, priv.secmod, priv.secchan)
-            cli.privmsg(ev.target, resp)
+            cli.msg(ev.target, resp)
 
     def delpriv_p(self, bot, cli, ev):
         return self.addpriv_p(bot, cli, ev)
@@ -131,12 +131,12 @@ class authadd:
             self.whouid = bot.authd[ev.source2]
             cli.who(ev.source, "%atn,9")
         except KeyError:
-            cli.notice(ev.source, "Debes estar identificado para enlazar tu cue"
+            cli.msg(ev.source, "Debes estar identificado para enlazar tu cue"
                 "nta.")
 
     def addpriv(self, bot, cli, ev):
         if not len(ev.splitd) > 1:
-            cli.privmsg(ev.target, "\00304Error\003: Faltan parametros.")
+            cli.msg(ev.target, "\00304Error\003: Faltan parametros.")
             return 0
         #guh
         uname = ev.splitd[0]
@@ -153,7 +153,7 @@ class authadd:
 
         user = User.get(User.name == uname)
         if user is False:
-            cli.privmsg(ev.target, "\003Error\003: El usuario no existe")
+            cli.msg(ev.target, "\003Error\003: El usuario no existe")
             return 0
 
         uprivs = UserPriv.select().where(UserPriv.uid == user.uid)
@@ -169,23 +169,23 @@ class authadd:
                 p += 1
 
             if p == 3:
-                cli.privmsg(ev.target, "\003Error\003: El usuario ya tiene priv"
+                cli.msg(ev.target, "\003Error\003: El usuario ya tiene priv"
                  "ilegios iguales o superiores a los que se intento otorgar.")
                 return 0
 
             if upriv.secchan == chan and upriv.secmod == module:
                 upriv.priv = priv
                 upriv.save()
-                cli.privmsg(ev.target, "Se han otorgado los privilegios.")
+                cli.msg(ev.target, "Se han otorgado los privilegios.")
                 return 0
 
         UserPriv.create(uid=user.uid, priv=priv, secchan=chan, secmod=module)
 
-        cli.privmsg(ev.target, "Se han otorgado los privilegios.")
+        cli.msg(ev.target, "Se han otorgado los privilegios.")
 
     def delpriv(self, bot, cli, ev):
         if not len(ev.splitd) > 1:
-            cli.privmsg(ev.target, "\00304Error\003: Faltan parametros.")
+            cli.msg(ev.target, "\00304Error\003: Faltan parametros.")
             return 0
 
         #guh x2
@@ -203,7 +203,7 @@ class authadd:
 
         user = User.get(User.name == uname)
         if user is False:
-            cli.privmsg(ev.target, "\003Error\003: El usuario no existe")
+            cli.msg(ev.target, "\003Error\003: El usuario no existe")
             return 0
 
         uprivs = UserPriv.select().where(UserPriv.uid == user.uid)
@@ -224,21 +224,21 @@ class authadd:
                 tot += 1
 
         if tot == 0:
-            cli.privmsg(ev.target, "\003Error\003: No se ha encontrado ningun "
+            cli.msg(ev.target, "\003Error\003: No se ha encontrado ningun "
              "privilegio coincidiendo para borrar.")
         else:
-            cli.privmsg(ev.target, "Se han borrado {0} privilegios".format(tot))
+            cli.msg(ev.target, "Se han borrado {0} privilegios".format(tot))
 
     def deluser(self, bot, cli, ev):
         if not len(ev.splitd) > 0:
-            cli.privmsg(ev.target, "\00304Error\003: Faltan parametros.")
+            cli.msg(ev.target, "\00304Error\003: Faltan parametros.")
             return 0
         user = User.get(User.name == ev.splitd[0].lower())
         if user is False:
-            cli.privmsg(ev.target, "\003Error\003: El usuario no existe.")
+            cli.msg(ev.target, "\003Error\003: El usuario no existe.")
         else:
             user.delete_instance()
-            cli.privmsg(ev.target, "Se ha eliminado el usuario \2{0}\2".format(
+            cli.msg(ev.target, "Se ha eliminado el usuario \2{0}\2".format(
                 ev.splitd[0].lower()))
 
 

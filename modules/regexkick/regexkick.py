@@ -42,7 +42,7 @@ class regexkick:
 
     def regexkick_p(self, bot, cli, ev):
         if len(ev.splitd) < 2:
-            cli.notice(ev.target, "Faltan parámetros")
+            cli.msg(ev.target, "Faltan parámetros")
             return 0
         if ev.splitd[0] == "add" or ev.splitd[0] == "list":
             return ev.splitd[1]
@@ -58,16 +58,16 @@ class regexkick:
         if ev.splitd[0] == "add":
             regexKick.create(channel=ev.splitd[1].lower(),
                             regex=" ".join(ev.splitd[2:]))
-            cli.notice(ev.target, "Se ha añadido el akick.")
+            cli.msg(ev.target, "Se ha añadido el akick.")
         elif ev.splitd[0] == "list":
             u = regexKick.select().where(regexKick.channel ==
                                                         ev.splitd[1].lower())
             for x in u:
-                cli.notice(ev.target, "\2{0}\2 - {1}".format(x.rid, x.regex))
+                cli.msg(ev.target, "\2{0}\2 - {1}".format(x.rid, x.regex))
         elif ev.splitd[0] == "del":
             ul = regexKick.get(regexKick.rid == ev.splitd[1])
             ul.delete_instance()
-            cli.notice(ev.target, "Se ha eliminado el akick.")
+            cli.msg(ev.target, "Se ha eliminado el akick.")
         self.updatechancache()
 
 

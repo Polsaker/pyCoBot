@@ -137,12 +137,12 @@ class pyCoBot:
                          self.commandhandlers[i]['chelp'] != "":
                             comlist = comlist + i + " "
 
-                    con.notice(ev.target, "\2pyCoBot alpha\2. Comandos " +
+                    con.msg(ev.target, "\2pyCoBot alpha\2. Comandos " +
                     "empezar con \2" + self.conf["prefix"] + "\2. " +
                     "Escriba " + self.conf["prefix"] + "help \2<comando>" +
                     "\2 para mas información sobre un comando")
 
-                    con.notice(ev.target, "Comandos: " + comlist)
+                    con.msg(ev.target, "Comandos: " + comlist)
                 else:
                     if ev.splitd[0] == "help":  # Harcoded help :P
                         r = "Muestra la ayuda de un comando, o, si no " + \
@@ -164,10 +164,10 @@ class pyCoBot:
                         except KeyError:
                             pass
                     if not r:
-                        con.notice(ev.target, "No se ha encontrado el " +
+                        con.msg(ev.target, "No se ha encontrado el " +
                          "comando")
                     else:
-                        con.notice(ev.target, "Ayuda de \2" + ev.splitd[0]
+                        con.msg(ev.target, "Ayuda de \2" + ev.splitd[0]
                          + "\2: " + r)
             elif com == "auth" and ev.type == "privmsg":
                 self.auth(ev)
@@ -198,7 +198,7 @@ class pyCoBot:
                     getattr(self.commandhandlers[com]['mod'], ocom)(self,
                      self.server, ev)
                 else:
-                    self.server.notice(ev.target, "\00304Error\003: No a" +
+                    self.server.msg(ev.target, "\00304Error\003: No a" +
                     "utorizado")
 
         #if ev.type == "welcome":
@@ -298,7 +298,7 @@ class pyCoBot:
         try:
             if u[0].password == passw:
                 self.authd[event.source2] = u[0].uid
-                self.server.notice(event.target, "Autenticado exitosamente")
+                self.server.msg(event.target, "Autenticado exitosamente")
         except:
             self.server.msg(event.target, "\00304Error\003: Usuario o " +
             "contraseña incorrectos")

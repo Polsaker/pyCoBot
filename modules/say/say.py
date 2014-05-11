@@ -15,7 +15,7 @@ class say:
 
     def say(self, bot, cli, event):
         if not len(event.splitd) > 1:
-            cli.privmsg(event.target, "\00304Error\003: Faltan parametros. Si" +
+            cli.msg(event.target, "\00304Error\003: Faltan parametros. Si" +
              "ntaxis: say <canal> <mensaje>")
             return 1
         cli.privmsg(event.splitd[0], " ".join(event.splitd[1:]))

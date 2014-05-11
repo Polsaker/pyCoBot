@@ -13,29 +13,29 @@ class m_modules:
 
     def loadmod(self, bot, cli, event):
         if not len(event.splitd) > 0:
-            cli.privmsg(event.target, "\00304Error\003: Faltan parametros")
+            cli.msg(event.target, "\00304Error\003: Faltan parametros")
             return 1
         r = bot.loadmod(event.splitd[0], cli)
         if r == 1:
-            cli.privmsg(event.target, "\00304Error\003: No se ha encontrado e" +
+            cli.msg(event.target, "\00304Error\003: No se ha encontrado e" +
             "l archivo.")
         elif r == 2:
-            cli.privmsg(event.target, "\00304Error\003: No se ha encontrado l" +
+            cli.msg(event.target, "\00304Error\003: No se ha encontrado l" +
             "a clase principal.")
         elif r == 3:
-            cli.privmsg(event.target, "\00304Error\003: El módulo ya está car" +
+            cli.msg(event.target, "\00304Error\003: El módulo ya está car" +
             "gado")
         else:
-            cli.privmsg(event.target, "Se ha cargado el módulo " + event
+            cli.msg(event.target, "Se ha cargado el módulo " + event
              .splitd[0])
 
     def unloadmod(self, bot, cli, event):
         if not len(event.splitd) > 0:
-            cli.privmsg(event.target, "\00304Error\003: Faltan parametros")
+            cli.msg(event.target, "\00304Error\003: Faltan parametros")
             return 1
         if bot.unloadmod(event.splitd[0]) == 1:
-            cli.privmsg(event.target, "\00304Error\003: El módulo no está car" +
+            cli.msg(event.target, "\00304Error\003: El módulo no está car" +
              "gado")
         else:
-            cli.privmsg(event.target, "Se ha descargado el módulo " +
+            cli.msg(event.target, "Se ha descargado el módulo " +
              event.splitd[0])

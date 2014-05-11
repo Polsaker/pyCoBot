@@ -18,40 +18,40 @@ class quotes:
 
     def quote(self, bot, cli, ev):
         if len(ev.splitd) < 1:
-            cli.privmsg(ev.target, "\00304Error\003: Faltan parametros.")
+            cli.msg(ev.target, "\00304Error\003: Faltan parametros.")
             return 1
 
         if ev.splitd[0] == "add":
             if len(ev.splitd) < 2:
-                cli.privmsg(ev.target, "\00304Error\003: Faltan parametros.")
+                cli.msg(ev.target, "\00304Error\003: Faltan parametros.")
                 return 1
             try:
                 uid = bot.authd[ev.source2]
             except:
-                cli.privmsg(ev.target, "\00304Error\003: Debes estar identific"
+                cli.msg(ev.target, "\00304Error\003: Debes estar identific"
                     "ado con el bot para añadir quotes!")
                 return 1
             u = User.get(User.uid == uid)
             if u is False:
-                cli.privmsg(ev.target, "\00304Error\003: Debes estar identific"
+                cli.msg(ev.target, "\00304Error\003: Debes estar identific"
                     "ado con el bot para añadir quotes!")
                 return 1
             ptime = time.time()
             user = u.name
             quote = " ".join(ev.splitd[1:])
             tquote.create(channel=ev.target, nick=user, ts=ptime, quote=quote)
-            cli.privmsg(ev.target, "Quote añadido.")
+            cli.msg(ev.target, "Quote añadido.")
         elif ev.splitd[0] == "del":
             if len(ev.splitd) < 2:
-                cli.privmsg(ev.target, "\00304Error\003: Faltan parametros.")
+                cli.msg(ev.target, "\00304Error\003: Faltan parametros.")
                 return 1
             if self.is_numeric(ev.splitd[1]) is False:
-                cli.privmsg(ev.target, "\00304Error\003: Faltan parametros.")
+                cli.msg(ev.target, "\00304Error\003: Faltan parametros.")
                 return 1
             try:
                 uid = bot.authd[ev.source2]
             except:
-                cli.privmsg(ev.target, "\00304Error\003: Debes estar identific"
+                cli.msg(ev.target, "\00304Error\003: Debes estar identific"
                     "ado con el bot para añadir quotes!")
                 return 1
             usr = User.get(User.uid == uid)
@@ -59,39 +59,39 @@ class quotes:
             u = tquote.get(tquote.qid == quoteid)
             if u.nick == usr.name:
                 u.delete_instance()
-                cli.privmsg(ev.target, "Se ha eliminado el quote")
+                cli.msg(ev.target, "Se ha eliminado el quote")
             else:
                 if bot.authchk(ev.source2, 5, "quotes"):
                     u.delete_instance()
-                    cli.privmsg(ev.target, "Se ha eliminado el quote")
+                    cli.msg(ev.target, "Se ha eliminado el quote")
                 else:
-                    cli.privmsg(ev.target, "\00304Error\003: No autorizado")
+                    cli.msg(ev.target, "\00304Error\003: No autorizado")
 
         elif ev.splitd[0] == "random":
             q = tquote.select().where(tquote.channel == ev.target)
             qc = tquote.select().where(tquote.channel == ev.target).count()
             if qc == 0:
-                cli.privmsg(ev.target, "\00304Error\003: No hay quotes en"
+                cli.msg(ev.target, "\00304Error\003: No hay quotes en"
                     " este canal.")
                 return 1
             u = q[random.randint(0, qc - 1)]
             tm = time.asctime(time.localtime(float(u.ts)))
-            cli.privmsg(ev.target, "Quote \2%s\2 por \2%s\2, añadido el"
+            cli.msg(ev.target, "Quote \2%s\2 por \2%s\2, añadido el"
                 " \2%s\2: %s" % (u.qid, u.nick, tm, u.quote))
         else:
             if self.is_numeric(ev.splitd[0]) is False:
-                cli.privmsg(ev.target, "\00304Error\003: Faltan parametros.")
+                cli.msg(ev.target, "\00304Error\003: Faltan parametros.")
                 return 1
             quoteid = ev.splitd[0]
             u = tquote.get(tquote.qid == quoteid)
             if u is False:
-                cli.privmsg(ev.target, "\00304Error\003: Ese quote no existe!")
+                cli.msg(ev.target, "\00304Error\003: Ese quote no existe!")
                 return 1
             if u.channel != ev.target:
-                cli.privmsg(ev.target, "\00304Error\003: Quote inválido.")
+                cli.msg(ev.target, "\00304Error\003: Quote inválido.")
                 return 1
             tm = time.asctime(time.localtime(float(u.ts)))
-            cli.privmsg(ev.target, "Quote \2%s\2 por \2%s\2, añadido el"
+            cli.msg(ev.target, "Quote \2%s\2 por \2%s\2, añadido el"
                 " \2%s\2: %s" % (u.qid, u.nick, tm, u.quote))
 
     def is_numeric(self, var):

@@ -23,7 +23,7 @@ class sympy:
 
     def calcx(self, bot, cli, ev):
         if len(ev.splitd) < 1:
-            cli.notice("Error: Faltan parametros")
+            cli.msg("Error: Faltan parametros")
 
         expr = " ".join(ev.splitd)
 
@@ -32,11 +32,11 @@ class sympy:
         pr = sympify(expr)
         x = Symbol('x')
         res = solve(pr, x)
-        cli.notice(ev.target, res)
+        cli.msg(ev.target, res)
 
     def calcxy(self, bot, cli, ev):
         if len(ev.splitd) < 1:
-            cli.notice("Error: Faltan parametros")
+            cli.msg("Error: Faltan parametros")
 
         expr = " ".join(ev.splitd)
 
@@ -44,9 +44,9 @@ class sympy:
         try:
             pr = sympify(expr)
         except:
-            cli.notice(ev.target, "Error de sintaxis o algo por el estilo.")
+            cli.msg(ev.target, "Error de sintaxis o algo por el estilo.")
             return 0
         x = Symbol('x')
         y = Symbol('y')
         res = solve(pr, x, y)
-        cli.notice(ev.target, res)
+        cli.msg(ev.target, res)
