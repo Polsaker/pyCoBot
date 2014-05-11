@@ -400,7 +400,7 @@ class pyCoBot:
                     logging.error("No se ha podido cargar el módulo '%s'"
                         " debido a algun error interno en su __init__: %s" % (
                         module, q))
-                    return 3
+                    return 4
             self.modinfo[module] = nclassname
             self.modname[self.modules[module]] = module
         except IOError:
@@ -460,6 +460,8 @@ class pyCoBot:
         os.execl(python, python, * sys.argv)
 
     def _(self, ev, mod, txt):
+        if not isinstance(mod, str):
+            mod = mod.__class__.__name__
         lang = self.readConf("channel.lang", chan=ev.target,
                     default=self.readConf("config.lang", default="missigno"))
         try:

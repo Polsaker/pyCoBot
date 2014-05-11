@@ -1,3 +1,12 @@
 {
-    "loadmod.help": "Carga un módulo. Uso: loadmod <módulo>"
+    "loadmod.help": "Carga un módulo. Uso: loadmod <módulo>",
+    "unloadmod.help": "Des-carga un módulo. Uso: unloadmod <módulo>",
+    "reloadmod.help": "Des-carga y carga un módulo. Uso: reloadmod <módulo>",
+    "err.missigfile": "\u000304Error\u0003: No se ha encontrado el módulo",
+    "err.missigclass": "\u000304Error\u0003: No se ha encontrado la clase principal",
+    "err.alreadyloaded": "\u000304Error\u0003: El módulo ya está cargado",
+    "err.syntaxerror": "\u000304Error\u0003: El módulo tiene algún error de sintaxis",
+    "err.notloaded": "\u000304Error\u0003: El módulo no está cargado",
+    "moduleloaded": "Se ha cargado el módulo {0}",
+    "moduleunloaded": "Se ha descargado el módulo {0}"
 }
