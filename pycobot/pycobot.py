@@ -203,7 +203,7 @@ class pyCoBot:
         elif ev.arguments[0] == "PING":
             con.ctcp_reply(ev.source, "PING " + ev.arguments[1])
 
-    def readConf(self, key, chan=None, default=object()):
+    def readConf(self, key, chan=None, default=""):
         """Lee configuraciones. (Formato: key1.key2.asd)"""
         key = key.replace("network", "irc." + str(self.sid))
         if chan is not None:

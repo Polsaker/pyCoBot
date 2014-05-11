@@ -10,7 +10,7 @@ class links:
     def __init__(self, core, client):
         self.yt = True
         try:
-            self.apikey = core.mconf['moduleconf']['googleapikey']
+            self.apikey = core.readConf("config.googleapikey")
             if self.apikey == "":
                 self.yt = False
         except:

@@ -8,7 +8,7 @@ class weather:
 
     def __init__(self, core, client):
         try:
-            self.apikey = core.mconf['moduleconf']['wundergroundapikey']
+            self.apikey = core.readConf("config.wundergroundapikey")
             if self.apikey == "":
                 return None
         except:

@@ -8,7 +8,7 @@ class google:
 
     def __init__(self, core, client):
         try:
-            self.apikey = core.mconf['moduleconf']['googleapikey']
+            self.apikey = core.readConf("config.googleapikey")
             if self.apikey == "":
                 return None
         except:
