@@ -1,4 +1,5 @@
 {
+    "desc": "Añade un antiflood configurable.",
     "type": "github",
     "user": "irc-CoBot",
     "repo": "pyCoBot",
