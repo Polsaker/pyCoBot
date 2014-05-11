@@ -32,10 +32,25 @@ class BaseModel(peewee.Model):
 from .tables import User, UserPriv
 
 try:
-    User.create_table()
-    UserPriv.create_table()
+    User.create_table(True)
+    UserPriv.create_table(True)
 except:
     pass
+
+# Si no hay usuarios...
+if len(User.select()) == 0:
+    print("Al parecer no hay ningún usuario!")
+    print("Registre un usuario administrador:")
+    user = raw_input("Usuario: ")
+    passw = raw_input("Contraseña: ")
+    passw = hashlib.sha1(passw.encode('utf-8')).hexdigest()
+    u = User()
+    u.name = user.lower()
+    u.password = passw
+    u.save()
+    user = User.get(User.name == user.lower())
+    UserPriv.create(uid=user.uid, priv=10, secmod="*", secchan="*")
+    print("Usuario creado!")
 
 
 class pyCoBot:
@@ -94,7 +109,7 @@ class pyCoBot:
                     p1 = re.compile("^" + re.escape(x) +
                         "(\S{1,52})[ ]?(.*)", re.IGNORECASE)
                     m1 = p1.search(ev.arguments[0])
-                    if m1 is not None:
+                    if m1 is not None and x != "":
                         return m1
             except:
                 pass
