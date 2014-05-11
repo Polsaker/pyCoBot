@@ -96,6 +96,8 @@ class pyCoBot:
                         return m1
             except:
                 pass
+            if self.readConf("channel.overridemainprefix", ev.target, False):
+                return None
             p1 = re.compile("^" + re.escape(self.conf['prefix']) +
                 "(\S{1,52})[ ]?(.*)", re.IGNORECASE)
         else:

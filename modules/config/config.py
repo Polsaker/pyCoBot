@@ -1,11 +1,25 @@
 # -*- coding: utf-8 -*-
+import re
 
 
 class config:
     def __init__(self, core, cli):
         core.addCommandHandler("conf", self, cpriv=10, chelp="Modifica o muestr"
         "a las configuraciones del bot. Sintaxis: key [value]",
-        alias=["config"])
+        alias=["config"], cprivchan=True)
+
+    def conf_p(self, bot, cli, ev):
+        if len(ev.splitd) == 0:
+            return
+        p1 = re.compile("^channel.*", re.IGNORECASE)
+        m1 = p1.search(ev.splitd[0])
+        if m1 is not None:
+            return ev.target
+        else:
+            p1 = re.compile("^network\.channels\.(.*)", re.IGNORECASE)
+            m1 = p1.search(ev.splitd[0])
+            if m1 is not None:
+                return m1.group(1)
 
     def conf(self, bot, cli, ev):
         if len(ev.splitd) == 0:
