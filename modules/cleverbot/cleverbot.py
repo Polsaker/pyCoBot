@@ -24,7 +24,7 @@ class cleverbot:
             self.chans[ev.target] = {}
             self.chans[ev.target]['bot'] = Session()
         self.chans[ev.target]['ts'] = time.time()
-        
+        s = " ".join(ev.splitd)
         cli.msg(ev.target, self.chans[ev.target]['bot'].Ask(s))
 
 
