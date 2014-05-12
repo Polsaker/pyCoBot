@@ -23,6 +23,7 @@
         "calc",
         "sympy",
         "ircv3",
-        "config"
+        "config",
+        "cleverbot"
     ]
 }
