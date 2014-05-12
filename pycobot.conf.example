@@ -9,8 +9,8 @@
         "freenode": {
             "channels": {
                 "#cobot-test": {
-		    "notices": false		
-		}, 
+                    "notices": false
+                }, 
                 "#cobot": {
                     "overridemainprefix": true, 
                     "prefix": ["@", "!"]
@@ -37,6 +37,7 @@
     }, 
     "config": {
         "loglevel": "debug", 
-        "logfile": ""
+        "logfile": "",
+        "lang": "es_AR"
     }
 }
