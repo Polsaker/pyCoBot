@@ -19,10 +19,10 @@ class cleverbot:
             self.chans[ev.target]
             if (time.time() - self.chans[ev.target]['ts']) > 1800:
                 del self.chans[ev.target]['bot']
-                self.chans[ev.target]['bot'] = cleverbot.Session()
+                self.chans[ev.target]['bot'] = Session()
         except:
             self.chans[ev.target] = {}
-            self.chans[ev.target]['bot'] = cleverbot.Session()
+            self.chans[ev.target]['bot'] = Session()
         self.chans[ev.target]['ts'] = time.time()
         
         cli.msg(ev.target, self.chans[ev.target]['bot'].Ask(s))
@@ -65,7 +65,6 @@ class Session(object):
                 self.arglist[self.keylist.index('icognocheck')] = hash2
                 data = encode(self.keylist, self.arglist)
                 binary_data = data.encode('utf-8')
-                print(binary_data)
                 with urllib.request.urlopen("http://www.cleverbot.com/webservi"
                                             "cemin", binary_data, 5000) as url:
                     reply = url.read()
