@@ -41,8 +41,8 @@ except:
 if User.select().count() == 0:
     print("Al parecer no hay ningún usuario!")
     print("Registre un usuario administrador:")
-    user = raw_input("Usuario: ")
-    passw = raw_input("Contraseña: ")
+    user = input("Usuario: ")
+    passw = input("Contraseña: ")
     passw = hashlib.sha1(passw.encode('utf-8')).hexdigest()
     u = User()
     u.name = user.lower()
