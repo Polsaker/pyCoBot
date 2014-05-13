@@ -24,6 +24,7 @@
         "sympy",
         "ircv3",
         "config",
-        "cleverbot"
+        "cleverbot",
+        "megahal"
     ]
 }
