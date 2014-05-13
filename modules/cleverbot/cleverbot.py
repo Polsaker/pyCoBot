@@ -5,9 +5,13 @@ class cleverbot:
     def __init__(self, core, client):
         core.addCommandHandler("cleverbot", self, chelp="cleverbot.help",
             alias=['cb'])
+        core.addCommandHandler("jabberwacky", self, chelp="jabberwacky.help",
+            alias=['jw'])
         self.chans = {}
+        self.jchans = {}
         factory = ChatterBotFactory()
         self.cb = factory.create(ChatterBotType.CLEVERBOT)
+        self.jw = factory.create(ChatterBotType.JABBERWACKY)
 
     def cleverbot(self, bot, cli, ev):
         if len(ev.splitd) == 0:
@@ -24,6 +28,22 @@ class cleverbot:
         self.chans[ev.target]['ts'] = time.time()
         s = " ".join(ev.splitd)
         cli.msg(ev.target, self.chans[ev.target]['bot'].think(s))
+
+    def jabberwacky(self, bot, cli, ev):
+        if len(ev.splitd) == 0:
+            cli.msg(ev.target, bot._(ev, 'core', "generic.missigparam"))
+            return 1
+        try:
+            self.jchans[ev.target]
+            if (time.time() - self.jchans[ev.target]['ts']) > 1800:
+                del self.jchans[ev.target]['bot']
+                self.jchans[ev.target]['bot'] = self.jw.create_session()
+        except:
+            self.jchans[ev.target] = {}
+            self.jchans[ev.target]['bot'] = self.jw.create_session()
+        self.jchans[ev.target]['ts'] = time.time()
+        s = " ".join(ev.splitd)
+        cli.msg(ev.target, self.jchans[ev.target]['bot'].think(s))
 
 
 import hashlib
