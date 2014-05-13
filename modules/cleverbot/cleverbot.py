@@ -7,7 +7,7 @@ class cleverbot:
             alias=['cb'])
         self.chans = {}
         factory = ChatterBotFactory()
-        self.cleverbot = factory.create(ChatterBotType.CLEVERBOT)
+        self.cb = factory.create(ChatterBotType.CLEVERBOT)
 
     def cleverbot(self, bot, cli, ev):
         if len(ev.splitd) == 0:
@@ -17,16 +17,16 @@ class cleverbot:
             self.chans[ev.target]
             if (time.time() - self.chans[ev.target]['ts']) > 1800:
                 del self.chans[ev.target]['bot']
-                self.chans[ev.target]['bot'] = self.cleverbot.create_session()
+                self.chans[ev.target]['bot'] = self.cb.create_session()
         except:
             self.chans[ev.target] = {}
-            self.chans[ev.target]['bot'] = self.cleverbot.create_session()
+            self.chans[ev.target]['bot'] = self.cb.create_session()
         self.chans[ev.target]['ts'] = time.time()
         s = " ".join(ev.splitd)
         cli.msg(ev.target, self.chans[ev.target]['bot'].think(s))
 
 
-import md5
+import hashlib
 import urllib.request
 import urllib.parse
 import urllib.error
@@ -129,10 +129,10 @@ class _CleverbotSession(ChatterBotSession):
         self.vars['stimulus'] = thought.text
         data = urllib.parse.urlencode(self.vars)
         data_to_digest = data[9:self.bot.endIndex]
-        data_digest = md5.new(data_to_digest).hexdigest()
+        data_digest = hashlib.md5(data_to_digest.encode()).hexdigest()
         data = data + '&icognocheck=' + data_digest
-        url_response = urllib.request.urlopen(self.bot.url, data)
-        response = url_response.read()
+        url_response = urllib.request.urlopen(self.bot.url, data.encode())
+        response = url_response.read().decode()
         response_values = response.split('\r')
         #self.vars['??'] = _utils_string_at_index(response_values, 0)
         self.vars['sessionid'] = _utils_string_at_index(response_values, 1)
