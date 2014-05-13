@@ -1,0 +1,4 @@
+{
+    "hal.help": "Habla con MegaHAL. Uso: megahal <texto>",
+    "hal.dunno": "Todavía no conozco suficiente como para hablar!"
+}

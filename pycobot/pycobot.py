@@ -127,7 +127,7 @@ class pyCoBot:
         m1 = self._iscommand(ev)
 
         # Buscamos por el nick como prefijo..
-        p2 = re.compile("^" + re.escape(self.conf['nick']) +
+        p2 = re.compile("^" + re.escape(con.nickname) +
             "[:, ]? (\S{1,52})[ ]?(.*)", re.IGNORECASE)
         m2 = p2.search(ev.arguments[0])
         if not m1 is None:

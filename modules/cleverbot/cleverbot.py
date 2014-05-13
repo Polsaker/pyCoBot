@@ -10,10 +10,10 @@ class cleverbot:
         core.addCommandHandler("cleverbot", self, chelp="cleverbot.help",
             alias=['cb'])
         self.chans = {}
-    
+
     def cleverbot(self, bot, cli, ev):
         if len(ev.splitd) == 0:
-            cli.msg(event.target, bot._(event, 'core', "generic.missigparam"))
+            cli.msg(ev.target, bot._(ev, 'core', "generic.missigparam"))
             return 1
         try:
             self.chans[ev.target]
@@ -30,11 +30,11 @@ class cleverbot:
 
 class ServerFullError(Exception):
         pass
- 
+
 ReplyFlagsRE = re.compile('<INPUT NAME=(.+?) TYPE=(.+?) VALUE="(.*?)">',
                                                  re.IGNORECASE | re.MULTILINE)
- 
- 
+
+
 class Session(object):
         keylist = ['stimulus', 'start', 'sessionid', 'vText8', 'vText7',
                 'vText6', 'vText5', 'vText4', 'vText3', 'vText2', 'icognoid',
@@ -52,12 +52,12 @@ class Session(object):
         headers['Referer'] = 'http://www.cleverbot.com'
         headers['Cache-Control'] = 'no-cache, no-cache'
         headers['Pragma'] = 'no-cache'
- 
+
         def __init__(self):
                 self.arglist = ['', 'y', '', '', '', '', '', '', '', '', 'wsf',
                     '', '', '', '', '', '', '', '', '0', 'Say', '1', 'false']
                 self.MsgList = []
- 
+
         def Send(self):
                 data = encode(self.keylist, self.arglist)
                 digest_txt = data[9:35].encode('utf-8')
@@ -69,7 +69,7 @@ class Session(object):
                                             "cemin", binary_data, 5000) as url:
                     reply = url.read()
                 return reply
- 
+
         def Ask(self, q):
                 self.arglist[self.keylist.index('stimulus')] = q
                 if self.MsgList:
@@ -89,8 +89,8 @@ class Session(object):
                 h = html.parser.HTMLParser()
                 text = h.unescape(text)
                 return text
- 
- 
+
+
 def parseAnswers(text):
         d = {}
         keys = ["text", "sessionid", "logurl", "vText8", "vText7", "vText6",
@@ -105,8 +105,8 @@ def parseAnswers(text):
                 d[key] = values[i]
                 i += 1
         return d
- 
- 
+
+
 def encode(keylist, arglist):
         text = ''
         for i in range(len(keylist)):
@@ -115,12 +115,12 @@ def encode(keylist, arglist):
                 text += '&' + k + '=' + v
         text = text[1:]
         return text
- 
+
 always_safe = ('ABCDEFGHIJKLMNOPQRSTUVWXYZ'
                'abcdefghijklmnopqrstuvwxyz'
                '0123456789' '_.-')
- 
- 
+
+
 def quote(s, safe='/'):  # quote('abc def') -> 'abc%20def'
         safe += always_safe
         safe_map = {}
