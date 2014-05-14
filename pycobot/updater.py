@@ -62,6 +62,14 @@ class pyCoUpdater:
                          is True:
                             self.processgithttp(xval['location'], val + ".json")
                             self.upd = True
+                            foobar = json.load(open("modules/" + val + "/" +
+                            val + ".json"))
+                            try:
+                                for f1 in foobar['files']:
+                                    self.processgithttp(xval['location'],
+                                            "modules/" + val + "/" + f1)
+                            except:
+                                pass
 
                             #self.cli.msg(self.ev.target,
                             #    self.bot._(self.ev, 'core', 'update.newfile')
