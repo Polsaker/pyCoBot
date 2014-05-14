@@ -157,7 +157,8 @@ class pyCoBot:
 
                     con.msg(ev.target, "\2pyCoBot {0}\2. ".format(VER_STRING) +
                         self._(ev, 'core', 'help.introstr')
-                            .format(self._getprefix(ev)))
+                            .format(self._getprefix(ev) +
+                            self._(ev, 'core', 'help.cmd')))
 
                     con.msg(ev.target, self._(ev, 'core', 'help.commands')
                                                                     + comlist)
