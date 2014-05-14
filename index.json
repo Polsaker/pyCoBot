@@ -25,6 +25,7 @@
         "ircv3",
         "config",
         "cleverbot",
-        "megahal"
+        "megahal",
+        "uptime"
     ]
 }

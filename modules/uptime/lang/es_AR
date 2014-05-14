@@ -1,0 +1,6 @@
+{
+    "uptime.help": "Muestra estadisticas del proceso del bot.",
+    "err.nouptime": "No se pudo obtener el uptime",
+    "uptime.time": "El bot ha estado andando por {0} días, {1} horas, {2} minutos y {3} segundos.",
+    "uptime.mem": " Memoria residente: {0} MiB, pico: {1} MiB y está usando {2} threads"
+}
