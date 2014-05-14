@@ -1,4 +1,5 @@
 import time
+import html.parser
 
 
 class cleverbot:
@@ -104,6 +105,7 @@ class ChatterBot:
 
 
 class ChatterBotSession:
+    h = html.parser.HTMLParser()
 
     def think_thought(self, thought):
         return thought
@@ -111,7 +113,7 @@ class ChatterBotSession:
     def think(self, text):
         thought = ChatterBotThought()
         thought.text = text
-        return self.think_thought(thought).text
+        return self.h.unescape(self.think_thought(thought).text)
 
 
 class ChatterBotThought:
