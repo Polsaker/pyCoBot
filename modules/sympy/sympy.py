@@ -14,7 +14,7 @@ class sympy:
         try:
             solve
         except:
-            return -1
+            return
 
         core.addCommandHandler("calcx", self, chelp="Resuelve X en una ecuación"
             ". Sintaxis: calcx <ecuación>")
