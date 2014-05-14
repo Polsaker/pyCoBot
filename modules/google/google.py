@@ -10,9 +10,9 @@ class google:
         try:
             self.apikey = core.readConf("config.googleapikey")
             if self.apikey == "":
-                return None
+                return
         except:
-            return None
+            return
         core.addCommandHandler("google", self, chelp=
         "Realiza una busqueda en google. Sintaxis: google <texto>")
 
