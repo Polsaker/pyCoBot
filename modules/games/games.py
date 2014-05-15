@@ -2,6 +2,7 @@
 from pycobot.pycobot import BaseModel
 from peewee.peewee import CharField, IntegerField
 import random
+import copy
 
 
 class games:
@@ -193,7 +194,7 @@ class games:
     ## /Timehandler
 
     def commandhandle(self, cli, event):
-        ev = event
+        ev = copy.copy(event)
         if not ev.splitd[0][0] == "!":
             return 0
         c = GameChannel.get(GameChannel.channel == ev.target)
