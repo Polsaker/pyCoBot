@@ -6,19 +6,22 @@ import re
 class op:
     def __init__(self, core, client):
         core.addCommandHandler("op", self, cpriv=5, cprivchan=True, chelp=
-        "Da op en un canal. Sintaxis: op [canal] [nick]")
+        "Da op en un canal. Sintaxis: op [canal] [nick]", alias=['o'])
         core.addCommandHandler("deop", self, cpriv=5, cprivchan=True, chelp=
         "Quita op en un canal. Sintaxis: deop [canal] [nick]")
         core.addCommandHandler("voice", self, cpriv=3, cprivchan=True, chelp=
-        "Da voz en un canal. Sintaxis: voice [canal] [nick]")
+        "Da voz en un canal. Sintaxis: voice [canal] [nick]", alias=['v'])
         core.addCommandHandler("devoice", self, cpriv=3, cprivchan=True, chelp=
         "Quita voz en un canal. Sintaxis: devoice [canal] [nick]")
         core.addCommandHandler("kick", self, cpriv=4, cprivchan=True, chelp=
-        "Expusa a alguien de un canal. Sintaxis: kick [canal] [nick]")
+        "Expusa a alguien de un canal. Sintaxis: kick [canal] [nick]",
+         alias=['k'])
         core.addCommandHandler("kickban", self, cpriv=4, cprivchan=True, chelp=
-        "Banea a alguien de un canal. Sintaxis: kickban [canal] [nick]")
+        "Banea a alguien de un canal. Sintaxis: kickban [canal] [nick]",
+         alias=['kb', 'ban'])
         core.addCommandHandler("unban", self, cpriv=3, cprivchan=True, chelp=
-        "Des-banea a alguien de un canal. Sintaxis: unban [canal] [nick]")
+        "Des-banea a alguien de un canal. Sintaxis: unban [canal] [nick]",
+        alias=['ub'])
         core.addCommandHandler("topic", self, cpriv=4, cprivchan=True, chelp=
         "Cambia el topic de un canal. Sintaxis: topic [canal] [topic]")
 
