@@ -98,8 +98,8 @@ class authadd:
         users = User.select()
         resp = "Usuarios registrados: "
         for user in users:
-            resp += user.name + " "
-        cli.msg(ev.target, resp)
+            resp += user.name + ", "
+        cli.msg(ev.target, resp.strip(", "))
 
     def listpriv(self, bot, cli, ev):
         if not len(ev.splitd) > 0:
@@ -139,7 +139,7 @@ class authadd:
             cli.msg(ev.target, "\00304Error\003: Faltan parametros.")
             return 0
         #guh
-        uname = ev.splitd[0]
+        uname = ev.splitd[0].lower()
         priv = int(ev.splitd[1])
         if len(ev.splitd) > 2:
             module = ev.splitd[2]
@@ -189,7 +189,7 @@ class authadd:
             return 0
 
         #guh x2
-        uname = ev.splitd[0]
+        uname = ev.splitd[0].lower()
         priv = int(ev.splitd[1])
         if len(ev.splitd) > 2:
             module = ev.splitd[2]
