@@ -194,7 +194,7 @@ class games:
     ## /Timehandler
 
     def commandhandle(self, cli, event):
-        ev = copy.copy(event)
+        ev = copy.deepcopy(event)
         if not ev.splitd[0][0] == "!":
             return 0
         c = GameChannel.get(GameChannel.channel == ev.target)
