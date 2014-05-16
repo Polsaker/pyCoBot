@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import irc.client
 import re
+import time
 
 
 class op:
@@ -19,6 +20,9 @@ class op:
         core.addCommandHandler("kickban", self, cpriv=4, cprivchan=True, chelp=
         "Banea a alguien de un canal. Sintaxis: kickban [canal] [nick]",
          alias=['kb', 'ban'])
+        core.addCommandHandler("timedban", self, cpriv=4, cprivchan=True, chelp=
+        "Banea a alguien de un canal por un tiempo determinado. Sintaxis: "
+        "kickban [canal] [nick] [tiempo en minutos]", alias=['tb', 'tban'])
         core.addCommandHandler("unban", self, cpriv=3, cprivchan=True, chelp=
         "Des-banea a alguien de un canal. Sintaxis: unban [canal] [nick]",
         alias=['ub'])
@@ -34,25 +38,42 @@ class op:
         else:
             return ev.target
 
-    def _getchannick(self, ev):
+    def _getchannick(self, ev, tb=False):
+        restofthestuff = None
         if len(ev.splitd) > 0 and irc.client.is_channel(ev.splitd[0]):
             chan = ev.splitd[0]
             if len(ev.splitd) > 1:
                 nick = ev.splitd[1]
-                atr = " ".join(ev.splitd[2:])
+                if tb is False:
+                    atr = " ".join(ev.splitd[2:])
+                else:
+                    restofthestuff = ev.splitd[2]
+                    atr = " ".join(ev.splitd[3:])
             else:
                 nick = ev.source
-                atr = " ".join(ev.splitd[1:])
+                if tb is False:
+                    atr = " ".join(ev.splitd[1:])
+                else:
+                    restofthestuff = ev.splitd[1]
+                    atr = " ".join(ev.splitd[2:])
         else:
             if len(ev.splitd) > 0:
                 nick = ev.splitd[0]
-                atr = " ".join(ev.splitd[1:])
+                if tb is False:
+                    atr = " ".join(ev.splitd[1:])
+                else:
+                    restofthestuff = ev.splitd[1]
+                    atr = " ".join(ev.splitd[2:])
             else:
                 nick = ev.source
-                atr = " ".join(ev.splitd[0:])
+                if tb is False:
+                    atr = " ".join(ev.splitd[0:])
+                else:
+                    restofthestuff = ev.splitd[0]
+                    atr = " ".join(ev.splitd[1:])
 
             chan = ev.target
-        return (nick, chan, atr)
+        return (nick, chan, atr, restofthestuff)
 
     def op(self, bot, cli, ev):
         x = self._getchannick(ev)
@@ -98,6 +119,19 @@ class op:
         cli.who(self.nick)
         pass
 
+    def timedban_p(self, bot, cli, ev):
+        return self.op_p(bot, cli, ev)
+
+    def timedban(self, bot, cli, ev):
+        x = self._getchannick(ev, True)
+        self.actn = "tban"
+        self.nick = x[0]
+        self.msg = x[2]
+        self.chan = x[1]
+        self.t = int(x[3])
+        cli.who(self.nick)
+        pass
+
     def unban_p(self, bot, cli, ev):
         return self.op_p(bot, cli, ev)
 
@@ -121,6 +155,12 @@ class op:
             cli.mode(self.chan, "+b *!*@" + ev.arguments[2])
             cli.kick(self.chan, self.nick, self.msg)
             self.actn = False
+        elif self.actn == "tban" and self.nick == ev.arguments[4]:
+            cli.mode(self.chan, "+b *!*@" + ev.arguments[2])
+            cli.kick(self.chan, self.nick, self.msg)
+            self.actn = False
+            time.sleep(self.t * 60)
+            cli.mode(self.chan, "-b *!*@" + ev.arguments[2])
         elif self.actn == "unban" and self.nick == ev.arguments[4]:
             self.masc = ev.arguments[4] + "!" + ev.arguments[1] + "@" + \
              ev.arguments[2]
