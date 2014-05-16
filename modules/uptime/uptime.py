@@ -45,7 +45,7 @@ class uptime:
             if l is None:
                 results[i] = "\0020\2"
             else:
-                results[i] = l.strip(":")
+                results[i] = str(int(l.strip(":").strip("-")))
                 results[i] = "\2" + results[i] + "\2"
         return results
 
