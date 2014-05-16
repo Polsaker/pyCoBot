@@ -7,7 +7,6 @@ import os
 import json
 import _thread
 import sys
-import shutil
 from peewee import peewee
 from . import updater
 
@@ -69,7 +68,6 @@ class pyCoBot:
         self.server = client.server(self)
         self.conf = conf
         self.modules = {}
-        self.modinfo = {}
         self.modname = {}
         self.commandhandlers = {}
         self.lang = {}
@@ -374,7 +372,7 @@ class pyCoBot:
     # Retorna true si "module" está cargado
     def is_loaded(self, module):
         try:
-            self.modinfo[module]
+            self.modules[module]
             return True
         except KeyError:
             return False
@@ -389,40 +387,40 @@ class pyCoBot:
     # carga de modulos
     def loadmod(self, module, cli):
         logging.info('Cargando modulo "%s" en %s'
-         % (module, self.conf['server']))
+                                % (module, self.conf['server']))
         try:
-            self.modinfo[module]
+            self.modules[module]
             logging.warning("Se ha intentado cargar un módulo que ya estaba"
              "cargado!!")
             return 3
         except KeyError:
             pass
+
         try:
-            nclassname = "m" + str(int(time.time())) + "x" + module
-            shutil.copytree("modules/%s/" % module, "tmp/%s/%s" % (self.sid,
-             nclassname))
-            touch("tmp/%s/%s/__init__.py" % (self.sid, nclassname))
+            sys.modules['modules.' + module + '.' + module]
+            mod = reload('modules.' + module + '.' + module)
+        except:
             try:
-                self.modules[module] = my_import("tmp." + self.sid +
-                "." + nclassname + "." + module + "." + module)(self,
-                 self.server)
-            except AttributeError as q:
-                if str(q) == "'module' object has no attribute '" + module + \
+                mod = my_import('modules.' + module + '.' + module)
+            except ImportError as q:
+                logging.error("No se pudo cargar el modulo '%s': %s" %
+                                (module, q))
+                return 1
+        try:
+            self.modules[module] = getattr(mod, module)(self, self.server)
+        except Exception as q:
+            if str(q) == "'module' object has no attribute '" + module + \
                     "'":
-                    logging.error("No se pudo cargar el modulo '%s'. No se ha" %
-                     module + " encontrado la clase principal.")
-                    return 2
-                else:
-                    logging.error("No se ha podido cargar el módulo '%s'"
-                        " debido a algun error interno en su __init__: %s" % (
-                        module, q))
-                    return 4
-            self.modinfo[module] = nclassname
-            self.modname[self.modules[module]] = module
-        except IOError:
-            logging.error("No se pudo cargar el modulo '%s'. No se ha" %
-             module + " encontrado el archivo.")
-            return 1
+                logging.error("No se pudo cargar el modulo '%s'. No se ha" %
+                 module + " encontrado la clase principal.")
+                return 2
+            else:
+                logging.error("No se ha podido cargar el módulo '%s'"
+                " debido a algun error interno en su __init__: %s" % (
+                module, q))
+            return 4
+        self.modname[self.modules[module]] = module
+
         # Cargar idiomas....
         try:
             self.lang[module] = {}
@@ -434,6 +432,7 @@ class pyCoBot:
             pass
 
     def unloadmod(self, module):
+        pass
         logging.info('Des-cargando modulo "%s" en %s'
          % (module, self.conf['server']))
         try:
@@ -441,9 +440,7 @@ class pyCoBot:
         except KeyError:
             logging.error("El modulo %s no existe o no esta cargado" % module)
             return 1
-        shutil.rmtree("tmp/%s/%s" % (self.sid, self.modinfo
-         [module]))
-        del self.modinfo[module]
+
         # Eliminamos los handlers..
         for i, val in enumerate(self.handlers):
             if self.modules[module] == self.handlers[i]['mod']:
@@ -465,6 +462,8 @@ class pyCoBot:
         for k, i in enumerate(self.timehandlers):
             if i[1] == self.modules[module]:
                 self.timehandlers[k][0] = False
+
+        del self.modules[module]
 
     def restart_program(self, quitmsg):
         for i in enumerate(self.botcli.boservers):
