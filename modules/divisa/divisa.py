@@ -33,7 +33,7 @@ class divisa:
         dfrom = bot._(ev, self, dfrom)
         dto = bot._(ev, self, dto)
             
-        if (time.time() - self.thigtime) < 1800:
+        if (time.time() - self.thingtime) < 1800:
             r = urllib.request.urlopen("http://openexchangerate"
              "s.org/api/latest.json?app_id=" +
              bot.readConf("config.openexchratesapikey")).read().decode()
