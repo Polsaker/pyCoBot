@@ -7,6 +7,11 @@ class divisa:
         core.addCommandHandler("conv", self, chelp="conv.help")
         self.thing = None
         self.thingtime = 0
+        r = urllib.request.urlopen("http://openexchangerate"
+         "s.org/api/latest.json?app_id=" +
+         bot.readConf("config.openexchratesapikey")).read().decode()
+        self.thing = json.loads(r)
+        self.thingtime = time.time()
     
     def conv(self, bot, cli, ev):
         if len(ev.splitd) < 2:
