@@ -17,6 +17,7 @@ _rfc_1459_command_regexp = re.compile("^(:(?P<prefix>[^ ]+) +)?" +
 
 class ClientPool(object):
     def __init__(self):
+        self.nocheck = False
         self.clients = []
 
     def server(self, bot):
@@ -29,7 +30,7 @@ class ClientPool(object):
         while connected:
             connected = False
             for client in self.clients:
-                if client.connected:
+                if client.connected or self.nocheck:
                     connected = True
                 # client.process_data()
             time.sleep(0.1)
