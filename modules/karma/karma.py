@@ -31,6 +31,8 @@ class karma:
     def karmacount(self, cli, ev):
         l = self.karmare.match(ev.arguments[0])
         if l is not None:
+            if l.group(1).lower() == ev.source.lower():
+                return 1
             try:
                 self.lasttime[ev.target]
             except:
