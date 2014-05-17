@@ -97,7 +97,7 @@ class pyCoUpdater:
 
     def preprocessgithttp(self):
         # TODO: Auto-descarga de módulos no encontrados localmente
-        for i in enumerate(self.githttpupd):
+        for i in enumerate(self.gitupd):
             i = i[1]
             logging.info("Descargando indice de modulos para el " +
             "repositorio %s" % i)
