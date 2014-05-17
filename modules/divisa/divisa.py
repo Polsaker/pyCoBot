@@ -10,7 +10,7 @@ class divisa:
         self.thingtime = 0
         r = urllib.request.urlopen("http://openexchangerate"
          "s.org/api/latest.json?app_id=" +
-         bot.readConf("config.openexchratesapikey")).read().decode()
+         core.readConf("config.openexchratesapikey")).read().decode()
         self.thing = json.loads(r)
         self.thingtime = time.time()
     
