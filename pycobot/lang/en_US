@@ -1,4 +1,18 @@
 {
     "noauth": "\u000304Error\u0003: Unauthorized",
-    "helpcmd": "help"
+    "help.cmd": "Help",
+    "help.introstr": "Commands start with \u0002{0}\u0002. Enter \u0002{0} <command>\u0002 for more information about a command.",
+    "help.commands": "Commands: ",
+    "help.help": "Displays help for a command, or, if no parameters, the command list. Syntax: help [command] ",
+    "help.auth": "Identifies a user registered with the bot. Usage: /msg {0} auth <username> <password>",
+    "help.alias": "(Alias of\u0002{0}\u0002) ",
+    "help.404": "Command not found",
+    "help.helpof": " Help\u0002{0}\u0002: {1}",
+    "update.quitmsg": "Applying updates",
+    "auth.ok": "Authentication successful",
+    "auth.err": "\u000304Error\u0003: Username or password incorrect",
+    "update.noupdate": "No updates available",
+    "update.newfile": "Updating \u0002{0}\u0002\u000307 [New] \u0003",
+    "update.file": "Updating \u0002{0}\u0002",
+    "generic.missigparam": "\u000304Error\u0003: Missing parameters"
 }
