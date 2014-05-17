@@ -15,10 +15,7 @@ class games:
         self.timehandlers = ""
         l = False
         for k in core.botcli.bots:
-            import pprint
             if k.is_loaded("games") is True:
-                pprint.pprint(k.getmodule("games").timehandlers)
-                pprint.pprint(k.getmodule("games"))
                 if k.getmodule("games").timehandlers == k.getmodule("games"):
                     self.timehandlers = k.getmodule("games")
                 l = True
@@ -27,6 +24,7 @@ class games:
         if l is False:
             self.timehandlers = self
             core.addTimeHandler(1800, self, "th30min")
+            self.lastuser = False
         try:
             GameChannel.create_table(True)
             GameBank.create_table(True)
