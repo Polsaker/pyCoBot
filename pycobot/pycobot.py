@@ -9,6 +9,7 @@ import _thread
 import sys
 from peewee import peewee
 from . import updater
+import imp
 
 ########
 VER_MAJOR = "2"
@@ -397,8 +398,7 @@ class pyCoBot:
             pass
 
         try:
-            sys.modules['modules.' + module + '.' + module]
-            mod = reload('modules.' + module + '.' + module)
+            mod = imp.reload(sys.modules['modules.' + module + '.' + module])
         except:
             try:
                 mod = my_import('modules.' + module + '.' + module)

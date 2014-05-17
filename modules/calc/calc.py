@@ -82,7 +82,10 @@ class calc:
         expr = expr.replace('^', '**')
 
         resp = safe_eval(expr, self.vrs)
-        resp = mp.nstr(resp, mp.dps, min_fixed=-mp.inf)
+        try:
+            resp = mp.nstr(resp, mp.dps, min_fixed=-mp.inf)
+        except:
+            pass
 
         q.put(str(resp))
 
