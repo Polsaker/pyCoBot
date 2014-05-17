@@ -4,6 +4,7 @@ import json
 import logging
 import hashlib
 import os
+import base64
 
 
 class pyCoUpdater:
@@ -14,6 +15,8 @@ class pyCoUpdater:
         self.conf = conf
         self.ev = ev
         self.githttpupd = {}
+        self.gitupd = {}
+        self.gitupdrepos = {}
         self.upd = False
         self.restartupd = False
 
@@ -21,10 +24,10 @@ class pyCoUpdater:
         if utype == "github":
             # TODO: Actualizador vía github api
             try:
-                self.githttpupd[user + "/" + repo]
+                self.gitupd[user + "/" + repo]
             except KeyError:
-                self.githttpupd[user + "/" + repo] = []
-            self.githttpupd[user + "/" + repo].append(module)
+                self.gitupd[user + "/" + repo] = []
+            self.gitupd[user + "/" + repo].append(module)
         elif utype == "github-http":
             try:
                 self.githttpupd[user + "/" + repo]
@@ -36,8 +39,6 @@ class pyCoUpdater:
 
     def update(self):
         self.preprocessgithttp()
-        # self.preprocessgithub()
-        # self.preprocesshttp()
         self.modrepos()
         self.coreupdate()
 
@@ -58,15 +59,15 @@ class pyCoUpdater:
                         open("modules/%s/%s.py" % (val, val))
                     except:
                         val = "modules/%s/%s" % (val, val)
-                        if self.processgithttp(xval['location'], val + ".py") \
+                        if self.processgit(xval['location'], val + ".py") \
                          is True:
-                            self.processgithttp(xval['location'], val + ".json")
+                            self.processgit(xval['location'], val + ".json")
                             self.upd = True
                             foobar = json.load(open("modules/" + val + "/" +
                             val + ".json"))
                             try:
                                 for f1 in foobar['files']:
-                                    self.processgithttp(xval['location'],
+                                    self.processgit(xval['location'],
                                             "modules/" + val + "/" + f1)
                             except:
                                 pass
@@ -77,28 +78,20 @@ class pyCoUpdater:
 
     def coreupdate(self):
         # TODO: Descargar archivos nuevos
-        logging.info("Descargando índice de archivos del nucleo...")
-        ix = urllib.request.urlopen('https://github.com/irc-CoBot/pyCoBot/ra' +
-         'w/master/pycobot/index.json').read()
+        self.processgit("irc-CoBot/pyCoBot", "pycobot/index.json")
+        ix = open("pycobot/index.json").read()
         index = json.loads(ix.decode('utf-8'))
         for x, xval in enumerate(index):
-            if self.processgithttp("irc-CoBot/pyCoBot", "pycobot/" + xval) is \
+            if self.processgit("irc-CoBot/pyCoBot", "pycobot/" + xval) is \
              True:
-
-                #self.cli.msg(self.ev.target, self.bot._(self.ev, 'core',
-                #         'update.file').format("pycobot/" + xval))
                 self.upd = True
                 self.restartupd = True
 
         # \o/
-        if self.processgithttp("irc-CoBot/pyCoBot", "pycobot.py") is True:
-            #self.cli.msg(self.ev.target, self.bot._(self.ev, 'core',
-            #             'update.file').format("pycobot.py"))
+        if self.processgit("irc-CoBot/pyCoBot", "pycobot.py") is True:
             self.upd = True
             self.restartupd = True
-        if self.processgithttp("irc-CoBot/pyCoBot", "irc/client.py") is True:
-            #self.cli.msg(self.ev.target, self.bot._(self.ev, 'core',
-            #             'update.file').format("irc/client.py"))
+        if self.processgit("irc-CoBot/pyCoBot", "irc/client.py") is True:
             self.upd = True
             self.restartupd = True
 
@@ -106,7 +99,7 @@ class pyCoUpdater:
         # TODO: Auto-descarga de módulos no encontrados localmente
         for i in enumerate(self.githttpupd):
             i = i[1]
-            logging.info("Descargando indice de modulos github-http para el " +
+            logging.info("Descargando indice de modulos para el " +
             "repositorio %s" % i)
             ix = urllib.request.urlopen('https://github.com/%s/raw' % i +
              '/master/index.json').read()  # Obtenemos el indice de modulos..
@@ -114,17 +107,17 @@ class pyCoUpdater:
             for k, val in enumerate(self.githttpupd[i]):
                 for x, xval in enumerate(index['modules']):
                     if val == xval:
-                        self.processgithttp(i, "modules/" + val + "/" + val +
+                        self.processgit(i, "modules/" + val + "/" + val +
                          ".json")
                         foobar = json.load(open("modules/" + val + "/" + val +
                          ".json"))
                         try:
                             for f1 in foobar['files']:
-                                self.processgithttp(i, "modules/" + val + "/" +
+                                self.processgit(i, "modules/" + val + "/" +
                                                     f1)
                         except:
                             pass
-                        if self.processgithttp(i, "modules/" + val + "/" + val +
+                        if self.processgit(i, "modules/" + val + "/" + val +
                          ".py") is True:
                             #self.cli.msg(self.ev.target,
                             #    self.bot._(self.ev, 'core', 'update.file')
@@ -138,6 +131,47 @@ class pyCoUpdater:
                                 self.bot.loadmod(val, self.cli)
                             except:
                                 pass  # ???
+
+    def processgit(self, repo, path):
+        try:
+            self.gitupdrepos[repo]
+        except:
+            response = self.gitHttpRequest("https://api.github.com/repos/"
+            "{0}/git/trees/master?recursive=1".format(repo)).read().decode()
+            self.gitupdrepos[repo] = json.loads(response)
+
+        for f in self.gitupdrepos[repo]['tree']:
+            if f['path'] == path:
+                if not self.compHash(path, f['sha']):
+                    response = self.gitHttpRequest(f['url']).read().decode()
+                    response = json.loads(response)
+                    open(path, "w").write(base64.b64decode(response['content']))
+                    self.cli.msg(self.ev.target,
+                        self.bot._(self.ev, 'core', 'update.file').format(path))
+                    logging.info("Actualizando %s." % (path))
+                    return True
+        return False
+
+    def gitHttpRequest(self, url):
+        r = urllib.request.Request(url)
+        u = self.bot.readConf("config.github.user", default=False)
+        p = self.bot.readConf("config.github.password", default=False)
+        if u is not False and p is not False:
+            b6 = base64.b64encode("{0}:{1}".format(u, p).encode()).decode()
+            r.add_header("Authorization", "Basic {0}".format(b6))
+        return urllib.request.urlopen(r)
+
+    def compHash(self, path, chash):
+        try:
+            f = open(path).read()
+        except:
+            return False
+        v = "blob {0}\0{1}".format(len(f.encode('utf-8')), f)
+        fhash = hashlib.sha1(v.encode()).hexdigest()
+        if fhash == chash:
+            return True
+        else:
+            return False
 
     def processgithttp(self, repo, path):
         response = urllib.request.urlopen('https://github.com/%s/raw' % (repo) +
