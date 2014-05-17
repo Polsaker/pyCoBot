@@ -104,7 +104,7 @@ class pyCoUpdater:
             ix = urllib.request.urlopen('https://github.com/%s/raw' % i +
              '/master/index.json').read()  # Obtenemos el indice de modulos..
             index = json.loads(ix.decode('utf-8'))
-            for k, val in enumerate(self.githttpupd[i]):
+            for k, val in enumerate(self.gitupd[i]):
                 for x, xval in enumerate(index['modules']):
                     if val == xval:
                         self.processgit(i, "modules/" + val + "/" + val +
