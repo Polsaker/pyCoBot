@@ -145,6 +145,7 @@ class pyCoUpdater:
                 if not self.compHash(path, f['sha']):
                     response = self.gitHttpRequest(f['url']).read().decode()
                     response = json.loads(response)
+                    ensure_dir(path)
                     open(path, "w").write(base64.b64decode(response['content']))
                     self.cli.msg(self.ev.target,
                         self.bot._(self.ev, 'core', 'update.file').format(path))
