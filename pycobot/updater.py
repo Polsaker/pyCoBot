@@ -80,7 +80,7 @@ class pyCoUpdater:
         # TODO: Descargar archivos nuevos
         self.processgit("irc-CoBot/pyCoBot", "pycobot/index.json")
         ix = open("pycobot/index.json").read()
-        index = json.loads(ix.decode('utf-8'))
+        index = json.loads(ix)
         for x, xval in enumerate(index):
             if self.processgit("irc-CoBot/pyCoBot", "pycobot/" + xval) is \
              True:
