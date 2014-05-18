@@ -23,7 +23,7 @@ class karma:
         user = Karma.get(Karma.nick == ev.splitd[0].lower(),
                              Karma.chan == ev.target.lower())
         if user is False:
-            cli.msg(ev.target, bot._(ev, self, 'karma.no')).format(ev.splitd[0])
+            cli.msg(ev.target, bot._(ev, self, 'karma.no').format(ev.splitd[0]))
         else:
             cli.msg(ev.target, bot._(ev, self, 'karma.msg').format(
                                             ev.splitd[0], str(user.karma)))
