@@ -27,7 +27,9 @@ class sympy:
 
         expr = " ".join(ev.splitd)
 
-        expr = expr.replace("=", "-")
+        expr = "(" + expr
+        expr = expr.replace("=", ") - (")
+        expr = expr + ")"
 
         pr = sympify(expr)
         x = Symbol('x')
