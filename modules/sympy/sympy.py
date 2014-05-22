@@ -39,8 +39,9 @@ class sympy:
             cli.msg("Error: Faltan parametros")
 
         expr = " ".join(ev.splitd)
-
-        expr = expr.replace("=", "-")
+        expr = "(" + expr
+        expr = expr.replace("=", ") - (")
+        expr = expr + ")"
         try:
             pr = sympify(expr)
         except:
