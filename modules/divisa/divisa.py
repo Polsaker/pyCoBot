@@ -39,5 +39,6 @@ class divisa:
              bot.readConf("config.openexchratesapikey")).read().decode()
             self.thing = json.loads(r)
             self.thingtime = time.time()
-        cli.msg(ev.target, bot._(ev, self, 'convmsg').format(dfrom, dto, (kfrom / kto) * float(ev.splitd[2])))
+        convd = (float(ev.splitd[2]) / kfrom) * kto
+        cli.msg(ev.target, bot._(ev, self, 'convmsg').format(ev.splitd[2], dfrom, dto, convd))
         
