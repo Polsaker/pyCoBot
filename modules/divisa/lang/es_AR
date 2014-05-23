@@ -1,7 +1,7 @@
 {
     "conv.help": "Convierte de una divisa a otra. Uso: conv <de> <a> <cantidad>",
     "err.invaliddiv": "No se pudo reconocer la divisa \u0002{0}\u0002",
-    "convmsg": "Convirtiendo del \u0002{0}\u0002 al \u0002{1}\u0002: {2}",
+    "convmsg": "\u0002{0}\u0002 \u0002{1}\u0002 = \u0002{3}\u0002 \u0002{2}\u0002",
     "AED": "Dirham de los Emiratos Árabes Unidos",
     "AFN": "Afgani afgano",
     "ALL": "Lek albanés",
