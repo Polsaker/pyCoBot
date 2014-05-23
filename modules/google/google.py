@@ -29,12 +29,9 @@ class google:
         search = json.loads(r.decode('utf-8'))
 
         resp = "Resultados de la búsqueda en Google de " + \
-        " \"\2%s\2\": " % " ".join(event.splitd)
+        " \"\2{0}\2\": ".format(" ".join(event.splitd)) \
         + "\2%s\2 \037\00310%s\003\037" % (search['items'][0]['title'],
         search['items'][0]['link'])
-        #, search['items'][1]['title'],
-        #search['items'][1]['link']) + ", \2%s\2 \037\00310%s\003\037" % \
-        #(search['items'][2]['title'], search['items'][2]['link']
         try:
             resp += ", \2{0}\2 \037\00310{1}\003\037".format(
                     search['items'][1]['title'], search['items'][1]['link'])
