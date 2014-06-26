@@ -175,10 +175,22 @@ class Daemon:
 def main():
     l = Daemon("/tmp/pycobot.pid",
          stdout="pycobot.log", stderr="pycobot.log")
-    if sys.argv[1] == "stop":
-        l.stop()
-    else:
-        l.start()
+    try:
+        if sys.argv[1] == "--stop":
+            l.stop()
+        elif sys.argv[1] == "--foreground":
+            l.run();
+        elif sys.argv[1] == "--help":
+            print("Uso: pycobot.py [argumentos]:")
+            print("\nArgumentos:")
+            print("    --help: Muestra este mensaje")
+            print("    --stop: Detiene el demonio")
+            print("    --foreground: Inicia el bot normalmente (no como demonio)")
+            print("\nSin argumentos: Inicia al bot como demonio")
+        else:
+            l.start()
+    except:
+            l.start()
 
 
 if __name__ == "__main__":
