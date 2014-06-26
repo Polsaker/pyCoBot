@@ -175,7 +175,10 @@ class Daemon:
 def main():
     l = Daemon("/tmp/pycobot.pid",
          stdout="pycobot.log", stderr="pycobot.log")
-    l.start()
+    if sys.argv[1] == "stop":
+        l.stop()
+    else:
+        l.start()
 
 
 if __name__ == "__main__":
