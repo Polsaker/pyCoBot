@@ -23,8 +23,8 @@ class iplocator:
         res = conn.getresponse().read().decode('utf-8')
         data = json.loads(res)
         if data['status'] == "success":
-            resp = "IP \2{0}\2  ".format(ev.splitd[0])
-            if data['reverse'] != "": 
+            resp = "IP \2{0}\2  ".format(data['query'])
+            if data['reverse'] != "":
                 resp += "- {0}  ".format(data['reverse'])
             if data['country'] != "":
                 resp += "\2País\2: {0}, ".format(data['country'])
@@ -43,6 +43,6 @@ class iplocator:
             cli.msg(ev.target, resp[0:len(resp)-2])
         else:
             cli.msg(ev.target, "\00304Error\003: No se pudo procesar la IP.")
-    
+
 def isset(variable):
 	return variable in locals() or variable in globals()
