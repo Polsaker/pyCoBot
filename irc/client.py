@@ -44,6 +44,7 @@ class IRCConnection(object):
         self.handlers = {}
         self.socket = False
         self.core = bot
+        self.reconncount = 0
 
         # Handlers internos
         #self.addhandler("ping", self._ping_ponger)
@@ -52,7 +53,7 @@ class IRCConnection(object):
         #self.addhandler("whospcrpl", self._whoreply)
 
     def connect(self, server, port, nick, user, realname, bindto=("", 0),
-            msgdelay=0.5):
+            msgdelay=0.5, reconnects=10):
         if self.connected:
             self.disconnect("Changing servers")
 
@@ -64,6 +65,8 @@ class IRCConnection(object):
         self.username = user
         self.gecos = realname
         self.msgdelay = msgdelay
+        self.maxreconnect = reconnects
+        self.bindto = bindto
         logger.info("Conectando a {0}:{1}".format(server, port))
         try:
             self.socket = socket.create_connection((server, port),
@@ -81,10 +84,17 @@ class IRCConnection(object):
         self.user(user, realname)
         self.nick(nick, True)
         _thread.start_new_thread(self.process_forever, ())
+    
+    def reconnect(self):
+        self.connect(self.server, self.port, self.nickname, self.username,
+                    self.gecos, self.bindto, self.msgdelay, self.maxreconnect)
 
     def process_forever(self):
         while self.connected:
             self.process_data()
+        self.conncount += 1
+        if self.reconncount <= self.maxreconnect:
+            self.reconnect()
 
     def process_queue(self):
         try:  # Guh, este thread no debe morir!
