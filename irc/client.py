@@ -92,7 +92,7 @@ class IRCConnection(object):
     def process_forever(self):
         while self.connected:
             self.process_data()
-        self.conncount += 1
+        self.reconncount += 1
         if self.reconncount <= self.maxreconnect:
             self.reconnect()
 
