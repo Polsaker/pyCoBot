@@ -43,7 +43,7 @@ class autoprotect:
             
     def rejoin(self, cli, ev):
         time.sleep(2)
-        cli.join(ev.target)
+        cli.join(ev.arguments[0])
         
 
     # parse modestack
