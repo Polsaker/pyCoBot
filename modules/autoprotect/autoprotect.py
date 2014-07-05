@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import irc.client
+import time
 
 
 class autoprotect:
@@ -36,6 +37,7 @@ class autoprotect:
 
     def kickrejoin(self, cli, ev):
         if ev.arguments[0] == cli.nickname:
+            time.sleep(2)
             cli.join(ev.target)
 
     # parse modestack
