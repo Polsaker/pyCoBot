@@ -9,6 +9,7 @@ class autoprotect:
         core.addHandler("mode", self, "modeprot")
         core.addHandler("join", self, "jchan")
         core.addHandler("kick", self, "kickrejoin")
+        core.addHandler("480", self, "kickrejoin")  # +j
         core.addHandler("bannedfromchan", self, "unban")
         core.addHandler("inviteonlychan", self, "invite")
         self.tries = 0
