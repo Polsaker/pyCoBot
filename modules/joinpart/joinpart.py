@@ -5,10 +5,10 @@ import irc.client
 class joinpart:
 
     def __init__(self, core, client):
-        core.addCommandHandler("join", self, cpriv=4, chelp=
+        core.addCommandHandler("join", self, cpriv=6, chelp=
         "Hace que el bot entre en un canal. Sintaxis: join <canal>",
          cprivchan=True)
-        core.addCommandHandler("part", self, cpriv=4, chelp=
+        core.addCommandHandler("part", self, cpriv=6, chelp=
         "Hace que el bot salga de un canal. Sintaxis: part [canal] [mensaje]",
          cprivchan=True)
 
