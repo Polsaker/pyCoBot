@@ -50,7 +50,7 @@ class autodeop:
         c = autodeopt.get(autodeopt.channel == ev.target)
         if c is False:
             return 1
-        if client.parsenick(ev.source)[1] == cli.nickname:
+        if client.parse_nick(ev.source)[1] == cli.nickname:
             return 1
         x = self.parsemode(cli, ev)
         for w in x:
