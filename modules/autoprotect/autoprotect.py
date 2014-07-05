@@ -9,7 +9,7 @@ class autoprotect:
         core.addHandler("mode", self, "modeprot")
         core.addHandler("join", self, "jchan")
         core.addHandler("kick", self, "kickrejoin")
-        core.addHandler("480", self, "kickrejoin")  # +j
+        core.addHandler("480", self, "rejoin")  # +j
         core.addHandler("bannedfromchan", self, "unban")
         core.addHandler("inviteonlychan", self, "invite")
         self.tries = 0
@@ -40,6 +40,11 @@ class autoprotect:
         if ev.arguments[0] == cli.nickname:
             time.sleep(2)
             cli.join(ev.target)
+            
+    def rejoin(self, cli, ev):
+        time.sleep(2)
+        cli.join(ev.target)
+        
 
     # parse modestack
     # Parcialmente, ya que nosotros solo le prestamos atención cuando se QUITA
