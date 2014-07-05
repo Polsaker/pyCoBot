@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from pycobot.pycobot import BaseModel
 from peewee.peewee import CharField
+from irc import client
 
 
 class autodeop:
@@ -48,6 +49,8 @@ class autodeop:
     def modeprot(self, cli, ev):
         c = autodeopt.get(autodeopt.channel == ev.target)
         if c is False:
+            return 1
+        if client.parsenick(ev.source)[1] == cli.nickname:
             return 1
         x = self.parsemode(cli, ev)
         for w in x:
