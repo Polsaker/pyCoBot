@@ -14,7 +14,7 @@ import imp
 ########
 VER_MAJOR = "2"
 VER_MINOR = "0"
-VER_STS = " Alpha 2"
+VER_STS = ""
 VER_CODENAME = "Gizkard"
 VER_STRING = "%s.%s%s (%s)" % (VER_MAJOR, VER_MINOR, VER_STS, VER_CODENAME)
 #######

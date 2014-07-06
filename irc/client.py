@@ -49,11 +49,16 @@ class IRCConnection(object):
 
         # Handlers internos
         #self.addhandler("ping", self._ping_ponger)
-        #self.addhandler("join", self._on_join)
-        #self.addhandler("currenttopic", self._currtopic)
-        #self.addhandler("whospcrpl", self._whoreply)
+        self.addhandler("join", self._on_join)
+        self.addhandler("part", self._on_part)
+        #self.addhandler("nick", self._on_nick)
+        self.addhandler("mode", self._on_mode)
+        self.addhandler("nicknameinuse", self._changenick)
+        self.addhandler("banlist", self._on_banlist)
+        self.addhandler("currenttopic", self._currtopic)
+        self.addhandler("whospcrpl", self._whoreply)
 
-    def connect(self, server, port, nick, user, realname, bindto=("", 0),
+    def connect(self, server, port, nick, user, realname,
             msgdelay=0.5, reconnects=10):
         if self.connected:
             self.disconnect("Changing servers")
@@ -67,11 +72,9 @@ class IRCConnection(object):
         self.gecos = realname
         self.msgdelay = msgdelay
         self.maxreconnect = reconnects
-        self.bindto = bindto
         logger.info("Conectando a {0}:{1}".format(server, port))
         try:
-            self.socket = socket.create_connection((server, port),
-                socket.getdefaulttimeout(), bindto)
+            self.socket = socket.create_connection((server, port))
         except socket.error as err:
             logger.error("No se pudo conectar a {0}:{1}: {2}"
                 .format(server, port, err))
@@ -89,7 +92,7 @@ class IRCConnection(object):
     def reconnect(self):
         self.nocheck = True
         self.connect(self.server, self.port, self.nickname, self.username,
-                    self.gecos, self.bindto, self.msgdelay, self.maxreconnect)
+                    self.gecos, self.msgdelay, self.maxreconnect)
         self.nocheck = False
 
     def process_forever(self):
@@ -139,25 +142,80 @@ class IRCConnection(object):
         self.channels[event.target].topic = event.arguments[1]
 
     def _whoreply(self, connection, ev):
-        if ev.arguments[0] == "31":
+        if ev.arguments[0] != "31":
             return 0
         self.channels[ev.arguments[1]].adduser(User(ev.arguments[5],
                                         ev.arguments[2], ev.arguments[3],
                                         ev.arguments[8], ev.arguments[4],
                                         ev.arguments[7], ev.arguments[6]))
+    
+    def _changenick(self, connection, event):
+        self.nickname = self.nickname + "_"
+        self.nick(self.nickname, True)
 
     def _on_join(self, connection, event):
         if parse_nick(event.source)[1] == self.nickname:
             try:
                 self.features.whox
                 self.who(event.target, "%tcnuhrsaf,31")
+                self.mode(event.target, "b")
                 self.channels[event.target] = Channel(event.target)
+            except:
+                pass
+        else:
+            self.features.whox
+            # lalalala...
+            self.who(parse_nick(event.source)[1], "%tcnuhrsaf,31")
+    
+    def _on_nick(self, connection, event):
+        if parse_nick(event.source)[1] == self.nickname:
+            pass  # ???
+        # TODO
+        
+    def _on_banlist(self, connection, event):
+        self.channels[event.arguments[0]].addban(event.arguments[1])
+        
+    def _on_mode(self, connection, event):
+        l = self.parsemode("b", event, True)
+        for w in x:
+            self.channels[event.target].delban(w)
+    
+    def _on_part(self, connection, event):
+        if parse_nick(event.source)[1] == self.nickname:
+            try:
+                self.channels[event.target]
+                self.join(event.target)  # >:D
             except:
                 pass
 
     def _ping_ponger(self, connection, event):
         "A global handler for the 'ping' event"
         connection.pong(event.target)
+    
+    def parsemode(self, mode, ev, remove=False):
+        res = []
+        cmodelist = self.features.chanmodes
+        param = cmodelist[0] + cmodelist[1] + cmodelist[2]
+        for i, val in enumerate(self.features.prefix):
+            param = param + self.features.prefix[val]
+        pos = 0
+        for c in ev.arguments[0]:
+            if c == "-":
+                rving = True
+                pass
+            elif c == "+":
+                rving = False
+            else:
+                if c in param:
+                    pos = pos + 1
+            if rving is False and remove is not False:
+                continue
+            elif rving is True and remove is not True:
+                continue
+
+            if c == mode:
+                res.append(ev.arguments[pos])  # BEEP BEEP BEEP BEEP
+        return res
 
     def _handle_event(self, event):
         if event.type == "ping":
@@ -333,6 +391,7 @@ class IRCConnection(object):
             self.send("JOIN {0}".format(channel))
 
     def part(self, channel, msg):
+        del self.channels[channel]
         self.send("PART {0} :{1}".format(channel, msg))
 
     def privmsg(self, target, msg):
@@ -665,10 +724,38 @@ class Channel(object):
         self.name = channel
         self.topic = topic
         self.modes = modes
-        self.users = []
+        self.users = {}
+        self.banlist = []
+    
+    def addban(self, ban):
+        if not ban in self.banlist:
+            self.banlist.append(ban)
+    
+    def delban(self, ban):
+        if ban in self.banlist:
+            self.banlist.remove(ban)
 
     def adduser(self, user):
-        self.users.append(user)
+        try:
+            self.users[user.nickname] = user
+        except:
+            pass
+    
+    def getuser(self, nick):
+        return self.users[nick]
+    
+    def renameuser(self, oldnick, newnick):
+        try:
+            self.users[newnick] = self.users[oldnick]
+            del self.users[oldnick]
+        except:
+            pass
+    
+    def deluser(self, user):
+        try:
+            del self.users[user.nickname]
+        except:
+            pass
 
 
 class User(object):
