@@ -472,7 +472,17 @@ class pyCoBot:
             except:
                 pass  # guh..
         python = sys.executable
-        os.execl(python, python, * sys.argv)
+        try:
+            if sys.argv[1] == "--foreground":
+                os.execl(python, python, * sys.argv)
+                return
+        except:
+            pass
+        l = sys.argv
+        l[1] = "--stop"
+        os.execl(python, python, * l)
+        os.execl(python, python, * sys.argv) 
+        
 
     def _(self, ev, mod, txt):
         if not isinstance(mod, str):
