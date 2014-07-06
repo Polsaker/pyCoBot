@@ -166,6 +166,7 @@ class Daemon:
 
             # Añadir servidores
             for i, val in enumerate(conf.get("irc")):
+                print(val)
                 servers.append(pyCoBot(conf.get("irc.{0}.server".format(val)),
                  client, conf.get("irc.{0}".format(val)), conf, val))
             client.boservers = servers

@@ -30,7 +30,7 @@ class ClientPool(object):
         while connected:
             connected = False
             for client in self.clients:
-                if client.connected or self.nocheck:
+                if client.connected or self.nocheck or client.nocheck:
                     connected = True
                 # client.process_data()
             time.sleep(0.1)
@@ -45,6 +45,7 @@ class IRCConnection(object):
         self.socket = False
         self.core = bot
         self.reconncount = 0
+        self.nocheck = False
 
         # Handlers internos
         #self.addhandler("ping", self._ping_ponger)
@@ -84,10 +85,12 @@ class IRCConnection(object):
         self.user(user, realname)
         self.nick(nick, True)
         _thread.start_new_thread(self.process_forever, ())
-    
+
     def reconnect(self):
+        self.nocheck = True
         self.connect(self.server, self.port, self.nickname, self.username,
                     self.gecos, self.bindto, self.msgdelay, self.maxreconnect)
+        self.nocheck = False
 
     def process_forever(self):
         while self.connected:
@@ -269,7 +272,7 @@ class IRCConnection(object):
         if not self.connected:
             return
 
-        self.connected = 0
+        self.connected = False
 
         self.quit(message)
 
