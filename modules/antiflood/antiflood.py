@@ -20,6 +20,7 @@ class antiflood:
         " [mensajes] [segundos]", cprivchan=True)
         core.addHandler("pubmsg", self, "pubmsghandle")
         self.updatechancache()
+        self.core = core
 
     def updatechancache(self):
         self.chans = {}
@@ -61,8 +62,20 @@ class antiflood:
                     self.users[ev.target][client.parse_nick(source)[4]]['msgcount'] = 0
                     self.floodkick(cli, ev.target, ev.source, ev.source2)
                 self.users[ev.target][client.parse_nick(source)[4]]['msgcount'] += 1
+    
+    def inmucheck(self, core, cli, nick, channel):
+        setting = core.getConf("channel", channel, "")
+        if setting == "":
+            return False  # Nadie es inmune :D
+        if setting == "voice" and cli.channels[channel].getuser(nick).isVoiced(True):
+            return True
+        if setting == "op" and cli.channels[channel].getuser(nick).is_op:
+            return True
+        return False
 
     def floodkick(self, cli, chan, nick, source):
+        if self.inmucheck(self.core, cli, nick, chan):
+            return
         if self.users[chan][client.parse_nick(source)[4]]['kicked'] is False:
             self.users[chan][client.parse_nick(source)[4]]['kicked'] = True
             cli.kick(chan, nick, "No hagas flood.")

@@ -11,6 +11,9 @@ class test:
     def welcomecatch(self, client, event):
         print("Esto funciona :O")
 
-    def helloworld(self, bot, cli, event):
-        cli.msg(event.target, irc.client.parse_nick(event.source)[1] +
-         ": Esto es una prueba!")
+    def test(self, bot, cli, event):
+        for k in cli.channels:
+            cli.msg(event.target, "Canal: " + k)
+            for l in cli.channels[k].users:
+                cli.msg(event.target, "  Usuario: " + l + " OP:" + 
+                        str(cli.channels[k].users[l].is_op))

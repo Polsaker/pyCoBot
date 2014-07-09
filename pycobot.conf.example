@@ -28,6 +28,9 @@
                 "nickserv": {
                     "password": "algoalgo", 
                     "user": "algoalgo"
+                },
+                "op": {
+                    "immunity": "op"
                 }
             }, 
             "nick": "pyCoBot", 

@@ -31,6 +31,8 @@ class op:
 
         core.addHandler("whoreply", self, "whoban")
         core.addHandler("banlist", self, "banlist")
+        self.masc = None
+        self.core = core
 
     def op_p(self, bot, cli, ev):
         if len(ev.splitd) > 0 and irc.client.is_channel(ev.splitd[0]):
@@ -149,8 +151,26 @@ class op:
     def topic(self, bot, cli, ev):
         x = self._getchannick(ev)
         cli.topic(x[1], x[0] + " " + x[2])
+    
+    def inmucheck(self, core, cli, nick, channel):
+        setting = core.getConf("channel", channel, "")
+        if setting == "":
+            return False  # Nadie es inmune :D
+        if setting == "voice" and cli.channels[channel].getuser(nick).isVoiced(True):
+            return True
+        if setting == "op" and cli.channels[channel].getuser(nick).is_op:
+            return True
+        return False
 
     def whoban(self, cli, ev):
+        if self.actn is False:
+            return
+        try:
+            if self.inmucheck(self.core, cli, self.nick, self.chan):
+                self.actn = False
+                return
+        except:
+            pass
         if self.actn == "ban" and self.nick == ev.arguments[4]:
             cli.mode(self.chan, "+b *!*@" + ev.arguments[2])
             cli.kick(self.chan, self.nick, self.msg)
@@ -168,7 +188,10 @@ class op:
             self.actn = False
 
     def banlist(self, cli, ev):
+        if self.masc is None:
+            return
         rgx = ev.arguments[1].replace("*", ".*").replace("?", ".?")
         p = re.compile(rgx, re.IGNORECASE)
         if p.match(self.masc):
             cli.mode(self.chan, "-b " + ev.arguments[1])
+            self.masc = None

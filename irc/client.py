@@ -51,10 +51,12 @@ class IRCConnection(object):
         #self.addhandler("ping", self._ping_ponger)
         self.addhandler("join", self._on_join)
         self.addhandler("part", self._on_part)
-        #self.addhandler("nick", self._on_nick)
+        self.addhandler("nick", self._on_nick)
         self.addhandler("mode", self._on_mode)
         self.addhandler("nicknameinuse", self._changenick)
         self.addhandler("banlist", self._on_banlist)
+        self.addhandler("kick", self._on_kick)
+        self.addhandler("quit", self._on_quit)
         self.addhandler("currenttopic", self._currtopic)
         self.addhandler("whospcrpl", self._whoreply)
 
@@ -139,7 +141,7 @@ class IRCConnection(object):
             self._processline(line)
 
     def _currtopic(self, connection, event):
-        self.channels[event.target].topic = event.arguments[1]
+        self.channels[event.arguments[0]].topic = event.arguments[1]
 
     def _whoreply(self, connection, ev):
         if ev.arguments[0] != "31":
@@ -169,16 +171,43 @@ class IRCConnection(object):
     
     def _on_nick(self, connection, event):
         if parse_nick(event.source)[1] == self.nickname:
-            pass  # ???
-        # TODO
+            self.nickname = event.target
+        for i in self.channels:
+            i = self.channels[i]
+            l = i.getuser(parse_nick(event.source)[1])
+            if l is not False:
+                i.renameuser(parse_nick(event.source)[1], event.target)
         
     def _on_banlist(self, connection, event):
         self.channels[event.arguments[0]].addban(event.arguments[1])
         
+    def _on_quit(self, connection, event):
+        for i in self.channels:
+            i = self.channels[i]
+            l = i.getuser(parse_nick(event.source)[1])
+            if l is not False:
+                i.deluser(parse_nick(event.source)[1])
+        if parse_nick(event.source)[1] == self.nickname:
+            self.channels = {}
+    
     def _on_mode(self, connection, event):
         l = self.parsemode("b", event, True)
         for w in x:
             self.channels[event.target].delban(w)
+        l = self.parsemode("b", event, False)
+        for w in x:
+            self.channels[event.target].addban(w)
+
+    def _on_kick(self, connection, event):
+        if parse_nick(event.source)[1] == self.nickname:
+            try:
+                self.channels[event.target]
+                #self.join(event.target)  # >:D
+            except:
+                pass
+        else:
+            self.channels[event.target].deluser(
+                    self.channels[event.target].getuser(event.target))
     
     def _on_part(self, connection, event):
         if parse_nick(event.source)[1] == self.nickname:
@@ -187,6 +216,9 @@ class IRCConnection(object):
                 self.join(event.target)  # >:D
             except:
                 pass
+        else:
+            self.channels[event.target].deluser(
+                    self.channels[event.target].getuser(event.target))
 
     def _ping_ponger(self, connection, event):
         "A global handler for the 'ping' event"
@@ -742,7 +774,10 @@ class Channel(object):
             pass
     
     def getuser(self, nick):
-        return self.users[nick]
+        try:
+            return self.users[nick]
+        except:
+            return False
     
     def renameuser(self, oldnick, newnick):
         try:
@@ -770,7 +805,20 @@ class User(object):
             self.away = True
         else:
             self.away = False
-        # TODO: Procesar el resto del status del usuario
+        stats = stats[1:]
+        self.is_op = False
+        self.is_voiced = False
+        for i in stats:
+            if i != "" or i != "+":
+                self.is_op = True
+            elif i == "+":
+                self.is_voiced = True
+    
+    def isVoiced(self, op=False):
+        if op is True and self.is_op is True:
+            return True
+        elif self.is_voiced is True:
+            return True
 
 
 def is_channel(string):
