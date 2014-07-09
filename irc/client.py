@@ -62,6 +62,7 @@ class IRCConnection(object):
 
     def connect(self, server, port, nick, user, realname,
             msgdelay=0.5, reconnects=10):
+        self.reconncount = 0
         if self.connected:
             self.disconnect("Changing servers")
 
@@ -359,6 +360,7 @@ class IRCConnection(object):
         del self.handlers[identif[1]][identif[0] - 1]
 
     def disconnect(self, message):
+        self.reconncount = 100000  # :D
         if not self.connected:
             return
 

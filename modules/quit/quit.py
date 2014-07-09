@@ -20,7 +20,7 @@ class quit:
         else:
             quitmsg = "Salida ordenada por un administrador"
         for i in enumerate(self.core.botcli.boservers):
-            i[1].server.quit("[QUIT] " + quitmsg)
+            i[1].server.disconnect("[QUIT] " + quitmsg)
         os._exit(0)
 
     def quit(self, bot, cli, event):
