@@ -155,7 +155,7 @@ class IRCConnection(object):
 
     def _on_join(self, connection, event):
         if parse_nick(event.source)[1] == self.nickname:
-			self.channels[event.target] = Channel(event.target)
+            self.channels[event.target] = Channel(event.target)
             try:
                 self.features.whox
                 self.who(event.target, "%tcnuhrsaf,31")
