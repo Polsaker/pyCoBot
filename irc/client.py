@@ -193,10 +193,10 @@ class IRCConnection(object):
     
     def _on_mode(self, connection, event):
         l = self.parsemode("b", event, True)
-        for w in x:
+        for w in l:
             self.channels[event.target].delban(w)
         l = self.parsemode("b", event, False)
-        for w in x:
+        for w in l:
             self.channels[event.target].addban(w)
 
     def _on_kick(self, connection, event):

@@ -153,7 +153,7 @@ class op:
         cli.topic(x[1], x[0] + " " + x[2])
     
     def inmucheck(self, core, cli, nick, channel):
-        setting = core.getConf("channel", channel, "")
+        setting = core.readConf("channel", channel, "")
         if setting == "":
             return False  # Nadie es inmune :D
         if setting == "voice" and cli.channels[channel].getuser(nick).isVoiced(True):
