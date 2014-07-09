@@ -64,7 +64,7 @@ class antiflood:
                 self.users[ev.target][client.parse_nick(source)[4]]['msgcount'] += 1
     
     def inmucheck(self, core, cli, nick, channel):
-        setting = core.readConf("channel", channel, "")
+        setting = core.readConf("channel.immunity", channel, "")
         if setting == "":
             return False  # Nadie es inmune :D
         if setting == "voice" and cli.channels[channel].getuser(nick).isVoiced(True):
