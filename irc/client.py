@@ -205,6 +205,14 @@ class IRCConnection(object):
         if parse_nick(event.source)[1] == self.nickname:
             self.channels = {}
     
+    def getuser(self, nick):  # Heh, a bit expensive, no?
+        for i in self.channels:
+            i = self.channels[i]
+            l = i.getuser(nick)
+            if l is not False:
+                return l
+        return False
+    
     def _on_mode(self, connection, event):
         l = self.separateModes(event.arguments)
         for i in l:
@@ -874,13 +882,19 @@ class Channel(object):
 
 
 class User(object):
+    account = None
+    server = None
+    nickname = None
+    username = None
+    host = None
     def __init__(self, nickname, username, host, gecos, server, account, stats, cli):
         self.nickname = nickname
         self.username = username
         self.host = host
         self.realname = gecos
         self.server = server
-        self.account = account
+        if account != "0":
+            self.account = account
         self.cli = cli
         self.processPrefix(stats)
         self.stats = stats

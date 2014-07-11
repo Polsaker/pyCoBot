@@ -68,6 +68,19 @@ class authadd:
                 try:
                     self.core.authd[ev.source2]
                 except KeyError:
+                    n = cli.getuser(ev.source)
+                    if n is not False:
+                        if n.account is not None:
+                            ul = NSAccount.get(NSAccount.acc == n.account)
+                            if ul is False:
+                                self.nickbl[ev.source] = True
+                            else:
+                                self.core.authd[ev.source2] = ul.uid
+
+                                cli.msg(ev.source, "Ha sido identificado automáticamen"
+                                "te a través de su cuenta de NickServ.")
+                            return
+                    
                     self.mask = ev.source2
                     cli.who(ev.source, "%atn,8")
 
