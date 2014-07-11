@@ -175,7 +175,7 @@ class Daemon:
 
 def main():
     l = Daemon("/tmp/pycobot.pid",
-         stdout="pycobot.log", stderr="pycobot.log")
+         stdout="pycobot.log", stderr="pycobot.err")
     try:
         sys.argv[1]
     except:
