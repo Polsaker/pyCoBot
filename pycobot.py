@@ -191,7 +191,10 @@ def main():
         print("    --help: Muestra este mensaje")
         print("    --stop: Detiene el demonio")
         print("    --foreground: Inicia el bot normalmente (no como demonio)")
+        print("    --restart: Reinicia el bot")
         print("\nSin argumentos: Inicia al bot como demonio")
+    elif sys.argv[1] == "--restart":
+        l.restart()
     else:
         l.start()
 

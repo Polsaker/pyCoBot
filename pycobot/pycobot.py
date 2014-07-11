@@ -481,9 +481,8 @@ class pyCoBot:
         except:
             pass
         l = sys.argv
-        l[1] = "--stop"
+        l[1] = "--restart"
         os.execl(python, python, * l)
-        os.execl(python, python, * sys.argv) 
         
 
     def _(self, ev, mod, txt):
