@@ -192,12 +192,20 @@ class IRCConnection(object):
             self.channels = {}
     
     def _on_mode(self, connection, event):
-        l = self.parsemode("b", event, True)
-        for w in l:
-            self.channels[event.target].delban(w)
-        l = self.parsemode("b", event, False)
-        for w in l:
-            self.channels[event.target].addban(w)
+        l = self.separateModes(event.arguments)
+        for i in l:
+            for q in self.features.prefix:
+                if ("+" + i[0]) == self.features.prefix[q]:
+                    self.channels[event.target].getuser(i[1]).modifyPrefix(q)
+                    return
+                elif ("-" + i[0]) == self.features.prefix[q]:
+                    self.channels[event.target].getuser(i[1]).modifyPrefix(q, False)
+                    return
+            if i[0] == "+b":
+                self.channels[event.target].addban(i[1])
+            elif i[0] == "-b":
+                self.channels[event.target].delban(i[1])
+            
 
     def _on_kick(self, connection, event):
         if parse_nick(event.source)[1] == self.nickname:
@@ -220,6 +228,62 @@ class IRCConnection(object):
         else:
             self.channels[event.target].deluser(
                     self.channels[event.target].getuser(event.target))
+    
+    
+    #from limnoria
+    def separateModes(self, args):
+        """Separates modelines into single mode change tuples.  Basically, you
+        should give it the .args of a MODE IrcMsg.
+
+        Examples:
+
+        >>> separateModes(['+ooo', 'jemfinch', 'StoneTable', 'philmes'])
+        [('+o', 'jemfinch'), ('+o', 'StoneTable'), ('+o', 'philmes')]
+
+        >>> separateModes(['+o-o', 'jemfinch', 'PeterB'])
+        [('+o', 'jemfinch'), ('-o', 'PeterB')]
+
+        >>> separateModes(['+s-o', 'test'])
+        [('+s', None), ('-o', 'test')]
+
+        >>> separateModes(['+sntl', '100'])
+        [('+s', None), ('+n', None), ('+t', None), ('+l', 100)]
+        """
+        if not args:
+            return []
+        modes = args[0]
+        assert modes[0] in '+-', 'Invalid args: %r' % args
+        args = list(args[1:])
+        ret = []
+        for c in modes:
+            if c in '+-':
+                last = c
+            else:
+                if last == '+':
+                    #requireArguments = _plusRequireArguments
+                    requireArguments = self.features.chanmodes[0] + \
+                                        self.features.chanmodes[1] + \
+                                        self.features.chanmodes[2]
+                else:
+                    requireArguments = self.features.chanmodes[0]
+                for l in self.features.prefix:
+                    requireArguments += self.features.prefix[l]
+                    
+                if c in requireArguments:
+                    if not args:
+                        # It happens, for example with "MODE #channel +b", which
+                        # is used for getting the list of all bans.
+                        continue
+                    arg = args.pop(0)
+                    try:
+                        arg = int(arg)
+                    except ValueError:
+                        pass
+                    ret.append((last + c, arg))
+                else:
+                    ret.append((last + c, None))
+        return ret
+
 
     def _ping_ponger(self, connection, event):
         "A global handler for the 'ping' event"
@@ -803,6 +867,10 @@ class User(object):
         self.realname = gecos
         self.server = server
         self.account = account
+        self.processPrefix(stats)
+        self.stats = stats
+    
+    def processPrefix(self, stats):
         if stats[0] == "G":
             self.away = True
         else:
@@ -815,6 +883,15 @@ class User(object):
                 self.is_op = True
             elif i == "+":
                 self.is_voiced = True
+    
+    def modifyPrefix(self, prefix, add=True):
+        if add is True:
+            if prefix not in self.stats:
+                self.stats += prefix
+                self.processPrefix(self.stats)
+        else:
+            if prefix in self.stats:
+                self.stats.replace(prefix, "")
     
     def isVoiced(self, op=False):
         if op is True and self.is_op is True:

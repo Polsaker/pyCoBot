@@ -224,6 +224,8 @@ class pyCoBot:
         if chan is not None:
             key = key.replace("channel.", "irc." + str(self.sid) + ".channels."
                                                         + chan.lower() + ".")
+            if key == "channel":
+                key = "irc." + str(self.sid) + ".channels." + chan.lower()
         return self.mconf.get(key, default)
 
     def writeConf(self, key, value, chan=None):
