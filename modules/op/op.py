@@ -32,6 +32,7 @@ class op:
         core.addHandler("whoreply", self, "whoban")
         core.addHandler("banlist", self, "banlist")
         self.masc = None
+        self.actn = False
         self.core = core
 
     def op_p(self, bot, cli, ev):

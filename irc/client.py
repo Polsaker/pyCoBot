@@ -46,8 +46,10 @@ class IRCConnection(object):
         self.core = bot
         self.reconncount = 0
         self.nocheck = False
+        self.whoing = False
 
         # Handlers internos
+        # meh, the ping-pong is optional!
         #self.addhandler("ping", self._ping_ponger)
         self.addhandler("join", self._on_join)
         self.addhandler("part", self._on_part)
@@ -59,6 +61,8 @@ class IRCConnection(object):
         self.addhandler("quit", self._on_quit)
         self.addhandler("currenttopic", self._currtopic)
         self.addhandler("whospcrpl", self._whoreply)
+        self.addhandler("whoreply", self._normalwhoreply)
+        self.addhandler("enfofwho", self._endofwho)
 
     def connect(self, server, port, nick, user, realname,
             msgdelay=0.5, reconnects=10):
@@ -150,7 +154,20 @@ class IRCConnection(object):
         self.channels[ev.arguments[1]].adduser(User(ev.arguments[5],
                                         ev.arguments[2], ev.arguments[3],
                                         ev.arguments[8], ev.arguments[4],
-                                        ev.arguments[7], ev.arguments[6]))
+                                        ev.arguments[7], ev.arguments[6],
+                                        self))
+    
+    def _endofwho(self, connection, ev):
+        self.whoing = False
+    
+    def _normalwhoreply(self, connection, ev):
+        if self.whoing is False:
+            return
+        if ev.arguments[0] == self.whoing:
+            self.channels[ev.arguments[0]].adduser(User(ev.arguments[4],
+                                    ev.arguments[1], ev.arguments[2],
+                                    ev.arguments[6], ev.arguments[3],
+                                    None, ev.arguments[5], self))
     
     def _changenick(self, connection, event):
         self.nickname = self.nickname + "_"
@@ -159,16 +176,13 @@ class IRCConnection(object):
     def _on_join(self, connection, event):
         if parse_nick(event.source)[1] == self.nickname:
             self.channels[event.target] = Channel(event.target)
-            try:
-                self.features.whox
-                self.who(event.target, "%tcnuhrsaf,31")
-                self.mode(event.target, "b")
-            except:
-                pass
+            self.whoing = event.target
+            self.who(event.target, "%tcnuhrsaf,31")
+            self.mode(event.target, "b")
         else:
-            self.features.whox
-            # lalalala...
-            self.who(parse_nick(event.source)[1], "%tcnuhrsaf,31")
+            self.whoing = event.target
+            # I'm a sad panda.
+            self.who(event.target, "%tcnuhrsaf,31")
     
     def _on_nick(self, connection, event):
         if parse_nick(event.source)[1] == self.nickname:
@@ -195,10 +209,10 @@ class IRCConnection(object):
         l = self.separateModes(event.arguments)
         for i in l:
             for q in self.features.prefix:
-                if ("+" + i[0]) == self.features.prefix[q]:
+                if i[0] == ("+" + self.features.prefix[q]):
                     self.channels[event.target].getuser(i[1]).modifyPrefix(q)
                     return
-                elif ("-" + i[0]) == self.features.prefix[q]:
+                elif i[0] == ("-" + self.features.prefix[q]):
                     self.channels[event.target].getuser(i[1]).modifyPrefix(q, False)
                     return
             if i[0] == "+b":
@@ -860,17 +874,21 @@ class Channel(object):
 
 
 class User(object):
-    def __init__(self, nickname, username, host, gecos, server, account, stats):
+    def __init__(self, nickname, username, host, gecos, server, account, stats, cli):
         self.nickname = nickname
         self.username = username
         self.host = host
         self.realname = gecos
         self.server = server
         self.account = account
+        self.cli = cli
         self.processPrefix(stats)
         self.stats = stats
     
     def processPrefix(self, stats):
+        oprefixes = ""
+        for i in self.cli.features.prefix:
+            oprefixes += i
         if stats[0] == "G":
             self.away = True
         else:
@@ -879,6 +897,8 @@ class User(object):
         self.is_op = False
         self.is_voiced = False
         for i in stats:
+            if i not in oprefixes:
+                continue
             if i != "" or i != "+":
                 self.is_op = True
             elif i == "+":
@@ -888,10 +908,10 @@ class User(object):
         if add is True:
             if prefix not in self.stats:
                 self.stats += prefix
-                self.processPrefix(self.stats)
         else:
             if prefix in self.stats:
-                self.stats.replace(prefix, "")
+                self.stats = self.stats.replace(prefix, "")
+        self.processPrefix(self.stats)
     
     def isVoiced(self, op=False):
         if op is True and self.is_op is True:
