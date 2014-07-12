@@ -920,7 +920,7 @@ class User(object):
         for i in stats:
             if i not in oprefixes:
                 continue
-            if i != "" or i != "+":
+            if i != "" and i != "+":
                 self.is_op = True
             elif i == "+":
                 self.is_voiced = True
