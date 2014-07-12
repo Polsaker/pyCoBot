@@ -146,29 +146,35 @@ class IRCConnection(object):
             self._processline(line)
 
     def _currtopic(self, connection, event):
+        try:
+            self.channels[event.arguments[0]]
+        except:
+            self.channels[event.arguments[0]] = Channel(event.arguments[0])
         self.channels[event.arguments[0]].topic = event.arguments[1]
 
+    # 31 = Add user
     def _whoreply(self, connection, ev):
         if ev.arguments[0] != "31":
             return 0
-        self.channels[ev.arguments[1]].adduser(User(ev.arguments[5],
-                                        ev.arguments[2], ev.arguments[3],
+        self.channels[self.whoing[0]].adduser(User(ev.arguments[5],
+                                         ev.arguments[2], ev.arguments[3],
                                         ev.arguments[8], ev.arguments[4],
                                         ev.arguments[7], ev.arguments[6],
                                         self))
-    
+
     def _endofwho(self, connection, ev):
         self.whoing = False
-    
+
     def _normalwhoreply(self, connection, ev):
         if self.whoing is False:
             return
-        if ev.arguments[0] == self.whoing:
-            self.channels[ev.arguments[0]].adduser(User(ev.arguments[4],
+        if ev.arguments[0] == self.whoing[0] or \
+                                             ev.arguments[4] == self.whoing[1]:
+            self.channels[self.whoing[0]].adduser(User(ev.arguments[4],
                                     ev.arguments[1], ev.arguments[2],
                                     ev.arguments[6], ev.arguments[3],
                                     None, ev.arguments[5], self))
-    
+
     def _changenick(self, connection, event):
         self.nickname = self.nickname + "_"
         self.nick(self.nickname, True)
@@ -176,14 +182,14 @@ class IRCConnection(object):
     def _on_join(self, connection, event):
         if parse_nick(event.source)[1] == self.nickname:
             self.channels[event.target] = Channel(event.target)
-            self.whoing = event.target
+            # [0] = #channel, [1] = target
+            self.whoing = [event.target, event.target]
             self.who(event.target, "%tcnuhrsaf,31")
             self.mode(event.target, "b")
         else:
-            self.whoing = event.target
-            # I'm a sad panda.
-            self.who(event.target, "%tcnuhrsaf,31")
-    
+            self.whoing = [event.target, parse_nick(event.source)[1]]
+            self.who(parse_nick(event.source)[1], "%tcnuhrsaf,31")
+
     def _on_nick(self, connection, event):
         if parse_nick(event.source)[1] == self.nickname:
             self.nickname = event.target
@@ -192,19 +198,19 @@ class IRCConnection(object):
             l = i.getuser(parse_nick(event.source)[1])
             if l is not False:
                 i.renameuser(parse_nick(event.source)[1], event.target)
-        
+
     def _on_banlist(self, connection, event):
         self.channels[event.arguments[0]].addban(event.arguments[1])
-        
+
     def _on_quit(self, connection, event):
         for i in self.channels:
             i = self.channels[i]
             l = i.getuser(parse_nick(event.source)[1])
             if l is not False:
-                i.deluser(parse_nick(event.source)[1])
+                i.deluser(l)
         if parse_nick(event.source)[1] == self.nickname:
             self.channels = {}
-    
+
     def getuser(self, nick):  # Heh, a bit expensive, no?
         for i in self.channels:
             i = self.channels[i]
@@ -212,7 +218,7 @@ class IRCConnection(object):
             if l is not False:
                 return l
         return False
-    
+
     def _on_mode(self, connection, event):
         l = self.separateModes(event.arguments)
         for i in l:
@@ -221,13 +227,13 @@ class IRCConnection(object):
                     self.channels[event.target].getuser(i[1]).modifyPrefix(q)
                     return
                 elif i[0] == ("-" + self.features.prefix[q]):
-                    self.channels[event.target].getuser(i[1]).modifyPrefix(q, False)
+                    self.channels[event.target].getuser(i[1]).modifyPrefix(q,
+                                                                         False)
                     return
             if i[0] == "+b":
                 self.channels[event.target].addban(i[1])
             elif i[0] == "-b":
                 self.channels[event.target].delban(i[1])
-            
 
     def _on_kick(self, connection, event):
         if parse_nick(event.source)[1] == self.nickname:
@@ -239,7 +245,7 @@ class IRCConnection(object):
         else:
             self.channels[event.target].deluser(
                     self.channels[event.target].getuser(event.target))
-    
+
     def _on_part(self, connection, event):
         if parse_nick(event.source)[1] == self.nickname:
             try:
@@ -250,8 +256,7 @@ class IRCConnection(object):
         else:
             self.channels[event.target].deluser(
                     self.channels[event.target].getuser(event.target))
-    
-    
+
     #from limnoria
     def separateModes(self, args):
         """Separates modelines into single mode change tuples.  Basically, you
@@ -290,7 +295,7 @@ class IRCConnection(object):
                     requireArguments = self.features.chanmodes[0]
                 for l in self.features.prefix:
                     requireArguments += self.features.prefix[l]
-                    
+
                 if c in requireArguments:
                     if not args:
                         # It happens, for example with "MODE #channel +b", which
@@ -306,11 +311,10 @@ class IRCConnection(object):
                     ret.append((last + c, None))
         return ret
 
-
     def _ping_ponger(self, connection, event):
         "A global handler for the 'ping' event"
         connection.pong(event.target)
-    
+
     def parsemode(self, mode, ev, remove=False):
         res = []
         cmodelist = self.features.chanmodes
@@ -442,10 +446,10 @@ class IRCConnection(object):
                 self.handlers[message].append(function)
         else:
             try:
-                self.handlers[message].insert(0,function)
+                self.handlers[message].insert(0, function)
             except:
                 self.handlers[message] = []
-                self.handlers[message].insert(0,function)
+                self.handlers[message].insert(0, function)
         logger.debug("Se ha añadido un handler para '{0}'".format(message))
         return [len(self.handlers[message]), message]
 
@@ -853,34 +857,41 @@ class Channel(object):
         self.modes = modes
         self.users = {}
         self.banlist = []
-    
+
     def addban(self, ban):
         if not ban in self.banlist:
             self.banlist.append(ban)
-    
+
     def delban(self, ban):
         if ban in self.banlist:
             self.banlist.remove(ban)
 
-    def adduser(self, user):
+    def adduser(self, user, normalwho=False):
         try:
-            self.users[user.nickname] = user
+            if normalwho is False:
+                self.users[user.nickname] = user
+            else:
+                try:
+                    # Con who si el usuario existe solo añadimos el servidor
+                    self.users[user.nickname].server = user.server
+                except:
+                    pass
         except:
             pass
-    
+
     def getuser(self, nick):
         try:
             return self.users[nick]
         except:
             return False
-    
+
     def renameuser(self, oldnick, newnick):
         try:
             self.users[newnick] = self.users[oldnick]
             del self.users[oldnick]
         except:
             pass
-    
+
     def deluser(self, user):
         try:
             del self.users[user.nickname]
@@ -894,7 +905,9 @@ class User(object):
     nickname = None
     username = None
     host = None
-    def __init__(self, nickname, username, host, gecos, server, account, stats, cli):
+
+    def __init__(self, nickname, username, host, gecos, server, account, stats,
+                                                                        cli):
         self.nickname = nickname
         self.username = username
         self.host = host
@@ -905,7 +918,7 @@ class User(object):
         self.cli = cli
         self.processPrefix(stats)
         self.stats = stats
-    
+
     def processPrefix(self, stats):
         oprefixes = ""
         for i in self.cli.features.prefix:
@@ -924,7 +937,7 @@ class User(object):
                 self.is_op = True
             elif i == "+":
                 self.is_voiced = True
-    
+
     def modifyPrefix(self, prefix, add=True):
         if add is True:
             if prefix not in self.stats:
@@ -933,7 +946,7 @@ class User(object):
             if prefix in self.stats:
                 self.stats = self.stats.replace(prefix, "")
         self.processPrefix(self.stats)
-    
+
     def isVoiced(self, op=False):
         if op is True and self.is_op is True:
             return True

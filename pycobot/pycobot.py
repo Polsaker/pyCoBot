@@ -54,7 +54,7 @@ if User.select().count() == 0:
 
 
 class pyCoBot:
-    def __init__(self, server, client, conf, mconf, sid):
+    def __init__(self, server, client, conf, mconf, sid, daemon):
         # zona de millones de definiciones de variables que se usan y no se usan
         self.sid = sid
         self.botcli = client
@@ -73,6 +73,7 @@ class pyCoBot:
         self.commandhandlers = {}
         self.lang = {}
         self.lang['core'] = {}
+        self.daemon = daemon
         # Cargar los idiomas del core...
         for the_file in os.listdir("pycobot/lang"):
             self.lang['core'][the_file] = {}
@@ -480,10 +481,7 @@ class pyCoBot:
                 return
         except:
             pass
-        l = sys.argv
-        l[1] = "--restart"
-        os.execl(python, python, * l)
-        
+        self.daemon.restart()
 
     def _(self, ev, mod, txt):
         if not isinstance(mod, str):

@@ -19,11 +19,8 @@ from signal import SIGTERM
 
 
 class Daemon:
-        """
-        A generic daemon class.
+        client = None  # ;D
 
-        Usage: subclass the Daemon class and override the run() method
-        """
         def __init__(self, pidfile, stdin='/dev/null', stdout='/dev/null',
                      stderr='/dev/null'):
                 self.stdin = stdin
@@ -147,7 +144,8 @@ class Daemon:
             try:
                 jsonConf = open("pycobot.conf").read()
             except IOError:
-                logging.error('No se ha podido abrir el archivo de configuración')
+                logging.error('No se ha podido abrir el archivo de'
+                              ' configuración')
                 sys.exit("Missing config file!")
 
             #conf = json.loads(jsonConf)  # Cargar la configuración
@@ -162,15 +160,14 @@ class Daemon:
             logging.basicConfig(level=numeric_level,
                 filename=conf.get("config.logfile", sys.stdout), filemode='w')
 
-            client = ClientPool()
+            self.client = ClientPool()
 
             # Añadir servidores
             for i, val in enumerate(conf.get("irc")):
-                print(val)
                 servers.append(pyCoBot(conf.get("irc.{0}.server".format(val)),
-                 client, conf.get("irc.{0}".format(val)), conf, val))
-            client.boservers = servers
-            client.process_forever()
+                 self.client, conf.get("irc.{0}".format(val)), conf, val, self))
+            self.client.boservers = servers
+            self.client.process_forever()
 
 
 def main():
@@ -184,7 +181,7 @@ def main():
     if sys.argv[1] == "--stop":
         l.stop()
     elif sys.argv[1] == "--foreground":
-        l.run();
+        l.run()
     elif sys.argv[1] == "--help":
         print("Uso: pycobot.py [argumentos]:")
         print("\nArgumentos:")
