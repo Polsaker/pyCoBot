@@ -433,12 +433,19 @@ class IRCConnection(object):
             self._handle_event(Event(command, NickMask(prefix), target,
                 arguments))
 
-    def addhandler(self, message, function):
-        try:
-            self.handlers[message].append(function)
-        except:
-            self.handlers[message] = []
-            self.handlers[message].append(function)
+    def addhandler(self, message, function, vip=False):
+        if vip is False:
+            try:
+                self.handlers[message].append(function)
+            except:
+                self.handlers[message] = []
+                self.handlers[message].append(function)
+        else:
+            try:
+                self.handlers[message].insert(0,function)
+            except:
+                self.handlers[message] = []
+                self.handlers[message].insert(0,function)
         logger.debug("Se ha añadido un handler para '{0}'".format(message))
         return [len(self.handlers[message]), message]
 

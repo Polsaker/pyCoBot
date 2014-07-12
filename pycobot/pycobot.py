@@ -326,7 +326,7 @@ class pyCoBot:
         _thread.start_new_thread(self.timehandler, (len(self.timehandlers) - 1,
             interval, module, func))
 
-    def addHandler(self, numeric, modulo, func):
+    def addHandler(self, numeric, modulo, func, vip=False):
         """ Registra un handler con el bot.
         Parametros:
             - server: Nombre (dirección) del servidor en el que se registra el
@@ -340,7 +340,7 @@ class pyCoBot:
         h['numeric'] = numeric
         h['mod'] = modulo
         h['func'] = func
-        h['id'] = self.server.addhandler(numeric, getattr(modulo, func))
+        h['id'] = self.server.addhandler(numeric, getattr(modulo, func), vip)
         self.handlers.append(h)
 
         logging.debug("Registrado handler en '%s' ('%s')"

@@ -16,4 +16,5 @@ class test:
             cli.msg(event.target, "Canal: " + k)
             for l in cli.channels[k].users:
                 cli.msg(event.target, "  Usuario: " + l + " OP:" + 
-                        str(cli.channels[k].users[l].is_op))
+                        str(cli.channels[k].users[l].is_op) + " VOICE:" +
+                        str(cli.channels[k].users[l].is_voiced))

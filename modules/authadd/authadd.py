@@ -39,8 +39,8 @@ class authadd:
         core.addCommandHandler("deluser", self, cpriv=10, chelp=
         "Borra a un usuario del bot. Sintaxis: deluser <usuario>")
         core.addHandler("whospcrpl", self, "whoreply")
-        core.addHandler("pubmsg", self, "msghandler")
-        core.addHandler("privmsg", self, "msghandler")
+        core.addHandler("pubmsg", self, "msghandler", True)
+        core.addHandler("privmsg", self, "msghandler", True)
 
     def whoreply(self, cli, ev):
         if ev.arguments[2] == "0":  # No loggeado
