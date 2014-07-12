@@ -1,7 +1,3 @@
-import pprint
-import irc.client
-
-
 class test:
     def __init__(self, core, client):
         core.addHandler("welcome", self, "welcomecatch")
@@ -15,6 +11,7 @@ class test:
         for k in cli.channels:
             cli.msg(event.target, "Canal: " + k)
             for l in cli.channels[k].users:
-                cli.msg(event.target, "  Usuario: " + l + " OP:" + 
+                cli.msg(event.target, "  Usuario: " + l + " OP:" +
                         str(cli.channels[k].users[l].is_op) + " VOICE:" +
-                        str(cli.channels[k].users[l].is_voiced))
+                        str(cli.channels[k].users[l].is_voiced) + " ACC:" +
+                        str(cli.channels[k].users[l].account or ""))

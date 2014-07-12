@@ -63,6 +63,7 @@ class IRCConnection(object):
         self.addhandler("whospcrpl", self._whoreply)
         self.addhandler("whoreply", self._normalwhoreply)
         self.addhandler("enfofwho", self._endofwho)
+        self.addhandler("330", self._whoisaccount)
 
     def connect(self, server, port, nick, user, realname,
             msgdelay=0.5, reconnects=10):
@@ -173,22 +174,50 @@ class IRCConnection(object):
             self.channels[self.whoing[0]].adduser(User(ev.arguments[4],
                                     ev.arguments[1], ev.arguments[2],
                                     ev.arguments[6], ev.arguments[3],
-                                    None, ev.arguments[5], self))
+                                    None, ev.arguments[5], self), True)
+            try:
+                self.features.whox
+            except:
+                for i in self.channels:
+                    i = self.channels[i]
+                    l = i.getuser(ev.arguments[4])
+                    if l is not False:
+                        if l.account is not None:
+                            self.channels[self.whoing[0]].getuser(
+                                ev.arguments[4]).account = l.account
+                            return
+                self.whois([ev.arguments[4]])
 
     def _changenick(self, connection, event):
         self.nickname = self.nickname + "_"
         self.nick(self.nickname, True)
+
+    def _whoisaccount(self, connection, event):
+        for i in self.channels:
+            i = self.channels[i]
+            l = i.getuser(event.arguments[0])
+            print(l)
+            if l is not False:
+                l.account = event.arguments[1]
 
     def _on_join(self, connection, event):
         if parse_nick(event.source)[1] == self.nickname:
             self.channels[event.target] = Channel(event.target)
             # [0] = #channel, [1] = target
             self.whoing = [event.target, event.target]
-            self.who(event.target, "%tcnuhrsaf,31")
+            try:
+                self.features.whox
+                self.who(event.target, "%tcnuhrsaf,31")
+            except:
+                self.who(event.target)
             self.mode(event.target, "b")
         else:
             self.whoing = [event.target, parse_nick(event.source)[1]]
-            self.who(parse_nick(event.source)[1], "%tcnuhrsaf,31")
+            try:
+                self.features.whox
+                self.who(parse_nick(event.source)[1], "%tcnuhrsaf,31")
+            except:
+                self.who(parse_nick(event.source)[1])
 
     def _on_nick(self, connection, event):
         if parse_nick(event.source)[1] == self.nickname:
@@ -875,7 +904,7 @@ class Channel(object):
                     # Con who si el usuario existe solo añadimos el servidor
                     self.users[user.nickname].server = user.server
                 except:
-                    pass
+                    self.users[user.nickname] = user
         except:
             pass
 

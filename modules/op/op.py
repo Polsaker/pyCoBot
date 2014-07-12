@@ -152,12 +152,13 @@ class op:
     def topic(self, bot, cli, ev):
         x = self._getchannick(ev)
         cli.topic(x[1], x[0] + " " + x[2])
-    
+
     def inmucheck(self, core, cli, nick, channel):
         setting = core.readConf("channel.immunity", channel, "")
         if setting == "":
             return False  # Nadie es inmune :D
-        if setting == "voice" and cli.channels[channel].getuser(nick).isVoiced(True):
+        if setting == "voice" and cli.channels[channel].getuser(nick) \
+                                                        .isVoiced(True):
             return True
         if setting == "op" and cli.channels[channel].getuser(nick).is_op:
             return True
@@ -168,8 +169,9 @@ class op:
             return
         try:
             if self.inmucheck(self.core, cli, self.nick, self.chan):
-                self.actn = False
-                return
+                if self.actn != "unban":
+                    self.actn = False
+                    return
         except:
             pass
         if self.actn == "ban" and self.nick == ev.arguments[4]:
@@ -183,16 +185,11 @@ class op:
             time.sleep(self.t * 60)
             cli.mode(self.chan, "-b *!*@" + ev.arguments[2])
         elif self.actn == "unban" and self.nick == ev.arguments[4]:
-            self.masc = ev.arguments[4] + "!" + ev.arguments[1] + "@" + \
+            masc = ev.arguments[4] + "!" + ev.arguments[1] + "@" + \
              ev.arguments[2]
-            cli.mode(self.chan, "b")
+            for i in cli.channels[self.chan].banlist:
+                rgx = i.replace("*", ".*").replace("?", ".?")
+                p = re.compile(rgx, re.IGNORECASE)
+                if p.match(masc):
+                    cli.mode(self.chan, "-b " + i)
             self.actn = False
-
-    def banlist(self, cli, ev):
-        if self.masc is None:
-            return
-        rgx = ev.arguments[1].replace("*", ".*").replace("?", ".?")
-        p = re.compile(rgx, re.IGNORECASE)
-        if p.match(self.masc):
-            cli.mode(self.chan, "-b " + ev.arguments[1])
-            self.masc = None
