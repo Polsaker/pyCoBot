@@ -30,7 +30,6 @@ class op:
         "Cambia el topic de un canal. Sintaxis: topic [canal] [topic]")
 
         core.addHandler("whoreply", self, "whoban")
-        core.addHandler("banlist", self, "banlist")
         self.masc = None
         self.actn = False
         self.core = core
