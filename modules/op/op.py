@@ -82,7 +82,7 @@ class op:
         ops = x[2].split(" ")
         ops.append(x[0])
         for i in ops:
-            cli.mode(x[0], "+o {0}".format(i))
+            cli.mode(x[1], "+o {0}".format(i))
 
     def deop_p(self, bot, cli, ev):
         return self.op_p(bot, cli, ev)
@@ -92,7 +92,7 @@ class op:
         ops = x[2].split(" ")
         ops.append(x[0])
         for i in ops:
-            cli.mode(x[0], "-o {0}".format(i))
+            cli.mode(x[1], "-o {0}".format(i))
 
     def voice_p(self, bot, cli, ev):
         return self.op_p(bot, cli, ev)
@@ -102,7 +102,7 @@ class op:
         ops = x[2].split(" ")
         ops.append(x[0])
         for i in ops:
-            cli.mode(x[0], "+v {0}".format(i))
+            cli.mode(x[1], "+v {0}".format(i))
 
     def devoice_p(self, bot, cli, ev):
         return self.op_p(bot, cli, ev)
@@ -112,7 +112,7 @@ class op:
         ops = x[2].split(" ")
         ops.append(x[0])
         for i in ops:
-            cli.mode(x[0], "-v {0}".format(i))
+            cli.mode(x[1], "-v {0}".format(i))
 
     def kick_p(self, bot, cli, ev):
         return self.op_p(bot, cli, ev)
