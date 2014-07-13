@@ -16,27 +16,12 @@ import json
 SENTINEL = object()
 
 HANDLER_EXT = {
-#    'ini': 'ini',
-#    'conf': 'ini',
-#    'yaml': 'yaml',
-#    'yml': 'yaml',
     'json': 'json',
     'conf': 'json',
-#    'py': 'file',
 }
 
 
-class BaseHandler(object):
-    """Base class for data handlers."""
-
-    def load(self, data):
-        raise NotImplementedError
-
-    def dump(self, data):
-        raise NotImplementedError
-
-
-class DictHandler(BaseHandler):
+class DictHandler:
 
     def load(self, data):
         return data
@@ -45,7 +30,7 @@ class DictHandler(BaseHandler):
         return data
 
 
-class JsonHandler(BaseHandler):
+class JsonHandler:
 
     def load(self, data):
         return json.loads(data)
@@ -59,9 +44,6 @@ class Kaptan(object):
     HANDLER_MAP = {
         'json': JsonHandler,
         'dict': DictHandler,
-#        'yaml': YamlHandler,
-#        'file': FileHandler,
-#        'ini': IniHandler,
     }
 
     def __init__(self, handler=None):

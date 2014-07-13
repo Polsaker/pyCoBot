@@ -4,3 +4,4 @@ tmp/*
 *.nja
 *.db
 *.log
+*.err
