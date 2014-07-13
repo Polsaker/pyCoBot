@@ -79,28 +79,40 @@ class op:
 
     def op(self, bot, cli, ev):
         x = self._getchannick(ev)
-        cli.mode(x[1], "+o " + x[0])
+        ops = x[2].split(" ")
+        ops.append(x[0])
+        for i in ops:
+            cli.mode(x[0], "+o {0}".format(i))
 
     def deop_p(self, bot, cli, ev):
         return self.op_p(bot, cli, ev)
 
     def deop(self, bot, cli, ev):
         x = self._getchannick(ev)
-        cli.mode(x[1], "-o " + x[0])
+        ops = x[2].split(" ")
+        ops.append(x[0])
+        for i in ops:
+            cli.mode(x[0], "-o {0}".format(i))
 
     def voice_p(self, bot, cli, ev):
         return self.op_p(bot, cli, ev)
 
     def voice(self, bot, cli, ev):
         x = self._getchannick(ev)
-        cli.mode(x[1], "+v " + x[0])
+        ops = x[2].split(" ")
+        ops.append(x[0])
+        for i in ops:
+            cli.mode(x[0], "+v {0}".format(i))
 
     def devoice_p(self, bot, cli, ev):
         return self.op_p(bot, cli, ev)
 
     def devoice(self, bot, cli, ev):
         x = self._getchannick(ev)
-        cli.mode(x[1], "-v " + x[0])
+        ops = x[2].split(" ")
+        ops.append(x[0])
+        for i in ops:
+            cli.mode(x[0], "-v {0}".format(i))
 
     def kick_p(self, bot, cli, ev):
         return self.op_p(bot, cli, ev)
