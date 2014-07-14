@@ -192,5 +192,34 @@ numerics = [
         "483": "cantkillserver",
         "484": "restricted",   # Connection is restricted
         "485": "uniqopprivsneeded",
-
+        "486": "nonoreg",
+        "489": "voiceneeded",
+        "491": "nooperhost",
+        "492": "noservicehost",
+        "494": "ownmode",
+        "501": "umodeunknownflag",
+        "502": "usersdontmatch",
+        "503": "ghostedclient",
+        "504": "usernotonserv",
+        "513": "wrongpong",
+        "517": "disabled",
+        "520": "cantjoinoperonly",
+        "524": "helpnotfound",
+        "670": "starttls",         # ircv3, tls-3.1
+        "671": "whoissecure",
+        "691": "e_starttls",       # ircv3, tls-3.1
+        "710": "knock",
+        
+        "900": "loggedin",
+        "901": "loggedout",
+        "902": "nicklocked",
+        "903": "saslsuccess",
+        "904": "saslfail",
+        "905": "sasltoolong",
+        "906": "saslaborted",
+        "907": "saslalready",
+        "908": "saslmechs",
+        
+        "999": "ponies"
     ]
+
