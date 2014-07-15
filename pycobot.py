@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 import pycobot
+import sys
 
 if __name__ == "__main__":
     pyco = pycobot.bot()
@@ -16,7 +17,8 @@ if __name__ == "__main__":
             pyco = pycobot.bot(sys.argv[2])
             pyco.start()
         elif arg == "--help" or arg == "-h":
-            print(("pyCoBot v{0} ({1})\n".format(VERSION, CODENAME)))
+            print(("pyCoBot v{0} ({1})\n".format(pycobot.VERSION,
+                                                 pycobot.CODENAME)))
             print("Parámetros:")
             print("    -h --help:          Muestra este texto.")
             print("    -s --stop:          Detiene el demonio.")

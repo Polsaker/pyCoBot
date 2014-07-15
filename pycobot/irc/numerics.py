@@ -1,4 +1,4 @@
-numerics = [
+numerics = {
         "001": "welcome",
         "002": "yourhost",
         "003": "created",
@@ -85,7 +85,7 @@ numerics = [
         "322": "list",
         "323": "listend",
         "324": "channelmodeis",
-        "325": "channelmlock",    #
+        "325": "channelmlock",
         "328": "channelurl",
         "329": "creationtime",
         "330": "whoisloggedin",
@@ -156,7 +156,7 @@ numerics = [
         "433": "nicknameinuse",
         "435": "bannickchange",
         "436": "nickcollision",
-        "437": "unavailresource", 
+        "437": "unavailresource",
         "438": "nicktoofast",
         "440": "servicesdown",
         "441": "usernotinchannel",
@@ -209,7 +209,7 @@ numerics = [
         "671": "whoissecure",
         "691": "e_starttls",       # ircv3, tls-3.1
         "710": "knock",
-        
+
         "900": "loggedin",
         "901": "loggedout",
         "902": "nicklocked",
@@ -219,7 +219,6 @@ numerics = [
         "906": "saslaborted",
         "907": "saslalready",
         "908": "saslmechs",
-        
-        "999": "ponies"
-    ]
 
+        "999": "ponies"
+    }
