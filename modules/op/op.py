@@ -119,7 +119,7 @@ class op:
 
     def kick(self, bot, cli, ev):
         x = self._getchannick(ev)
-        cli.kick(x[1], x[0], x[2])
+        cli.kick(x[1], x[0], ev.source + ": " + str(x[2]))
 
     def kickban_p(self, bot, cli, ev):
         return self.op_p(bot, cli, ev)
