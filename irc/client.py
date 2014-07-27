@@ -558,7 +558,7 @@ class IRCConnection(object):
         if len(msg) > 400:
             msg = re.sub(r"\s+", " ", msg)  # normalize space
             footer = " …"
-            avail = 400
+            avail = 450
             words = msg.split()
             result = []
             k = 0
