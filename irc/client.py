@@ -519,16 +519,16 @@ class IRCConnection(object):
             # Ouch!
             self.disconnect("Connection reset by peer.")
 
-    def msg(self, target, message):
+    def msg(self, target, message, nonewmsg=False):
         if not is_channel(target):
-            self.notice(target, message)
+            self.notice(target, message, nonewmsg)
             return
 
         if self.core.readConf("channel.notices", chan=target,
                                                         default=True) is False:
-            self.privmsg(target, message)
+            self.privmsg(target, message, nonewmsg)
         else:
-            self.notice(target, message)
+            self.notice(target, message, nonewmsg)
 
     # TODO: Toooodos los mensajes que se puedan enviar...
     def quit(self, message="Bye", urgent=True):
@@ -554,7 +554,7 @@ class IRCConnection(object):
         del self.channels[channel]
         self.send("PART {0} :{1}".format(channel, msg))
 
-    def privmsg(self, target, msg):
+    def privmsg(self, target, msg, nonewmsg=False):
         if len(msg) > 400:
             msg = re.sub(r"\s+", " ", msg)  # normalize space
             footer = " …"
@@ -583,7 +583,10 @@ class IRCConnection(object):
                     #break
                 result[k] += word
                 avail -= len(word)
-
+            
+            if nonewmsg is True:
+                self._privmsg(target, result[0] + footer)
+                return
             w = 0
             for v in result:
                 sg = (v + footer).strip()
@@ -757,7 +760,7 @@ class IRCConnection(object):
         """Send a NAMES command."""
         self.send("NAMES" + (channels and (" " + ",".join(channels)) or ""))
 
-    def notice(self, target, msg):
+    def notice(self, target, msg, nonewmsg=False):
         if len(msg) > 400:
             msg = re.sub(r"\s+", " ", msg)  # normalize space
             footer = " …"
@@ -786,7 +789,10 @@ class IRCConnection(object):
                     #break
                 result[k] += word
                 avail -= len(word)
-
+            
+            if nonewmsg is True:
+                self._notice(target, result[0] + footer)
+                return
             w = 0
             for v in result:
                 if v == "":
