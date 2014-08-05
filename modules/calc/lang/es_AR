@@ -1,0 +1,8 @@
+{
+    "calc.help": "Calculadora. Sintaxis: calc <cálculo>",
+    "calcdps.help": "Ajusta la cantidad de decimales que mostrara calc. Sintaxis: calcdps <numero>",
+    "calcdps": "Presición ajustada a \002{0}\002 decimales",
+    "calcerr": "No se pudo calcular.",
+    "syntaxerr": "Error de sintaxis o algo por el estilo: {0}",
+    "toolong": "La operación se ha demorado mucho en finalizar"
+}

@@ -13,8 +13,7 @@ except:
 class calc:
 
     def __init__(self, core, client):
-        core.addCommandHandler("calc", self, chelp=
-        "Calculadora. Sintaxis: calc <cálculo>")
+        core.addCommandHandler("calc", self, chelp="calc.help")
         self.res = None
         self.q = multiprocessing.Queue()
         self.vrs = vars(math)
@@ -34,16 +33,15 @@ class calc:
     def calcdps(self, bot, cli, ev):
         from mpmath import mp
         mp.dps = int(ev.splitd[0])
-        cli.msg(ev.source, "Presición ajustada a \2{0}\2 decimales"
-                                                        .format(ev.splitd[0]))
+        cli.msg(ev.source, bot._(ev, self, "calcdps").format(ev.splitd[0]))
 
     def calc(self, bot, cli, event):
         #res = self.calculate(" ".join(event.splitd))
 
         res = self.try_slow_thing(self.calculate,
-                                " ".join(event.splitd), self.q)
+                                " ".join(event.splitd), self.q, bot, event)
         if res is None:
-            cli.msg(event.target, "No se pudo calcular.")
+            cli.msg(event.target, bot._(event, self, "calcerr"))
         else:
             restr = res
             restr = self.adjust_decimals(restr)
@@ -69,7 +67,7 @@ class calc:
 
     integers_regex = re.compile(r'\b[\d\.]+\b')
 
-    def calculate(self, expr, q):
+    def calculate(self, expr, q, bot, ev):
         def safe_eval(expr, symbols={}):
             if expr.find("_") != -1:
                 return None
@@ -77,7 +75,7 @@ class calc:
                 return eval(expr, dict(__builtins__=None), symbols)  # :(
             except:
                 e = sys.exc_info()[0]
-                return "Error de sintaxis o algo por el estilo: " + str(e)
+                return bot._(ev, self, "syntaxerror".format(str(e))
 
         expr = expr.replace('^', '**')
 
