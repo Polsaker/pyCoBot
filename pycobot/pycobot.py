@@ -431,7 +431,7 @@ class pyCoBot:
                 self.lang[module][the_file] = {}
                 self.lang[module][the_file] = json.load(
                         open("modules/{0}/lang/{1}".format(module, the_file)))
-        except:
+        except OSError:
             pass
 
     def unloadmod(self, module):
