@@ -75,7 +75,7 @@ class calc:
                 return eval(expr, dict(__builtins__=None), symbols)  # :(
             except:
                 e = sys.exc_info()[0]
-                return bot._(ev, self, "syntaxerror".format(str(e))
+                return bot._(ev, self, "syntaxerror").format(str(e))
 
         expr = expr.replace('^', '**')
 
