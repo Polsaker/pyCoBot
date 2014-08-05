@@ -38,7 +38,7 @@ class calc:
     def calc(self, bot, cli, event):
         #res = self.calculate(" ".join(event.splitd))
 
-        res = self.try_slow_thing(self.calculate,
+        res = self.try_slow_thing(self.calculate, bot, event, 
                                 " ".join(event.splitd), self.q, bot, event)
         if res is None:
             cli.msg(event.target, bot._(event, self, "calcerr"))
@@ -87,13 +87,13 @@ class calc:
 
         q.put(str(resp))
 
-    def try_slow_thing(self, function, *args):
+    def try_slow_thing(self, function, bot, ev, *args):
         p = multiprocessing.Process(target=function, args=args)
         p.start()
         p.join(5)
         if p.is_alive():
             p.terminate()
-            return "La operación se ha demorado mucho en finalizar"
+            return bot._(ev, self, "toolong")
         else:
             return self.q.get(True)
 
