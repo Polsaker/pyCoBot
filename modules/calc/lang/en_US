@@ -1,7 +1,7 @@
 {
     "calc.help": "Calculator. Usage: calc <math expression>",
     "calcdps.help": "Adjusts the number of decimal places shown by the calc function. Usage: calcdps <number>",
-    "calcdps": "Precision adjusted to \u002{0}\u002 decimal places",
+    "calcdps": "Precision adjusted to \u0002{0}\u0002 decimal places",
     "calcerr": "Couldn't calculate.",
     "syntaxerror": "Error: {0}",
     "toolong": "The operation took too long"

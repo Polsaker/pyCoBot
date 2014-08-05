@@ -1,7 +1,7 @@
 {
     "calc.help": "Calculadora. Sintaxis: calc <cálculo>",
     "calcdps.help": "Ajusta la cantidad de decimales que mostrara calc. Sintaxis: calcdps <numero>",
-    "calcdps": "Presición ajustada a \u002{0}\u002 decimales",
+    "calcdps": "Presición ajustada a \u0002{0}\u0002 decimales",
     "calcerr": "No se pudo calcular.",
     "syntaxerror": "Error de sintaxis o algo por el estilo: {0}",
     "toolong": "La operación se ha demorado mucho en finalizar"
