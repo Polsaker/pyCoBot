@@ -3,6 +3,6 @@
     "calcdps.help": "Adjusts the number of decimal places shown by the calc function. Usage: calcdps <number>",
     "calcdps": "Precision adjusted to \002{0}\002 decimal places",
     "calcerr": "Couldn't calculate.",
-    "syntaxerr": "Error: {0}",
+    "syntaxerror": "Error: {0}",
     "toolong": "The operation took too long"
 }
