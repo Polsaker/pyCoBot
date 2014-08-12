@@ -6,15 +6,14 @@ import locale
 class ping:
 
     def __init__(self, core, client):
-        core.addCommandHandler("ping", self, chelp="Responde con pong.")
+        core.addCommandHandler("ping", self, chelp="ping.help")
         core.addCommandHandler("pong", self)
         core.addCommandHandler("pig", self)
-        core.addCommandHandler("lag", self, chelp="Mide el lag.")
+        core.addCommandHandler("lag", self, chelp="lag.help")
         core.addHandler("ctcpreply", self, "pingrep")
 
     def pig(self, bot, cli, event):
-        cli.msg(event.target, event.source +
-                                ": ¿Quieres un cerdo? ¡Ve a mirarte al espejo!")
+        cli.msg(event.target, bot._(event, self, "pog").format(event.source))
 
     def ping(self, bot, cli, event):
         cli.msg(event.target, event.source + ": pong")
@@ -33,5 +32,4 @@ class ping:
         current_milli_time = int(round(time.time() * 1000))
         diff = current_milli_time - int(event.arguments[1])
         secs = locale.str(diff / 1000)  # milisegudos -> segundos
-        client.msg(self.chan, event.source + " tiene un lag de " + secs +
-        " segundos.")
+        client.msg(self.chan, bot._(event, self, "lag").format(event.source, secs))

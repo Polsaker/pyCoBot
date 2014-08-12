@@ -1,6 +1,6 @@
 {
     "noauth": "\u000304Error\u0003: Unauthorized",
-    "help.cmd": "Help",
+    "help.cmd": "help",
     "help.introstr": "Commands start with \u0002{0}\u0002. Enter \u0002{0} <command>\u0002 for more information about a command.",
     "help.commands": "Commands: ",
     "help.help": "Displays help for a command, or, if no parameters, the command list. Syntax: help [command] ",

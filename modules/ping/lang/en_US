@@ -1,0 +1,6 @@
+{
+    "ping.help": "Replies with pong",
+    "lag.help": "Lag-o-meter.",
+    "pog": "{0}: Just walk over to your mirror and look at yourself! [insert evil mocking laugh here]",
+    "lag": "{0} has {1} seconds of lag."
+}

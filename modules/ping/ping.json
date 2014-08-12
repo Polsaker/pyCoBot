@@ -2,5 +2,9 @@
     "type": "github",
     "user": "irc-CoBot",
     "repo": "pyCoBot",
-    "url": ""
+    "url": "",
+    "files": [
+        "lang/en_US",
+        "lang/es_AR"
+    ]
 }
