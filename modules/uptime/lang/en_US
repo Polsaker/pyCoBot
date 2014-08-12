@@ -1,0 +1,6 @@
+{
+    "uptime.help": "Shows statistics about resources being used by the bot.",
+    "err.nouptime": "Couldn't get the uptime",
+    "uptime.time": "I've been running for {0} days, {1} hours, {2} minutes y {3} seconds.",
+    "uptime.mem": " Resident memory: {0} MiB, peak: {1} MiB. Using {2} threads"
+}
