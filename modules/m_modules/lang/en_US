@@ -2,7 +2,7 @@
     "loadmod.help": "Loads a module. Usage: loadmod <module>",
     "unloadmod.help": "Unloads a module. Usage: unloadmod <module>",
     "reloadmod.help": "Reloads a module. Usage: reloadmod <module>",
-    "err.missigfile": "\u000304Error\u0003: Module not found."
+    "err.missigfile": "\u000304Error\u0003: Module not found.",
     "err.missigclass": "\u000304Error\u0003: The module has a missing main class.",
     "err.alreadyloaded": "\u000304Error\u0003: This module is already loaded.",
     "err.syntaxerror": "\u000304Error\u0003: The module has a syntax error",
