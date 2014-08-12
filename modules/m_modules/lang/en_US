@@ -8,5 +8,5 @@
     "err.syntaxerror": "\u000304Error\u0003: The module has a syntax error",
     "err.notloaded": "\u000304Error\u0003: The module is not loaded",
     "moduleloaded": "Module {0} loaded",
-    "moduleunloaded": "Module {0} loaded"
+    "moduleunloaded": "Module {0} unloaded"
 }
