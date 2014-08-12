@@ -11,6 +11,7 @@ class ping:
         core.addCommandHandler("pig", self)
         core.addCommandHandler("lag", self, chelp="lag.help")
         core.addHandler("ctcpreply", self, "pingrep")
+        self.bot = core
 
     def pig(self, bot, cli, event):
         cli.msg(event.target, bot._(event, self, "pog").format(event.source))
@@ -32,4 +33,4 @@ class ping:
         current_milli_time = int(round(time.time() * 1000))
         diff = current_milli_time - int(event.arguments[1])
         secs = locale.str(diff / 1000)  # milisegudos -> segundos
-        client.msg(self.chan, bot._(event, self, "lag").format(event.source, secs))
+        client.msg(self.chan, self.bot._(event, self, "lag").format(event.source, secs))
