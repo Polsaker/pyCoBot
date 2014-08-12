@@ -25,12 +25,16 @@ class ping:
     def lag(self, bot, cli, event):
         current_milli_time = int(round(time.time() * 1000))
         cli.privmsg(event.source, "\1PING %s\1" % current_milli_time)
-        self.chan = event.target
+        self.chan = event
 
     def pingrep(self, client, event):
         if not event.arguments[0] == "PING":
             return 0
+        
+        if self.chan is None:
+            return 0
         current_milli_time = int(round(time.time() * 1000))
         diff = current_milli_time - int(event.arguments[1])
         secs = locale.str(diff / 1000)  # milisegudos -> segundos
-        client.msg(self.chan, self.bot._(event, self, "lag").format(event.source, secs))
+        client.msg(self.chan.target, self.bot._(self.chan, self, "lag").format(event.source, secs))
+        self.chan = None
