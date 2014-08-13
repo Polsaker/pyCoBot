@@ -4,6 +4,7 @@
     "repo": "pyCoBot",
     "url": "",
     "files":[
-        "lang/es_AR"
+        "lang/es_AR",
+        "lang/en_US"
     ]
 }
