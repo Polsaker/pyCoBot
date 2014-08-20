@@ -124,16 +124,21 @@ class translate:
 
         trs = json.loads(res.decode('utf-8'))
         try:
-            translated = trs['sentences'][0]['trans']
-            translit = trs['sentences'][0]['translit']
-            try:
-                src = self.langs[trs['src']]
-            except KeyError:
-                src = trs['src']
+            translatd = ""
+            translit = ""
+            for q in translated = trs['sentences'][0]
+                translatd += q['trans'] + " "
+                translit += q['translit'] + ". "
+                try:
+                    src = self.langs[trs['src']]
+                except KeyError:
+                    src = trs['src']
+                
+                
             resp = "Traducido del \2{0}\2 al \2{1}\2: {2}".format(src,
-                                                    self.langs[OUT], translated)
+                                                        self.langs[OUT], translatd)
             if translit != "":
-                resp += " ({0})".format(translit)
+                    resp += " ({0})".format(translit)
         except KeyError:
             resp = "Ocurrió un error al traducir."
 
