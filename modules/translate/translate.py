@@ -127,8 +127,10 @@ class translate:
             translatd = ""
             translit = ""
             for q in trs['sentences']:
-                translatd += q['trans'] + " "
-                translit += q['translit'] + ". "
+                translatd += q['trans']
+                translit += q['translit']
+                if q['translit'] != "":
+                    translit += " "
                 try:
                     src = self.langs[trs['src']]
                 except KeyError:
