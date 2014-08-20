@@ -126,7 +126,7 @@ class translate:
         try:
             translatd = ""
             translit = ""
-            for q in trs['sentences'][0]:
+            for q in trs['sentences']:
                 translatd += q['trans'] + " "
                 translit += q['translit'] + ". "
                 try:
