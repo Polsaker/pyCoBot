@@ -29,7 +29,7 @@ class books:
             stext = stext.replace("-", "")
         
         r = urllib.request.urlopen("https://www.googleapis.com/books/v1/"
-            "volumes?q={0}&key={1}&maxResults=4&langRestrict=ES".format(stext, self.apikey)).read()
+            "volumes?q={0}&langRestrict=ES&key={1}&maxResults=4".format(stext, self.apikey)).read()
 
         search = json.loads(r.decode('utf-8'))
         if search['totalItems'] == 0:
