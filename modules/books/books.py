@@ -102,7 +102,7 @@ class books:
 
     def book(self, bot, cli, event):
         if len(event.splitd) > 0:
-            stext = urllib.parse.quote_plus(" ".join(event.splitd))
+            stext = " ".join(event.splitd)
         else:
             cli.msg(event.target, "\00304Error\003: Faltan parametros")
             return 0
@@ -112,12 +112,13 @@ class books:
         if foo:
             stext = stext.replace(foo.group(0), "")
             lang = foo.group(2)
+        stext = urllib.parse.quote_plus(stext)
         
         if re.search("isbn", stext):
             stext = stext.replace("-", "")
         
         r = urllib.request.urlopen("https://www.googleapis.com/books/v1/"
-            "volumes?q={0}&langRestrict={2}&key={1}&maxResults=4".format(stext, self.apikey, lang)).read()
+            "volumes?q={0}&langRestrict={2}&key={1}&maxResults=4".format(stext, self.apikey)).read()
 
         search = json.loads(r.decode('utf-8'))
         if search['totalItems'] == 0:
