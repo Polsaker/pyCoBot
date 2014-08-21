@@ -107,11 +107,17 @@ class books:
             cli.msg(event.target, "\00304Error\003: Faltan parametros")
             return 0
         
+        foo = re.search("( |^)lang:(.+)( |$)", stext)
+        lang = ""
+        if foo:
+            stext = stext.replace(foo.group(0), "")
+            lang = foo.group(2)
+        
         if re.search("isbn", stext):
             stext = stext.replace("-", "")
         
         r = urllib.request.urlopen("https://www.googleapis.com/books/v1/"
-            "volumes?q={0}&langRestrict=ES&key={1}&maxResults=4".format(stext, self.apikey)).read()
+            "volumes?q={0}&langRestrict={2}&key={1}&maxResults=4".format(stext, self.apikey, lang)).read()
 
         search = json.loads(r.decode('utf-8'))
         if search['totalItems'] == 0:
