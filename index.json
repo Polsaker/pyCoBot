@@ -28,6 +28,7 @@
         "divisa",
         "uptime",
         "karma",
-        "iplocator"
+        "iplocator",
+        "books"
     ]
 }
