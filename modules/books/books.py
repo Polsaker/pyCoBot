@@ -17,6 +17,7 @@ class books:
         core.addCommandHandler("book", self, chelp=
         "Busca libros en Google Libros. Sintaxis: book <término de busqueda> (tip: Usar \"isbn:IDENTIFICADOR_ISBN\" para buscar por ISBN)",
         alias=["libro", "books"])
+        self.langs = {}
         self.langs['en'] = "inglés"
         self.langs['es'] = "español"
         self.langs['af'] = "afrikáans"
