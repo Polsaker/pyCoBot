@@ -131,7 +131,7 @@ class books:
                     idi = self.langs[b['volumeInfo']['language']]
                 except:
                     idi = b['volumeInfo']['language']
-                resp += "Idioma: {0}. ".format(idi)
+                resp += "Idioma: \002{0}\002. ".format(idi)
             except:
                 pass
                 
