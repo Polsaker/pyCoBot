@@ -131,6 +131,8 @@ class books:
                 except:
                     idi = b['volumeInfo']['language']
                 resp += "Idioma: {0}. ".format(idi)
+            except:
+                pass
                 
             #resp += " ISBN-10: \002{0}\002, ISBN-13: \002{0}\002. ".format( 
             for l in b['volumeInfo']['industryIdentifiers']:
