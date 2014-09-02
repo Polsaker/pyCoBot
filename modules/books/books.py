@@ -128,7 +128,11 @@ class books:
         for b in search['items']:
             resp = "\002{0}\002, ".format(b['volumeInfo']['title'])
             try:
-                resp = "Autor(es): \002{1}\002. ".format(", ".join(b['volumeInfo']['authors']))
+                resp += "Autor(es): \002{0}\002. ".format(", ".join(b['volumeInfo']['authors']))
+            except:
+                pass
+            try:
+                resp += "Publicación: \002{0}\002. ".format(b['volumeInfo']['publishedDate'])
             except:
                 pass
             try:
