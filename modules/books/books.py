@@ -126,8 +126,11 @@ class books:
             return
 
         for b in search['items']:
-            resp = "\002{0}\002, Autor(es): \002{1}\002. ".format(
+            try:
+                resp = "\002{0}\002, Autor(es): \002{1}\002. ".format(
                     b['volumeInfo']['title'], ", ".join(b['volumeInfo']['authors']))
+            except:
+                pass
             try:
                 resp += "\002{0}\002 páginas. ".format(b['volumeInfo']['pageCount'])
             except:
