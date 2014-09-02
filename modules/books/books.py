@@ -126,8 +126,9 @@ class books:
             return
 
         for b in search['items']:
+            resp = "\002{0}\002, "
             try:
-                resp = "\002{0}\002, Autor(es): \002{1}\002. ".format(
+                resp = "Autor(es): \002{1}\002. ".format(
                     b['volumeInfo']['title'], ", ".join(b['volumeInfo']['authors']))
             except:
                 pass
