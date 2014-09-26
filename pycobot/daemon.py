@@ -84,7 +84,7 @@ class Daemon:
                         pf.close()
                 except IOError:
                         pid = None
-
+                # If the pidfile exists, check if the process is running.
                 if pid and os.path.exists("/proc/{0}".format(pid)):
                         message = "The daemon is already running!\n"
                         sys.stderr.write(message)

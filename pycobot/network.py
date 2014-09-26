@@ -6,6 +6,7 @@
 """
 import json
 import logging
+from .irc import client
 
 
 class Server:
@@ -13,15 +14,22 @@ class Server:
     sid = None
     pycobot = None
     logger = None
+    connection = None
 
     def __init__(self, pycobot, sid):
         self.logger = logging.getLogger('pyCoBot-' + sid)
         self.config = pycobot.config
         self.pycobot = pycobot
         self.sid = sid
+        
+        self.connection = client.IRCClient(sid)
+        
+        sconf = self.config.get("servers.{0}".format(sid))
+        self.connection.configure(sconf['host'], sconf['port'], sconf['nick'])
 
     def connect(self):
         self.logger.info("Conectando...")
+        self.connection.connect()
 
     def readConf(self, key, chan=None, default=""):
         """Lee configuraciones. (Formato: key1.key2.asd)"""
@@ -45,7 +53,7 @@ class Server:
             value = json.loads(value2)
         except:
             pass
-        self.mconf.put(key, value)
+        self.config.put(key, value)
         dump = self.config.export('json', indent=4)
         open("pycobot.conf", "w").write(dump)
         return True
