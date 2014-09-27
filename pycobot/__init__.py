@@ -21,8 +21,7 @@ class bot(Daemon):
         try:
             jsonConf = open("pycobot.conf").read()
         except IOError:
-            logging.critical('No se ha podido abrir el archivo de'
-                          ' configuración')
+            logging.critical('Couldn\'t open configuration file')
             sys.exit("Missing config file!")
         self.config = Kaptan(handler="json")
         self.config.import_config(jsonConf)

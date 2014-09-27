@@ -34,4 +34,10 @@ class pyCoBot:
         # :D
         alive = True
         while alive or self.donotdie:
-            time.sleep(0.01)  # Grooo!
+            time.sleep(1)  # Grooo!
+            alive = False
+            for i in self.servers:
+                if self.servers[i].connection.connected is True or  \
+                                     self.servers[i].connection.reconncount <= \
+                                          self.servers[i].connection.reconnects:
+                    alive = True

@@ -21,9 +21,9 @@ class Server:
         self.config = pycobot.config
         self.pycobot = pycobot
         self.sid = sid
-        
+
         self.connection = client.IRCClient(sid)
-        
+
         sconf = self.config.get("servers.{0}".format(sid))
         self.connection.configure(sconf['host'], sconf['port'], sconf['nick'])
 

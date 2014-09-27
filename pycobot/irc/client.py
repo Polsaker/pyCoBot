@@ -7,8 +7,8 @@ import time
 from . import numerics
 from . import features
 
-_rfc_1459_command_regexp = re.compile("^(:(?P<prefix>[^ ]+) +)?" +
-    "(?P<command>[^ ]+)( *(?P<argument> .+))?")
+_rfc_1459_command_regexp = re.compile("^(:(?P<prefix>[^ ]+) +)?(?P<command>[" +
+                                      "^ ]+)( *(?P<argument> .+))?")
 
 
 class IRCClient:
@@ -24,18 +24,28 @@ class IRCClient:
     reconncount = 0  # Números de intentos de reconección realizados.
 
     features = None
-    buffer = None
+    ibuffer = None
     connected = False
     logger = None
     socket = None
     handlers = {}
     queue = []
+    channels = {}
+    users = {}
 
     def __init__(self, sid):
         self.logger = logging.getLogger('bearded-potato-' + sid)
-        self.buffer = LineBuffer()
+        self.ibuffer = LineBuffer()
         self.features = features.FeatureSet()
         #self.addhandler("pubmsg", self._pubmsg)
+
+        # Internal handlers used to get user/channel information
+        self.addhandler("join", self._on_join)
+        self.addhandler("currenttopic", self._on_topic)
+        self.addhandler("topic", self._on_topic)
+        self.addhandler("topicinfo", self._on_topicinfo)
+        self.addhandler("whospcrpl", self._on_whox)
+        self.addhandler("whoreply", self._on_who)
 
     def configure(self, server=server, port=port, nick=nickname, ident=nickname,
                 gecos=gecos, ssl=ssl, msgdelay=msgdelay, reconnects=reconnects):
@@ -46,7 +56,7 @@ class IRCClient:
         self.gecos = gecos
         self.ssl = ssl
         self.msgdelay = msgdelay
-                
+
     def connect(self):
         """ Connects to the IRC server. """
         self.logger.info("Conectando a {0}:{1}".format(self.server, self.port))
@@ -55,18 +65,22 @@ class IRCClient:
         except socket.error as err:
             self.logger.error("No se pudo conectar a {0}:{1}: {2}"
                 .format(self.server, self.port, err))
-            return 1
+
+            if self.reconncount <= self.reconnects:
+                self.reconncount += 1
+                self.connect()
+            return False
 
         self.connected = True
-        
+
         # Iniciamos la cola de envío
         _thread.start_new_thread(self._process_queue, ())
-        
+
         # Iniciamos el bucle de recepción
         _thread.start_new_thread(self._process_forever, ())
 
         self._fire_event(Event("connect", None, None))
-        
+
         # Nos identificamos..
         self.user(self.ident, self.gecos)
         self.nick(self.nickname)
@@ -74,10 +88,10 @@ class IRCClient:
     def _process_forever(self):
         while self.connected:
             self._process_data()
-        self.reconncount += 1
         if self.reconncount <= self.reconnects:
+            self.reconncount += 1
             self.connect()
-            
+
     def _processline(self, line):
         prefix = None
         command = None
@@ -108,11 +122,11 @@ class IRCClient:
                 self.nickname = arguments[0]
         elif command == "welcome":
             self.join("#cobot")
-            
+
             # Record the nickname in case the client changed nick
             # in a nicknameinuse callback.
             self.nickname = arguments[0]
-        elif command == "featurelist":
+        elif command == "isupport":
             self.features.load(arguments)
 
         if command in ["privmsg", "notice"]:
@@ -169,7 +183,7 @@ class IRCClient:
                 "arguments: %s", command, prefix, target, arguments)
             self._fire_event(Event(command, NickMask(prefix), target,
                 arguments))
-                
+
     def _process_data(self):
         if not self.connected:
             return 1
@@ -185,14 +199,14 @@ class IRCClient:
             self.disconnect("Connection reset by peer")
             return False
 
-        self.buffer.feed(new_data)
+        self.ibuffer.feed(new_data)
 
-        for line in self.buffer:
+        for line in self.ibuffer:
             if not line:
                 continue
             self.logger.debug(line)
             self._processline(line)
-        
+
     def _process_queue(self):
         while True:
             if self.connected is False:
@@ -207,23 +221,23 @@ class IRCClient:
         try:
             self.handlers[event.type]
             for i in self.handlers[event.type]:
-                i[callback](self, event)
-        except:
+                try:
+                    i['callback'](self, event)
+                except BaseException as e:
+                    self.logger.error("Calling {0} handler raised exception:"
+                                    "{1}".format(event.type, e))
+        except KeyError:
             pass
 
-    # Registers a bot handler.
-    # action = Command/translated numeric that will trigger the handler
-    # callback = Function to call back (Parameters: this class and a event object)
-    # blocking = If true, the handler won't be executed in a thread
     def addhandler(self, action, callback, blocking=False):
         try:
             self.handlers[action]
         except:
             self.handlers[action] = []
-        self.handlers[action].append({'blocking': blocking, 
+        self.handlers[action].append({'blocking': blocking,
                                       'action': action,
                                       'callback': callback})
-        
+
     def send(self, raw, urgent=False):
         if urgent is False:
             self.queue.append(raw)
@@ -240,7 +254,7 @@ class IRCClient:
         except socket.error:
             # Ouch!
             self.disconnect("Connection reset by peer.")
-    
+
     def disconnect(self, message):
         self.reconncount = 100000  # :D
         if not self.connected:
@@ -255,26 +269,78 @@ class IRCClient:
             self.socket.close()
         except socket.error:
             pass
-        self.logger.info("Desconectado del servidor: {0}".format(message))
+        self.logger.info("Disconnected from server: {0}".format(message))
         self._fire_event(Event("disconnect", None, None))
         del self.socket
-    
+
     ### IRC Commands ###
-    
+
     def user(self, user, realname):
         self.send("USER {0} * * :{1}".format(user, realname), True)
-    
+
     def nick(self, nick):
         self.send("NICK {0}".format(nick), True)
-    
+
     def quit(self, reason):
         self.send("QUIT :{0}".format(reason), True)
-    
+
     def pong(self, param):
         self.send("PONG :{0}".format(param))
-    
+
     def join(self, channels):
         self.send("JOIN {0}".format(channels))
+
+    def who(self, target="", op=""):
+        self.send("WHO%s%s" % (target and (" " + target), op and (" " + op)))
+
+    # Internal handlers
+
+    def _on_join(self, this, event):
+        if event.source.nick == self.nickname:
+            # We just joined a channel, let's add it to the list
+            self.channels[event.target] = Channel(self, event.target)
+        else:
+            # Soon™ the bot will know WHO IS ON THE FUCKING CHANNEL
+            pass
+
+    def _on_topic(self, myself, event):
+        self.channels[event.arguments[0]].topicChange(event.source,
+                                                event.arguments[1])
+
+    def _on_topicinfo(self, myself, event):
+        self.channels[event.arguments[0]].topicsetter = NickMask(
+                                                             event.arguments[1])
+        self.channels[event.arguments[0]].topicsetterts = event.arguments[2]
+
+    def _on_who(self, myself, event):
+        pass
+
+    def _on_whox(self, myself, event):
+        if event.arguments[0] == "08":
+            self.channels[event.arguments[1]].gotWhox(event)
+
+
+class Channel(object):
+    name = None
+    topic = None
+    topicsetter = None
+    topicsetterts = None
+
+    def __init__(self, client, channelname):
+        self.name = channelname
+        try:
+            client.features.whox
+            client.who(channelname, "%tcuhnar,08")
+        except:
+            client.who(channelname)
+
+    def topicChange(self, source, topic):
+        self.topic = topic
+        self.topicsetter = source
+        self.topicsetterts = time.time()
+
+    def gotWhox(self, event):
+        pass
 
 
 class Event(object):

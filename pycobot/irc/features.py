@@ -61,7 +61,7 @@ class FeatureSet(object):
         "channel user prefixes"
         channel_modes, channel_chars = value.split(')')
         channel_modes = channel_modes[1:]
-        return dict(zip(channel_chars, channel_modes))
+        return dict(list(zip(channel_chars, channel_modes)))
 
     @staticmethod
     def _parse_CHANMODES(value):
@@ -89,7 +89,7 @@ class FeatureSet(object):
         >>> res['i'] == res['b'] == res['e'] == 250
         True
         """
-        pairs = map(string_int_pair, value.split(','))
+        pairs = list(map(string_int_pair, value.split(',')))
         return dict(
             (target, number)
             for target_keys, number in pairs
@@ -102,6 +102,7 @@ class FeatureSet(object):
         if value.isdigit():
             return int(value)
         return value
+
 
 def string_int_pair(target, sep=':'):
     name, value = target.split(sep)
