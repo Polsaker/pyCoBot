@@ -24,6 +24,9 @@ class weather:
                 "%20")
         else:
             cli.msg(event.target, "\00304Error\003: Faltan parametros")
+        if ts == "Polsaker":
+            cli.msg(event.target, "Húmedo")
+            return
 
         r = urllib.request.urlopen("http://api.wunderground.com/api/%s/conditi"
         "ons/forecast/lang:es/q/%s.json" %
