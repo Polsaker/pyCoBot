@@ -35,13 +35,14 @@ class IRCClient:
         self.logger = logging.getLogger('bearded-potato-' + sid)
         self.buffer = LineBuffer()
         self.features = features.FeatureSet()
+        #self.addhandler("pubmsg", self._pubmsg)
 
     def configure(self, server=server, port=port, nick=nickname, ident=nickname,
                 gecos=gecos, ssl=ssl, msgdelay=msgdelay, reconnects=reconnects):
         self.server = server
         self.port = port
         self.nickname = nick
-        self.ident = ident
+        self.ident = nick
         self.gecos = gecos
         self.ssl = ssl
         self.msgdelay = msgdelay
@@ -103,12 +104,14 @@ class IRCClient:
         command = numerics.numerics.get(command, command)
 
         if command == "nick":
-            if NickMask(prefix).nick == self.real_nickname:
-                self.real_nickname = arguments[0]
+            if NickMask(prefix).nick == self.nickname:
+                self.nickname = arguments[0]
         elif command == "welcome":
+            self.join("#cobot")
+            
             # Record the nickname in case the client changed nick
             # in a nicknameinuse callback.
-            self.real_nickname = arguments[0]
+            self.nickname = arguments[0]
         elif command == "featurelist":
             self.features.load(arguments)
 
@@ -201,10 +204,25 @@ class IRCClient:
             time.sleep(self.msgdelay)
 
     def _fire_event(self, event):
-        pass  ## TODO
+        try:
+            self.handlers[event.type]
+            for i in self.handlers[event.type]:
+                i[callback](self, event)
+        except:
+            pass
 
-    def addhandler(self, numeric, function, blocking=False):
-        pass  ## TODO
+    # Registers a bot handler.
+    # action = Command/translated numeric that will trigger the handler
+    # callback = Function to call back (Parameters: this class and a event object)
+    # blocking = If true, the handler won't be executed in a thread
+    def addhandler(self, action, callback, blocking=False):
+        try:
+            self.handlers[action]
+        except:
+            self.handlers[action] = []
+        self.handlers[action].append({'blocking': blocking, 
+                                      'action': action,
+                                      'callback': callback})
         
     def send(self, raw, urgent=False):
         if urgent is False:
@@ -254,6 +272,9 @@ class IRCClient:
     
     def pong(self, param):
         self.send("PONG :{0}".format(param))
+    
+    def join(self, channels):
+        self.send("JOIN {0}".format(channels))
 
 
 class Event(object):
