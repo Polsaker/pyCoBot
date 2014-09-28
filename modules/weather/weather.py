@@ -44,7 +44,7 @@ class weather:
                     j = j + 1
                     resp = resp + "\2\"%s, %s\"\2 (zmw:%s), " % \
                     (val['city'], val["country_name"], val['zmw'])
-                    if j >= 2:
+                    if j >= 10:
                         break
             except:
                 pass
