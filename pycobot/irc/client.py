@@ -46,6 +46,8 @@ class IRCClient:
         self.addhandler("topicinfo", self._on_topicinfo)
         self.addhandler("whospcrpl", self._on_whox)
         self.addhandler("whoreply", self._on_who)
+        self.addhandler("whoisloggedin", self._on_whoisaccount)
+        self.addhandler("mode", self._on_mode)
 
     def configure(self, server=server, port=port, nick=nickname, ident=nickname,
                 gecos=gecos, ssl=ssl, msgdelay=msgdelay, reconnects=reconnects):
@@ -293,6 +295,9 @@ class IRCClient:
     def who(self, target="", op=""):
         self.send("WHO%s%s" % (target and (" " + target), op and (" " + op)))
 
+    def whois(self, targets):
+        self.send("WHOIS " + targets)
+
     # Internal handlers
 
     def _on_join(self, this, event):
@@ -300,6 +305,7 @@ class IRCClient:
             # We just joined a channel, let's add it to the list
             self.channels[event.target] = Channel(self, event.target)
         else:
+            print(self.channels)
             # Soon™ the bot will know WHO IS ON THE FUCKING CHANNEL
             pass
 
@@ -313,11 +319,52 @@ class IRCClient:
         self.channels[event.arguments[0]].topicsetterts = event.arguments[2]
 
     def _on_who(self, myself, event):
-        pass  # TODO: support normal WHO
+        # o_O IT IS A WHO!!
+        # THE FOOKING SERVER DOESN'T SUPPORT WHOX >:O
+        # Let's send a whois to get the goddamn account name
+        self.whois(event.arguments[4])
+        self.channels[event.arguments[0]].addUser(event)
+
+    def _on_whoisaccount(self, myself, event):
+        self.users[event.arguments[0]].account = event.arguments[1]
+        for i in self.channels:
+            try:
+                self.channels[i].users[event.arguments[1]].account = \
+                                                             event.arguments[1]
+            except:
+                pass
 
     def _on_whox(self, myself, event):
         if event.arguments[0] == "08":
             self.channels[event.arguments[1]].addUser(event)
+
+    def _on_mode(self, myself, event):
+        status = ""
+        number = 1
+        prefixes = "".join("{!s}".format(k) for (k, v) in
+                            self.features.prefix.items())
+        prefixes = prefixes.replace("+", "")
+        for i in event.arguments[0]:
+            if i == "+":
+                status = "+"
+            elif i == "-":
+                status = "-"
+            elif i == "v":
+                if status == "-":
+                    self.channels[event.target].users[event.arguments[number]] \
+                    .voice = False
+                else:
+                    self.channels[event.target].users[event.arguments[number]] \
+                    .voice = True
+                number += 1
+            elif i in prefixes:
+                if status == "-":
+                    self.channels[event.target].users[event.arguments[number]] \
+                    .op = False
+                else:
+                    self.channels[event.target].users[event.arguments[number]] \
+                    .op = True
+                number += 1
 
 
 class Channel(object):
@@ -326,8 +373,10 @@ class Channel(object):
     topicsetter = None
     topicsetterts = None
     users = {}
+    cli = None
 
     def __init__(self, client, channelname):
+        self.cli = client
         self.name = channelname
         try:
             client.features.whox
@@ -351,7 +400,19 @@ class Channel(object):
                     e.arguments[6]
                 )
         else:
-            pass # TODO: support normal WHO
+            self.users[e.arguments[4]] = User(
+                    e.arguments[4],
+                    e.arguments[1],
+                    e.arguments[2],
+                    e.arguments[6][2:],
+                    e.arguments[5]
+                )
+        self.cli.users[e.arguments[4]] = self.users[e.arguments[4]]
+
+    def __repr__(self):
+        return "<Channel topic:'{0}', topicsetter:'{1}', topicsetterts:'{2}'" \
+               ", users: '{3}'>".format(self.topic, self.topicsetter,
+                self.topicsetterts, self.users)
 
 
 class User(object):
@@ -359,7 +420,6 @@ class User(object):
     ident = None
     host = None
     gecos = None
-    away = False
     op = False
     voiced = False
     account = None
@@ -372,16 +432,24 @@ class User(object):
         self.ident = ident
         self.host = host
         self.gecos = gecos
-        self.account = account
-        if "G" in status:
-            self.away = True
+
+        if account == "0":
+            self.account = None
+        else:
+            self.account = account
 
         if "@" in status or "&" in status or "%" in status or "~" in status or \
-                                                                "!" in status:
+                                                                  "!" in status:
             self.op = True
 
         if "+" in status:
             self.voiced = True
+
+    def __repr__(self):
+        return "<User nick:'{0}', ident:'{1}', host:'{2}', gecos: '{3}'" \
+               ", op: '{5}', voiced: '{6}', account: '{7}'>" \
+                .format(self.nick, self.ident, self.host, self.gecos,
+                str(self.op), str(self.voiced), str(self.account))
 
 
 class Event(object):
