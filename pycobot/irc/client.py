@@ -313,11 +313,11 @@ class IRCClient:
         self.channels[event.arguments[0]].topicsetterts = event.arguments[2]
 
     def _on_who(self, myself, event):
-        pass
+        pass  # TODO: support normal WHO
 
     def _on_whox(self, myself, event):
         if event.arguments[0] == "08":
-            self.channels[event.arguments[1]].gotWhox(event)
+            self.channels[event.arguments[1]].addUser(event)
 
 
 class Channel(object):
@@ -325,12 +325,13 @@ class Channel(object):
     topic = None
     topicsetter = None
     topicsetterts = None
+    users = {}
 
     def __init__(self, client, channelname):
         self.name = channelname
         try:
             client.features.whox
-            client.who(channelname, "%tcuhnar,08")
+            client.who(channelname, "%tcuhnfar,08")
         except:
             client.who(channelname)
 
@@ -339,8 +340,48 @@ class Channel(object):
         self.topicsetter = source
         self.topicsetterts = time.time()
 
-    def gotWhox(self, event):
-        pass
+    def addUser(self, e):
+        if e.arguments[0] == "08":
+            self.users[e.arguments[4]] = User(
+                    e.arguments[4],
+                    e.arguments[2],
+                    e.arguments[3],
+                    e.arguments[7],
+                    e.arguments[5],
+                    e.arguments[6]
+                )
+        else:
+            pass # TODO: support normal WHO
+
+
+class User(object):
+    nick = None
+    ident = None
+    host = None
+    gecos = None
+    away = False
+    op = False
+    voiced = False
+    account = None
+
+    def __init__(self, nick, ident, host, gecos, status, account=None):
+        self.update(nick, ident, host, gecos, status, account)
+
+    def update(self, nick, ident, host, gecos, status, account=None):
+        self.nick = nick
+        self.ident = ident
+        self.host = host
+        self.gecos = gecos
+        self.account = account
+        if "G" in status:
+            self.away = True
+
+        if "@" in status or "&" in status or "%" in status or "~" in status or \
+                                                                "!" in status:
+            self.op = True
+
+        if "+" in status:
+            self.voiced = True
 
 
 class Event(object):
