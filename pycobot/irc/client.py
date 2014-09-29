@@ -48,6 +48,9 @@ class IRCClient:
         self.addhandler("whoreply", self._on_who)
         self.addhandler("whoisloggedin", self._on_whoisaccount)
         self.addhandler("mode", self._on_mode)
+        self.addhandler("quit", self._on_quit)
+        self.addhandler("part", self._on_part)
+        self.addhandler("kick", self._on_kick)
 
     def configure(self, server=server, port=port, nick=nickname, ident=nickname,
                 gecos=gecos, ssl=ssl, msgdelay=msgdelay, reconnects=reconnects):
@@ -305,9 +308,10 @@ class IRCClient:
             # We just joined a channel, let's add it to the list
             self.channels[event.target] = Channel(self, event.target)
         else:
-            print(self.channels)
-            # Soon™ the bot will know WHO IS ON THE FUCKING CHANNEL
-            pass
+            #print(self.channels)
+            self.channels[event.target].users[event.source.nick] = User(
+                event.source.nick, event.source.user, event.source.host,
+                "", "")
 
     def _on_topic(self, myself, event):
         self.channels[event.arguments[0]].topicChange(event.source,
@@ -365,6 +369,24 @@ class IRCClient:
                     self.channels[event.target].users[event.arguments[number]] \
                     .op = True
                 number += 1
+    
+    def _on_part(self, myself, event):
+        if event.source.nick == self.nickname:
+            del self.channels[event.target]
+        else:
+            del self.channels[event.target].users[event.source.nick]
+        
+    def _on_quit(self, myself, event):
+        del self.users[event.source.nick]
+        for i in self.channels:
+            try:
+                del self.channels[i].users[event.source.nick]
+            except:
+                pass
+
+    def _on_kick(self, myself, event):
+        if event.source.nick != self.nickname:
+            del self.channels[event.target].users[event.source.nick]
 
 
 class Channel(object):
