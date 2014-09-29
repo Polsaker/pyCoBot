@@ -88,7 +88,7 @@ class links:
         if title is None:
             return 1
 
-        cli.msg(ev.target, title.group(1))
+        cli.msg(ev.target, title.group(1).strip())
 
     def ytlinks(self, cli, ev, res):
 
