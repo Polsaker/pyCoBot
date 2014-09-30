@@ -6,7 +6,7 @@ numerics = {
         "005": "isupport",
         "006": "map",        # unrealircd
         "007": "endmap",     # unrealircd
-        "008": "snomask",
+        "008": "snomaskc",
         "010": "redir",
         "015": "map",        # undernet extension
         "016": "mapmore",    # undernet extension
@@ -209,6 +209,8 @@ numerics = {
         "671": "whoissecure",
         "691": "e_starttls",       # ircv3, tls-3.1
         "710": "knock",
+        "728": "quietlist",
+        "729": "endofquietlist",
 
         "900": "loggedin",
         "901": "loggedout",

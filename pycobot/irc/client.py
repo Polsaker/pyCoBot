@@ -51,6 +51,8 @@ class IRCClient:
         self.addhandler("quit", self._on_quit)
         self.addhandler("part", self._on_part)
         self.addhandler("kick", self._on_kick)
+        self.addhandler("banlist", self._on_banlist)
+        self.addhandler("kick", self._on_quietlist)
 
     def configure(self, server=server, port=port, nick=nickname, ident=nickname,
                 gecos=gecos, ssl=ssl, msgdelay=msgdelay, reconnects=reconnects):
@@ -297,6 +299,9 @@ class IRCClient:
 
     def who(self, target="", op=""):
         self.send("WHO%s%s" % (target and (" " + target), op and (" " + op)))
+    
+    def mode(self, target, modes):
+        self.send("MODE {0} {1}".format(target, modes))
 
     def whois(self, targets):
         self.send("WHOIS " + targets)
@@ -349,6 +354,14 @@ class IRCClient:
                             self.features.prefix.items())
         prefixes = prefixes.replace("+", "")
         for i in event.arguments[0]:
+            if i in prefixes:
+                number += 1
+            elif i in self.features.chanmodes[0]:
+                number += 1
+            elif i in self.features.chanmodes[1] and status=="+":
+                number += 1
+            elif i in self.features.chanmodes[2] and status=="+":
+                number += 1
             if i == "+":
                 status = "+"
             elif i == "-":
@@ -360,7 +373,18 @@ class IRCClient:
                 else:
                     self.channels[event.target].users[event.arguments[number]] \
                     .voice = True
-                number += 1
+            elif i == "b":
+                if status == "+":
+                    ban = Ban(event.arguments[number], time.time())
+                    self.channels[event.target].bans.append(ban)
+                else:
+                    self.channels[event.target].bans.remove(ban)
+            elif i == "q":
+                if status == "+":
+                    ban = Ban(event.arguments[number], time.time())
+                    self.channels[event.target].quiets.append(ban)
+                else:
+                    self.channels[event.target].quiets.remove(ban)
             elif i in prefixes:
                 if status == "-":
                     self.channels[event.target].users[event.arguments[number]] \
@@ -368,7 +392,6 @@ class IRCClient:
                 else:
                     self.channels[event.target].users[event.arguments[number]] \
                     .op = True
-                number += 1
     
     def _on_part(self, myself, event):
         if event.source.nick == self.nickname:
@@ -387,6 +410,14 @@ class IRCClient:
     def _on_kick(self, myself, event):
         if event.source.nick != self.nickname:
             del self.channels[event.target].users[event.source.nick]
+    
+    def _on_banlist(self, myself, event):
+        ban = Ban(event.arguments[1], event.arguments[3])
+        self.channels[event.arguments[0]].bans.append(ban)
+    
+    def _on_quietlist(self, myself, event):
+        ban = Ban(event.arguments[1], event.arguments[3])
+        self.channels[event.arguments[0]].quiets.append(ban)
 
 
 class Channel(object):
@@ -396,6 +427,8 @@ class Channel(object):
     topicsetterts = None
     users = {}
     cli = None
+    bans = []
+    quiets = []
 
     def __init__(self, client, channelname):
         self.cli = client
@@ -405,6 +438,10 @@ class Channel(object):
             client.who(channelname, "%tcuhnfar,08")
         except:
             client.who(channelname)
+        
+        client.mode(channelname, "b")
+        if "q" in client.features.chanmodes[0]:
+            client.mode(channelname, "q")
 
     def topicChange(self, source, topic):
         self.topic = topic
@@ -638,3 +675,20 @@ class NickMask(str):
     @property
     def user(self):
         return self.userhost.split("@")[0]
+
+class Ban(NickMask):
+    def __init__(self, mask, ts):
+        self = mask
+        self.ts = ts
+    
+    @property
+    def ts(self):
+        return self.ts
+        
+    def banmatches(self, ban):
+        ban = ban.replace("*", ".*").replace("?", ".?")
+        banregex = re.compile(ban)
+        if banregex.match(self):
+            return True
+        else:
+            return False
