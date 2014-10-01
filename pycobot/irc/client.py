@@ -128,7 +128,6 @@ class IRCClient:
             if NickMask(prefix).nick == self.nickname:
                 self.nickname = arguments[0]
         elif command == "welcome":
-            self.join("#cobot")
 
             # Record the nickname in case the client changed nick
             # in a nicknameinuse callback.
@@ -679,19 +678,31 @@ class NickMask(str):
     def user(self):
         return self.userhost.split("@")[0]
 
-class Ban(NickMask):
-    def __init__(self, mask, ts):
-        self = mask
-        self.ts = ts
+class Ban:
+    def __init__(self, mask, pts):
+        self.ban = mask
+        self.ts = pts
     
     @property
-    def ts(self):
-        return self.ts
+    def nick(self):
+        return self.ban.split("!")[0]
+
+    @property
+    def userhost(self):
+        return self.ban.split("!")[1]
+
+    @property
+    def host(self):
+        return self.ban.split("@")[1]
+
+    @property
+    def user(self):
+        return self.ban.userhost.split("@")[0]
         
-    def banmatches(self, ban):
-        ban = ban.replace("*", ".*").replace("?", ".?")
+    def banmatches(self, nickmask):
+        ban = self.ban.replace("*", ".*").replace("?", ".?")
         banregex = re.compile(ban)
-        if banregex.match(self):
+        if banregex.match(nickmask):
             return True
         else:
             return False

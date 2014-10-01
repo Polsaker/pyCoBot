@@ -26,10 +26,16 @@ class Server:
 
         sconf = self.config.get("servers.{0}".format(sid))
         self.connection.configure(sconf['host'], sconf['port'], sconf['nick'])
+        
+        self.connection.addhandler("welcome", self._autojoin)
 
     def connect(self):
         self.logger.info("Conectando...")
         self.connection.connect()
+        
+    def _autojoin(self, conn, event):
+        for chan in self.config.get("servers.{0}.autojoin".format(self.sid)):
+            conn.join(chan)
 
     def readConf(self, key, chan=None, default=""):
         """Lee configuraciones. (Formato: key1.key2.asd)"""
