@@ -229,7 +229,10 @@ class IRCClient:
             self.handlers[event.type]
             for i in self.handlers[event.type]:
                 try:
-                    i['callback'](self, event)
+                    if i['blocking']:
+                        i['callback'](self, event)
+                    else:
+                        _thread.start_new_thread(i['callback'], (self, event))
                 except BaseException as e:
                     self.logger.error("Calling {0} handler raised exception:"
                                     "{1}".format(event.type, e))
