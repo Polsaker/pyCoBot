@@ -7,6 +7,8 @@
 import json
 import logging
 from .irc import client
+import imp
+import sys
 
 
 class Server:
@@ -16,6 +18,7 @@ class Server:
     logger = None
     connection = None
 
+    modules = {}
     def __init__(self, pycobot, sid):
         self.logger = logging.getLogger('pyCoBot-' + sid)
         self.config = pycobot.config
@@ -31,11 +34,47 @@ class Server:
 
     def connect(self):
         self.logger.info("Conectando...")
-        self.connection.connect()
+        #self.connection.connect()
+        print(self.loadModule("example"))
         
     def _autojoin(self, conn, event):
         for chan in self.config.get("servers.{0}.autojoin".format(self.sid)):
             conn.join(chan)
+    
+    # Loads a module locally.
+    # Returns:
+    #  -1: Module not found
+    #  -2: Module's main file not found
+    #  -3: The module is already loaded!
+    #  -4: Error loading the module (the class doesn't exist or there is a problem on the __init__?)
+    def loadModule(self, ModuleName):
+        try:
+            # Check if the module is loaded
+            self.modules[ModuleName]
+            return -3
+        except KeyError:
+            pass
+        
+        try:
+            modulesa = __import__("modules.{0}.{0}".format(ModuleName))
+            # Get the module
+            p = getattr(modulesa, "{0}".format(ModuleName))
+        except ImportError:
+            return -1
+        del modulesa
+        
+        try:
+            # Get the module's file
+            p = getattr(p, "{0}".format(ModuleName))
+        except ImportError:
+            return -2
+
+        # "Register" and init the module
+        try:
+            self.modules[ModuleName] = p(self)
+        except Exception as e:
+            return -4
+    
 
     def readConf(self, key, chan=None, default=""):
         """Lee configuraciones. (Formato: key1.key2.asd)"""
