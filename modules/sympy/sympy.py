@@ -63,7 +63,7 @@ class sympy:
         res = solve(pr, x, y)
         q.put(str(res))
     
-    def calcxy_(self, q, pr, x):
+    def calcx_(self, q, pr, x):
         res = solve(pr, x)
         q.put(str(res))
     
