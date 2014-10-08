@@ -33,8 +33,9 @@ class sympy:
 
         pr = sympify(expr)
         x = Symbol('x')
-        res = solve(pr, x)
-        cli.msg(ev.target, res)
+        #res = solve(pr, x)
+        res = try_slow_thing(solve, (pr, x))
+        cli.msg(ev.target, str(res))
 
     def calcxy(self, bot, cli, ev):
         if len(ev.splitd) < 1:
@@ -51,5 +52,16 @@ class sympy:
             return 0
         x = Symbol('x')
         y = Symbol('y')
-        res = solve(pr, x, y)
-        cli.msg(ev.target, res)
+        #res = solve(pr, x, y)
+        res = try_slow_thing(solve, (pr, x))
+        cli.msg(ev.target, str(res))
+    
+    def try_slow_thing(self, function, *args):
+        p = multiprocessing.Process(target=function, args=args)
+        p.start()
+        p.join(5)
+        if p.is_alive():
+            p.terminate()
+            return "La operación se demoro mucho"
+        else:
+            return self.q.get(True)
