@@ -22,6 +22,7 @@ class sympy:
             ". Sintaxis: calcx <ecuación>")
         core.addCommandHandler("calcxy", self, chelp="Resuelve X e Y en una ecu"
             "ación. Sintaxis: calcxy <ecuación>")
+        self.q = multiprocessing.Queue()
 
     def calcx(self, bot, cli, ev):
         if len(ev.splitd) < 1:
@@ -36,7 +37,7 @@ class sympy:
         pr = sympify(expr)
         x = Symbol('x')
         #res = solve(pr, x)
-        res = self.try_slow_thing(solve, (pr, x))
+        res = self.try_slow_thing(self.calc_, (pr, x))
         cli.msg(ev.target, str(res))
 
     def calcxy(self, bot, cli, ev):
@@ -55,8 +56,16 @@ class sympy:
         x = Symbol('x')
         y = Symbol('y')
         #res = solve(pr, x, y)
-        res = self.try_slow_thing(solve, (pr, x))
+        res = self.try_slow_thing(self.calcxy_, (pr, x, y))
         cli.msg(ev.target, str(res))
+    
+    def calcxy_(self, q, pr, x, y):
+        res = solve(pr, x, y)
+        q.put(str(res))
+    
+    def calcxy_(self, q, pr, x):
+        res = solve(pr, x)
+        q.put(str(res))
     
     def try_slow_thing(self, function, *args):
         p = multiprocessing.Process(target=function, args=args)
