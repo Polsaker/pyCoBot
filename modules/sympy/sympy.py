@@ -37,7 +37,7 @@ class sympy:
         pr = sympify(expr)
         x = Symbol('x')
         #res = solve(pr, x)
-        res = self.try_slow_thing(self.calc_, (pr, x))
+        res = self.try_slow_thing(self.calcx_, (pr, x))
         cli.msg(ev.target, str(res))
 
     def calcxy(self, bot, cli, ev):
