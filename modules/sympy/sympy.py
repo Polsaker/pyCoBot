@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import multiprocessing
+
 try:
     from sympy.solvers import solve
     from sympy import Symbol
