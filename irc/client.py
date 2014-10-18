@@ -555,7 +555,7 @@ class IRCConnection(object):
         self.send("PART {0} :{1}".format(channel, msg))
 
     def privmsg(self, target, msg, nonewmsg=False):
-        maxlen = 512 - len("PRIVMSG {0} :".format(target.encode('utf-8')))
+        maxlen = 512 - len("PRIVMSG {0} :".format(target.encode('utf-8'))) - 16
         if len(msg.encode('utf-8')) > maxlen:
             msg = re.sub(r"\s+", " ", msg)  # normalize space
             footer = " …"
@@ -762,7 +762,7 @@ class IRCConnection(object):
         self.send("NAMES" + (channels and (" " + ",".join(channels)) or ""))
 
     def notice(self, target, msg, nonewmsg=False):
-        maxlen = 512 - len("NOTICE {0} :".format(target.encode('utf-8')))
+        maxlen = 512 - len("NOTICE {0} :".format(target.encode('utf-8'))) - 16
         if len(msg.encode('utf-8')) > maxlen:
             msg = re.sub(r"\s+", " ", msg)  # normalize space
             footer = " …"
