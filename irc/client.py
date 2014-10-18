@@ -555,11 +555,11 @@ class IRCConnection(object):
         self.send("PART {0} :{1}".format(channel, msg))
 
     def privmsg(self, target, msg, nonewmsg=False):
-        maxlen = 512 - len("PRIVMSG {0} :".format(target.encode('utf-8'))) - 16
+        maxlen = 500- len("PRIVMSG {0} :".format(target.encode('utf-8'))) - 16
         if len(msg.encode('utf-8')) > maxlen:
             msg = re.sub(r"\s+", " ", msg)  # normalize space
             footer = " …"
-            avail = 450
+            avail = maxlen
             words = msg.split()
             result = []
             k = 0
@@ -567,18 +567,18 @@ class IRCConnection(object):
             for word in words:
                 word += " "
                 if len(word) > avail:
-                    if not len(word) >= 400:
+                    if not len(word) >= maxlen:
                         result.append("")
                         k = k + 1
-                        avail = 400
+                        avail = maxlen
                     else:
-                        x = textwrap.wrap(word, 400)
+                        x = textwrap.wrap(word, maxlen)
                         for w in x:
                             result.append("")
                             k += 1
                             result[k] = w
 
-                        avail = 400
+                        avail = maxlen
 
                         continue
                     #break
@@ -762,11 +762,11 @@ class IRCConnection(object):
         self.send("NAMES" + (channels and (" " + ",".join(channels)) or ""))
 
     def notice(self, target, msg, nonewmsg=False):
-        maxlen = 512 - len("NOTICE {0} :".format(target.encode('utf-8'))) - 16
+        maxlen = 500 - len("NOTICE {0} :".format(target.encode('utf-8')))
         if len(msg.encode('utf-8')) > maxlen:
             msg = re.sub(r"\s+", " ", msg)  # normalize space
             footer = " …"
-            avail = 400
+            avail = maxlen
             words = msg.split()
             result = []
             k = 0
@@ -774,18 +774,18 @@ class IRCConnection(object):
             for word in words:
                 word += " "
                 if len(word) > avail:
-                    if not len(word) >= 400:
+                    if not len(word) >= maxlen:
                         result.append("")
                         k = k + 1
-                        avail = 400
+                        avail = maxlen
                     else:
-                        x = textwrap.wrap(word, 400)
+                        x = textwrap.wrap(word, maxlen)
                         for w in x:
                             result.append("")
                             k += 1
                             result[k] = w
 
-                        avail = 400
+                        avail = maxlen
 
                         continue
                     #break
