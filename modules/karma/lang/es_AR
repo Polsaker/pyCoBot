@@ -1,5 +1,6 @@
 {
     "karma.help": "Muestra el karma de un nick. Sintaxis: karma <nick> (Solo funciona dentro de un canal)",
-    "karma.msg": "\u0002{0}\u0002 tiene \u0002{1}\u0002 punto\u0002{2}\u0002 de karma.",
+    "karma.msg": "\u0002{0}\u0002 tiene \u0002{1}\u0002 puntos de karma.",
+    "karma.msg_singular": "\u0002{0}\u0002 tiene \u0002{1}\u0002 punto de karma",
     "karma.no": "\u0002{0}\u0002 no tiene karma."
 }

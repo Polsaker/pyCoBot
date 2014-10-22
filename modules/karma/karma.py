@@ -25,8 +25,9 @@ class karma:
         if user is False:
             cli.msg(ev.target, bot._(ev, self, 'karma.no').format(ev.splitd[0]))
         else:
-            cli.msg(ev.target, bot._(ev, self, 'karma.msg').format(
-                                            ev.splitd[0], str(user.karma), user.karma != 1 if 's' else ''))
+            message = user.karma != 1 if 'karma.msg' else 'karma.msg_singular'
+            cli.msg(ev.target, bot._(ev, self, message).format(
+                                            ev.splitd[0], str(user.karma)))
 
     def karmacount(self, cli, ev):
         l = self.karmare.match(ev.arguments[0])
