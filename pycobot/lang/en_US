@@ -7,7 +7,7 @@
     "help.auth": "Identifies a user registered with the bot. Usage: /msg {0} auth <username> <password>",
     "help.alias": "(Alias of\u0002{0}\u0002) ",
     "help.404": "Command not found",
-    "help.helpof": " Help\u0002{0}\u0002: {1}",
+    "help.helpof": " Help of \u0002{0}\u0002: {1}",
     "update.quitmsg": "Applying updates",
     "auth.ok": "Authentication successful",
     "auth.err": "\u000304Error\u0003: Username or password incorrect",
