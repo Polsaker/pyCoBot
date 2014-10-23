@@ -1,5 +1,6 @@
 {
     "karma.help": "Shows a nick/word's karma count. Usage: karma <nick/word> (only works on channels)",
     "karma.msg": "\u0002{0}\u0002 has \u0002{1}\u0002 karma points.",
+    "karma.msg_singular": "\u0002{0}\u0002 has \u0002{1}\u0002 karma point.",
     "karma.no": "\u0002{0}\u0002 has no karma"
 }
