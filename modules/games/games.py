@@ -192,7 +192,7 @@ class games:
     ## /Timehandler
 
     def commandhandle(self, cli, event):
-        ev = copy.deepcopy(event)
+        #ev = copy.deepcopy(event)
         if not ev.arguments[0][0] == "!":
             return 0
         c = GameChannel.get(GameChannel.channel == ev.target)
