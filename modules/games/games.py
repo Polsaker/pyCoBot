@@ -193,8 +193,11 @@ class games:
 
     def commandhandle(self, cli, event):
         #ev = copy.deepcopy(event)
-        if not ev.arguments[0][0] == "!":
-            return 0
+        try:
+            if not ev.arguments[0][0] == "!":
+                return 0
+        except:
+            return
         c = GameChannel.get(GameChannel.channel == ev.target)
         if c is False:
             return 1  # "Los juegos no están habilitados en este canal.."
