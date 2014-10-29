@@ -109,14 +109,18 @@ class links:
         s = "00"
         try:
             s = tm.group("seconds")[:-1]
-            m = tm.group("hours")[:-1]
-            h = tm.group("minutes")[:-1]
-            if m is None:
-                m = "00"
-            if h is None:
-                h = "00"
         except:
-            pass
+            s = "00"
+        try:
+            h = tm.group("minutes")[:-1]
+        except:
+            h = "00"
+
+        try:
+            m = tm.group("hours")[:-1]
+        except:
+            m = "00"
+
         if len(s) < 2:
             s = "0" + str(s)
         if len(m) < 2:
