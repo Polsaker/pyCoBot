@@ -102,15 +102,15 @@ class links:
         dislikes = jao['items'][0]['statistics']['dislikeCount']
         comments = jao['items'][0]['statistics']['commentCount']
         duration = jao['items'][0]['contentDetails']['duration']
-        tr = re.compile("PT(\d{1,})*H*(\d{1,})M*(\d{1,})S*")
+        tr = re.compile("PT(?P<hours>\d?\dH)?(?P<minutes>\d?\dM)?(?P<seconds>\d?\dS)?.*")
         tm = tr.search(duration)
         m = "00"
         h = "00"
         s = "00"
         try:
-            s = tm.group(3)
-            m = tm.group(2)
-            h = tm.group(1)
+            s = tm.group("seconds")[:-1]
+            m = tm.group("hours")[:-1]
+            h = tm.group("minutes")[:-1]
             if m is None:
                 m = "00"
             if h is None:
