@@ -112,12 +112,12 @@ class links:
         except:
             s = "00"
         try:
-            h = tm.group("minutes")[:-1]
+            h = tm.group("hours")[:-1]
         except:
             h = "00"
 
         try:
-            m = tm.group("hours")[:-1]
+            m = tm.group("minutes")[:-1]
         except:
             m = "00"
 
