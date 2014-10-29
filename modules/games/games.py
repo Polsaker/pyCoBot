@@ -192,17 +192,18 @@ class games:
     ## /Timehandler
 
     def commandhandle(self, cli, event):
-        #ev = copy.deepcopy(event)
-        try:
-            if not ev.arguments[0][0] == "!":
-                return 0
-        except:
-            return
+        ev = copy.deepcopy(event)
+        if not ev.arguments[0][0] == "!":
+            return 0
         c = GameChannel.get(GameChannel.channel == ev.target)
         if c is False:
             return 1  # "Los juegos no están habilitados en este canal.."
-        com = ev.splitd[0][1:]
-        del ev.splitd[0]
+        com = ev.arguments[0][1:]
+        try:
+            if ev.splitd[0][0] == "!":
+                del ev.splitd[0][0]
+        except:
+            pass
         if com != "alta":
             u = GameUser.get(GameUser.nick == ev.source)
             if u is False:
