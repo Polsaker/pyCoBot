@@ -555,49 +555,37 @@ class IRCConnection(object):
         self.send("PART {0} :{1}".format(channel, msg))
 
     def privmsg(self, target, msg, nonewmsg=False):
-        maxlen = 500- len("PRIVMSG {0} :".format(target.encode('utf-8'))) - 16
+        maxlen = 440 - len("NOTICE {0} :".format(target.encode('utf-8')))
         if len(msg.encode('utf-8')) > maxlen:
-            msg = re.sub(r"\s+", " ", msg)  # normalize space
-            footer = " …"
-            avail = maxlen
             words = msg.split()
-            result = []
+            avail = maxlen
+            footer = " …"
+            result = ['']
             k = 0
-            result.append("")
             for word in words:
                 word += " "
-                if len(word) > avail:
-                    if not len(word) >= maxlen:
+                if len(word.encode('utf-8')) > maxlen:
+                    while len(word.encode('utf-8')) > avail: # ?!
+                        # Palabra mas larga que el limite!? Cortar la palabra
+                        result[k] += word[:-maxlen]
+                        word = word[maxlen:]
+                        result[k] += footer
                         result.append("")
-                        k = k + 1
-                        avail = maxlen
-                    else:
-                        x = textwrap.wrap(word, maxlen)
-                        for w in x:
-                            result.append("")
-                            k += 1
-                            result[k] = w
-
-                        avail = maxlen
-
-                        continue
-                    #break
+                        k += 1
+                
+                if len(word.encode('utf-8')) > avail:
+                    result[k] += footer
+                    result.append("")
+                    k += 1
+                    avail = maxlen
+                    
                 result[k] += word
-                avail -= len(word)
+                avail = avail - len(word.encode('utf-8'))
             
-            if nonewmsg is True:
-                self._privmsg(target, result[0] + footer)
-                return
-            w = 0
-            for v in result:
-                sg = (v + footer).strip()
-                if w == k:
-                    sg = sg.strip(footer + ", ")
-                self._privmsg(target, sg)
-                w = w + 1
-
-            return 0
-        self._privmsg(target, msg)
+            for msg in result:
+                self._privmsg(target, msg)
+        else:
+            self._privmsg(target, msg)
 
     def _privmsg(self, target, text):
         """Send a PRIVMSG command."""
@@ -762,51 +750,37 @@ class IRCConnection(object):
         self.send("NAMES" + (channels and (" " + ",".join(channels)) or ""))
 
     def notice(self, target, msg, nonewmsg=False):
-        maxlen = 500 - len("NOTICE {0} :".format(target.encode('utf-8')))
+        maxlen = 440 - len("NOTICE {0} :".format(target.encode('utf-8')))
         if len(msg.encode('utf-8')) > maxlen:
-            msg = re.sub(r"\s+", " ", msg)  # normalize space
-            footer = " …"
-            avail = maxlen
             words = msg.split()
-            result = []
+            avail = maxlen
+            footer = " …"
+            result = ['']
             k = 0
-            result.append("")
             for word in words:
                 word += " "
-                if len(word) > avail:
-                    if not len(word) >= maxlen:
+                if len(word.encode('utf-8')) > maxlen:
+                    while len(word.encode('utf-8')) > avail: # ?!
+                        # Palabra mas larga que el limite!? Cortar la palabra
+                        result[k] += word[:-maxlen]
+                        word = word[maxlen:]
+                        result[k] += footer
                         result.append("")
-                        k = k + 1
-                        avail = maxlen
-                    else:
-                        x = textwrap.wrap(word, maxlen)
-                        for w in x:
-                            result.append("")
-                            k += 1
-                            result[k] = w
-
-                        avail = maxlen
-
-                        continue
-                    #break
+                        k += 1
+                
+                if len(word.encode('utf-8')) > avail:
+                    result[k] += footer
+                    result.append("")
+                    k += 1
+                    avail = maxlen
+                    
                 result[k] += word
-                avail -= len(word)
+                avail = avail - len(word.encode('utf-8'))
             
-            if nonewmsg is True:
-                self._notice(target, result[0] + footer)
-                return
-            w = 0
-            for v in result:
-                if v == "":
-                    continue
-                sg = (v + footer).strip()
-                if w == k:
-                    sg = sg.strip(footer + ", ")
-                self._notice(target, sg)
-                w = w + 1
-
-            return 0
-        self._notice(target, msg)
+            for msg in result:
+                self._notice(target, msg)
+        else:
+            self._notice(target, msg)
 
     def _notice(self, target, text):
         """Send a NOTICE command."""
