@@ -54,8 +54,14 @@ def BasicHandler(*args, **kwargs):
 def CommandHandler(*args, **kwargs):
     def call_fn(fn):
         fn.iamachandler = kwargs['event']
-        fn.chelp = kwargs['help']
-        fn.cprivs = kwargs['privs']
+        try:
+            fn.chelp = kwargs['help']
+        except:
+            fn.chelp = ''
+        try:
+            fn.cprivs = kwargs['privs']
+        except:
+            fn.cprivs = ''
         fn.module = fn.__init__.__self__.__class__.__name__
         return fn
     return call_fn
