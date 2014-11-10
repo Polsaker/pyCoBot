@@ -41,3 +41,21 @@ class bot(Daemon):
     def run(self):
         pycobot = pyCoBot(self)
         pycobot.run()
+
+def BasicHandler(*args, **kwargs):
+    def call_fn(fn):
+        try:
+            fn.iamahandler = kwargs['event']
+        except:
+            pass
+        return fn
+    return call_fn
+
+def CommandHandler(*args, **kwargs):
+    def call_fn(fn):
+        fn.iamachandler = kwargs['event']
+        fn.chelp = kwargs['help']
+        fn.cprivs = kwargs['privs']
+        fn.module = fn.__init__.__self__.__class__.__name__
+        return fn
+    return call_fn
