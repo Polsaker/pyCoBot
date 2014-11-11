@@ -53,7 +53,7 @@ def BasicHandler(*args, **kwargs):
 
 def CommandHandler(*args, **kwargs):
     def call_fn(fn):
-        fn.iamachandler = kwargs['event']
+        fn.iamachandler = kwargs['command']
         try:
             fn.chelp = kwargs['help']
         except:

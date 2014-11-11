@@ -11,7 +11,7 @@ _rfc_1459_command_regexp = re.compile("^(:(?P<prefix>[^ ]+) +)?(?P<command>[" +
                                       "^ ]+)( *(?P<argument> .+))?")
 
 
-class IRCClient:
+class IRCClient(object):
     # Defaults..
     server = None    # Dirección del servidor IRC
     port = 6667      # Puerto al que se conectará
