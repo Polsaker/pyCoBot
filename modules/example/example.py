@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-from pycobot import CommandHandler
+from pycobot import Handler
 
 class example:
     def __init__(self, bot):
         pass
     
-    @CommandHandler(command="test")
+    @Handler("welcome")
     def testcommand(self, bot, cli, ev):
-        pass
+        print("WOOOOOOOOOOOOO IT WOORKS")

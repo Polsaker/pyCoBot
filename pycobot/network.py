@@ -37,8 +37,9 @@ class Server:
 
     def connect(self):
         self.logger.info("Conectando...")
-        #self.connection.connect()
         print(self.loadModule("example"))
+
+        self.connection.connect()
         
     def _autojoin(self, conn, event):
         for chan in self.config.get("servers.{0}.autojoin".format(self.sid)):
@@ -91,14 +92,14 @@ class Server:
         for func in funcs:
             try:
                 # YAY! We found a command handler there
-                func.iamachandler
+                func[1].iamachandler
                 pass  # TODO
             except AttributeError:
                 pass
             
             try:
                 # YAY! We found a regular and boring handler here
-                self.registerHandler(func.iamahandler, ModuleName, func)
+                self.registerHandler(func[1].iamahandler, ModuleName, func[1])
             except AttributeError:
                 pass
 
@@ -108,7 +109,7 @@ class Server:
     # the module is unloaded)
     def registerHandler(self, action, module, function):
         if not action in self._rhandlers:
-            self.connection.addhandler(action, proxyHandler)
+            self.connection.addhandler(action, self.proxyHandler)
             self._rhandlers.append(action)
         try:
             self.handlers[module]
@@ -122,12 +123,22 @@ class Server:
             
         self.handlers[module][action].append(function)
         
-        
     # Proxies a handler
     # IRC lib => Server class => Module
     # Bcoz having total control over everything is awesome
-    def proxyHandler(self, handler, module):
-        pass # TODO
+    def proxyHandler(self, cli, event):
+        for module in self.handlers:
+            try:
+                self.handlers[module][event.type]
+            except AttributeError:
+                continue
+            for handler in self.handlers[module][event.type]:
+                try:
+                    handler(self.modules[module], self, cli, event)
+                except Exception as e:
+                    self.logger.warning("Exception when calling handler"
+                        " for module '{0}' (event: '{1}'): {2}".format(
+                        module, event.type, e))
 
     def readConf(self, key, chan=None, default=""):
         """Lee configuraciones. (Formato: key1.key2.asd)"""

@@ -42,18 +42,21 @@ class bot(Daemon):
         pycobot = pyCoBot(self)
         pycobot.run()
 
-def BasicHandler(*args, **kwargs):
+def Handler(*args, **kwargs):
     def call_fn(fn):
         try:
             fn.iamahandler = kwargs['event']
         except:
-            pass
+            fn.iamahandler = args[0]
         return fn
     return call_fn
 
 def CommandHandler(*args, **kwargs):
     def call_fn(fn):
-        fn.iamachandler = kwargs['command']
+        try:
+            fn.iamachandler = kwargs['command']
+        except:
+            fn.iamachandler = args[0]
         try:
             fn.chelp = kwargs['help']
         except:
@@ -65,3 +68,5 @@ def CommandHandler(*args, **kwargs):
         fn.module = fn.__init__.__self__.__class__.__name__
         return fn
     return call_fn
+
+Command = CommandHandler
