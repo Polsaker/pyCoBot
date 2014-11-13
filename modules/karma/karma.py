@@ -39,12 +39,12 @@ class karma:
             except:
                 self.lasttime[ev.target] = {}
             try:
-                self.lasttime[ev.target][ev.source]
+                self.lasttime[ev.target][ev.source.host]
             except:
-                self.lasttime[ev.target][ev.source] = {}
+                self.lasttime[ev.target][ev.source.host] = {}
             try:
                 if (time.time() -
-                self.lasttime[ev.target][ev.source][l.group(1).lower()]) < 900:
+                self.lasttime[ev.target][ev.source.host][l.group(1).lower()]) < 900:
                     return 0  # >:D
             except:
                 pass
@@ -61,7 +61,7 @@ class karma:
             else:
                 user.karma -= 1
             user.save()
-            self.lasttime[ev.target][ev.source][l.group(1).lower()] = time.time()
+            self.lasttime[ev.target][ev.source.host][l.group(1).lower()] = time.time()
 
 
 class Karma(BaseModel):
