@@ -50,12 +50,17 @@ class weather:
                 pass
             cli.msg(event.target, resp)
             return 1
+        # moo
+        wind = w['current_observation']['wind_dir']
+        wind = wind.replace('East', 'Este').replace('West', 'Oeste')
+        wind = wind.replace('North', 'Norte').replace('South', 'Sur')
+        wind = wind.replace('W', 'O')
         resp = "El tiempo en \00310\2%s\003\2: Viento a \2%s\2 km/h (\2%s" \
         "\2), " % (w['current_observation']['display_location']['full'],
         w['current_observation']['wind_kph'],
-        w['current_observation']['wind_dir'])
+        wind)
         resp = resp + "presión \2%s\2 hPa. Temperatura: \2%s\2ºC, Sensació"\
-        "n térmica: \2%s\2ºC [\2%s\2]" % (w['current_observation']['pressu'
+        "n térmica: \2%s\2ºC [\2%s\2] " % (w['current_observation']['pressu'
         're_mb'], w['current_observation']['temp_c'], w['current_observati'
         'on']['feelslike_c'], self._conv(w['current_observation']['icon']))
         fc = w['forecast']['simpleforecast']['forecastday']
