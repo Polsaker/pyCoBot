@@ -5,10 +5,12 @@ import sys
 from .kaptan import Kaptan
 from .pycobot import pyCoBot
 import logging
+from .peewee import peewee
 
 VERSION = "2.1"
 CODENAME = "Dors"
 
+database = peewee.SqliteDatabase('db/cobot.db', threadlocals=True)
 
 class bot(Daemon):
     config = None
@@ -17,6 +19,7 @@ class bot(Daemon):
     def __init__(self, pid="/var/tmp/pycobot.pid"):
         super(bot, self).__init__(pid, stdout="pycobot.log",
                                        stderr="pycobot.err")
+        database.create_tables([Settings, User, UserPriv], safe=True)
 
         try:
             jsonConf = open("pycobot.conf").read()
@@ -65,8 +68,34 @@ def CommandHandler(*args, **kwargs):
             fn.cprivs = kwargs['privs']
         except:
             fn.cprivs = ''
+        try:
+            fn.calias = kwargs['alias']
+        except:
+            fn.calias = []
         fn.module = fn.__init__.__self__.__class__.__name__
         return fn
     return call_fn
 
 Command = CommandHandler
+
+class BaseModel(peewee.Model):
+    class Meta:
+        database = database
+
+class User(BaseModel):
+    username = peewee.CharField(unique=True)
+    password = peewee.CharField()
+
+class UserPriv(BaseModel):
+    uid = peewee.IntegerField()
+    priv = peewee.IntegerField()
+    module = peewee.CharField()
+    channel = peewee.CharField()
+    
+class Settings(BaseModel):
+    type = peewee.CharField()  # Global/Network/Channel
+    channel = peewee.CharField()  # Only if it is a channel setting
+    network = peewee.CharField()  # Only if it is not a global setting
+    name = peewee.CharField()
+    value = peewee.CharField()
+    

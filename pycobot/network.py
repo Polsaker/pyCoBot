@@ -7,6 +7,7 @@
 import json
 import logging
 from .irc import client
+from . import Settings
 import imp
 import sys
 import inspect
@@ -21,6 +22,8 @@ class Server:
 
     modules = {}
     handlers = {}
+    commands = {}
+    
     _rhandlers = []  # :(
     def __init__(self, pycobot, sid):
         self.logger = logging.getLogger('pyCoBot-' + sid)
@@ -92,8 +95,8 @@ class Server:
         for func in funcs:
             try:
                 # YAY! We found a command handler there
-                func[1].iamachandler
-                pass  # TODO
+                self.registerCommand(func[1].iamachandler, func[1], ModuleName,
+                        func[1].chelp, func[1].cprivs, func[1].calias)
             except AttributeError:
                 pass
             
@@ -102,6 +105,18 @@ class Server:
                 self.registerHandler(func[1].iamahandler, ModuleName, func[1])
             except AttributeError:
                 pass
+    
+    # Register a command with the bot
+    def registerCommand(self, command, func, module, chelp='', privs=0, alias=[]):
+        self.commands[command] = {
+                            'func': func,
+                            'help': chelp,
+                            'privs': privs,
+                            'alias': alias
+                        }
+    
+    def getSetting(self, key, channel=None):
+        pass  # TODO
 
     # Register a handler to be proxied
     # !!!! REGISTER YOUR HANDLERS HERE IF YOU DO WITHOUT DECORATORS !!!!
