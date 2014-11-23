@@ -6,11 +6,11 @@ from .kaptan import Kaptan
 from .pycobot import pyCoBot
 import logging
 from .peewee import peewee
+from . import database
 
 VERSION = "2.1"
 CODENAME = "Dors"
 
-database = peewee.SqliteDatabase('db/cobot.db', threadlocals=True)
 
 class bot(Daemon):
     config = None
@@ -19,7 +19,21 @@ class bot(Daemon):
     def __init__(self, pid="/var/tmp/pycobot.pid"):
         super(bot, self).__init__(pid, stdout="pycobot.log",
                                        stderr="pycobot.err")
-        database.create_tables([Settings, User, UserPriv], safe=True)
+        try:
+            database.obj.create_tables([database.Settings, database.User, database.UserPriv])
+            # Annoy the user asking for first user settings.
+            print("This looks like the first time you run pyCoBot (or the database got deleted or corrupted)")
+            print("Please insert a user/password for the administrative account")
+            
+            user = input("Username: ").lower()
+            passw = input("Password: ")
+            
+            database.User.create(username=user, password=hashlib.sha224(passw.encode()).hexdigest())
+            database.UserPriv.create(uid=1, priv=10, module="*", channel="*") # First user... id 1, no?
+            
+            # TODO: Make a file with global/network/channel settings and fill the settings table here.
+        except:
+            pass  # Tables already created, all OK
 
         try:
             jsonConf = open("pycobot.conf").read()
@@ -77,25 +91,4 @@ def CommandHandler(*args, **kwargs):
     return call_fn
 
 Command = CommandHandler
-
-class BaseModel(peewee.Model):
-    class Meta:
-        database = database
-
-class User(BaseModel):
-    username = peewee.CharField(unique=True)
-    password = peewee.CharField()
-
-class UserPriv(BaseModel):
-    uid = peewee.IntegerField()
-    priv = peewee.IntegerField()
-    module = peewee.CharField()
-    channel = peewee.CharField()
-    
-class Settings(BaseModel):
-    type = peewee.CharField()  # Global/Network/Channel
-    channel = peewee.CharField()  # Only if it is a channel setting
-    network = peewee.CharField()  # Only if it is not a global setting
-    name = peewee.CharField()
-    value = peewee.CharField()
     

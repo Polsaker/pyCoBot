@@ -7,11 +7,10 @@
 import json
 import logging
 from .irc import client
-from . import Settings
+import pycobot.database
 import imp
 import sys
 import inspect
-
 
 class Server:
     config = None
@@ -40,13 +39,15 @@ class Server:
 
     def connect(self):
         self.logger.info("Conectando...")
-        print(self.loadModule("example"))
+        print(self.loadModule("example")) # TODO: Read the config file/database for modules
 
         self.connection.connect()
         
     def _autojoin(self, conn, event):
+        # TODO: Also read the database for autojoins
         for chan in self.config.get("servers.{0}.autojoin".format(self.sid)):
             conn.join(chan)
+            
     
     # Loads a module locally.
     # Returns:
@@ -114,9 +115,11 @@ class Server:
                             'privs': privs,
                             'alias': alias
                         }
+        # TODO: Make commands work
+        # TODO: Finish user/privs system to make commands work
     
     def getSetting(self, key, channel=None):
-        pass  # TODO
+        pass  # TODO: Read settings
 
     # Register a handler to be proxied
     # !!!! REGISTER YOUR HANDLERS HERE IF YOU DO WITHOUT DECORATORS !!!!
@@ -155,8 +158,8 @@ class Server:
                         " for module '{0}' (event: '{1}'): {2}".format(
                         module, event.type, e))
 
+    # Reads values from the config file DEPRECATED BY getSetting!
     def readConf(self, key, chan=None, default=""):
-        """Lee configuraciones. (Formato: key1.key2.asd)"""
         key = key.replace("network", "irc." + str(self.sid))
         if chan is not None:
             key = key.replace("channel.", "irc." + str(self.sid) + ".channels."
@@ -165,6 +168,8 @@ class Server:
                 key = "irc." + str(self.sid) + ".channels." + chan.lower()
         return self.config.get(key, default)
 
+
+    # Deprecated!
     def writeConf(self, key, value, chan=None):
         key = key.replace("network", "irc." + str(self.sid))
         if chan is not None:
