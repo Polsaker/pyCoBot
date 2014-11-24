@@ -1,0 +1,16 @@
+[-] IRC library (mustached-ironman)
+    [X] Connect to the IRC
+    [/] Channel tracking
+    [ ] IRCd-specific compatibility
+    [ ] Services-specific compatibility
+    [ ] Adapt with the bot (channel configuration)
+[-] pyCoBot
+    [X] Connect to the IRC
+    [-] Module loading
+        [X] Register handlers/commands with decorators
+        [X] Handlers
+        [/] Command handlers
+    [X] Database access
+    [X] New config system with four levels (file, global, network, channel)
+    [ ] User system
+    [ ] Privilege system
