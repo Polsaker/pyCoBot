@@ -7,6 +7,8 @@ from .pycobot import pyCoBot
 import logging
 from .peewee import peewee
 from . import database
+import os
+import json
 
 VERSION = "2.1"
 CODENAME = "Dors"
@@ -15,7 +17,7 @@ CODENAME = "Dors"
 class bot(Daemon):
     config = None
     pycobot = None
-
+    langs = None
     def __init__(self, pid="/var/tmp/pycobot.pid"):
         super(bot, self).__init__(pid, stdout="pycobot.log",
                                        stderr="pycobot.err")
@@ -54,10 +56,37 @@ class bot(Daemon):
                     "s (at %(filename)s:%(funcName)s:%(lineno)d): %(message)s")
         else:
             logging.basicConfig()  # :D
+        
+        langstuff = {}
+        
+        # Get all the i18n stuff
+        # For the core translations..
+        for subdir, dirs, files in os.walk("pycobot/lang"):
+            for file in files:
+                try:
+                    langstuff[file.split(".")[0]]
+                except:
+                    langstuff[file.split(".")[0]] = {}
+                l = json.load(open(os.path.join(subdir, file), 'r'))
+                z = dict(list(langstuff[file.split(".")[0]].items()) + list(l.items()))
+        
+        for subdir, dirs, files in os.walk("modules"):
+            if "/lang" in subdir:
+                for subdir, dirs, files in os.walk(subdir):
+                    for file in files:
+                        try:
+                            langstuff[file.split(".")[0]]
+                        except:
+                            langstuff[file.split(".")[0]] = {}
+                        l = json.load(open(os.path.join(subdir, file), 'r'))
+                        z = dict(list(langstuff[file.split(".")[0]].items()) + list(l.items()))
+        
+        self.langs = langstuff
+        
+        self.pycobot = pyCoBot(self)
 
     def run(self):
-        pycobot = pyCoBot(self)
-        pycobot.run()
+        self.pycobot.run()
 
 def Handler(*args, **kwargs):
     def call_fn(fn):
@@ -86,9 +115,12 @@ def CommandHandler(*args, **kwargs):
             fn.calias = kwargs['alias']
         except:
             fn.calias = []
+        try:
+            fn.cprivspar = kwargs['chanprivparam']
+        except:
+            fn.cprivspar = None
         fn.module = fn.__init__.__self__.__class__.__name__
         return fn
     return call_fn
 
 Command = CommandHandler
-    

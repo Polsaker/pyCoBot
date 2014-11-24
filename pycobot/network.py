@@ -12,6 +12,7 @@ import imp
 import sys
 import inspect
 import ast
+import pycobot
 
 class Server:
     config = None
@@ -51,29 +52,33 @@ class Server:
         if event.type == "privmsg":
             cmd = event.splitd[0]
         else:
+            prefix = None
             try:
-                prefix = self.getSetting("prefix", event.source)
+                prefix = self.getSetting("prefix", event.target)
             except:
                 pass  # No prefix ?!?!?!
             
-            if type(prefix) is list:
-                for i in prefix: # :(
-                    if event.splitd[0][:len(i)] == i:
-                        command = event.splitd[0][len(i):]
-                        break
-            else:
-                if event.splitd[0][:len(prefix)] == i:
-                    command = event.splitd[0][len(prefix):]
+            if prefix:
+                if type(prefix) is list:
+                    for i in prefix: # :(
+                        if event.splitd[0][:len(i)] == i:
+                            command = event.splitd[0][len(i):]
+                            break
+                else:
+                    if event.splitd[0][:len(prefix)] == prefix:
+                        command = event.splitd[0][len(prefix):]
         
         if not command:
             return
+        
+        del event.splitd[0]
         
         # Valid order prefix for the bot! Check if the command exists
         if command == "auth" or command == "id" or command == "identify":
             # TODO: Core command 'auth'
             return
         elif command == "help" or command == "ayuda": # TODO: command i18n?
-            # TODO: help command
+            self._help(event)
             return
             
         try:
@@ -83,15 +88,51 @@ class Server:
         
         if self.commands[command]['privs'] != 0:
             # TODO: Command privilege system
+            if self.commands[command]['pparam'] is not None:
+                if client.is_channel(event.splitd[self.commands[command]['pparam'] + 1]):
+                    channel = event.splitd[self.commands[command]['pparam'] + 1]
+                else:
+                    if event.type == "pubmsg":
+                        channel = event.target
+                    else:
+                        channel = None
             return
         
         # Call the function
         self.commands[command]['func'](self, self.connection, event)
+    
+    # [Internal] Help command
+    def _help(self, event):
+        try:
+            event.splitd[0]
+            # TODO: Command help
+        except:
+            # List all the commands
+            comms = ['help', 'auth']
+            for i in self.commands:
+                comms.append(i)
+            comms.sort()
+            self.msg(event.target, self._("\002CoBot {0} ({1})\002").format(
+                        pycobot.VERSION, pycobot.CODENAME))
+            # TODO
         
+    # Function to send a PRIVMSG/NOTICE using the bot settings
+    # --->   USE THIS FUNCTION AND NOT client.privmsg OR  <---
+    # --->   client.notice EXTREMELY NECESSARY.           <---
+    def msg(self, target, message):
+        if self.getSetting("nonotice", target, False) is True:
+            self.connection.privmsg(target, message)
+        else:
+            self.connection.notice(target, message)
+            
     def _autojoin(self, conn, event):
         # TODO: Also read the database for autojoins
         for chan in self.config.get("servers.{0}.autojoin".format(self.sid)):
             conn.join(chan)
+    
+    def _(self, string):
+        # TODO: Determine the language and return the translated string
+        return string
             
     # Loads a module locally.
     # Returns:
@@ -118,6 +159,7 @@ class Server:
         try:
             # Get the module's file
             p = getattr(p, "{0}".format(ModuleName))
+            p._ = self._
         except ImportError:
             return -2  # Meep, There is no module file
         
@@ -141,7 +183,7 @@ class Server:
             try:
                 # YAY! We found a command handler there
                 self.registerCommand(func[1].iamachandler, func[1], ModuleName,
-                        func[1].chelp, func[1].cprivs, func[1].calias)
+                        func[1].chelp, func[1].cprivs, func[1].calias, func[1].cprivspar)
             except AttributeError:
                 pass
             
@@ -152,17 +194,16 @@ class Server:
                 pass
     
     # Register a command with the bot
-    def registerCommand(self, command, func, module, chelp='', privs=0, alias=[]):
+    def registerCommand(self, command, func, module, chelp='', privs=0, alias=[], privsparameter=None):
         self.commands[command] = {
                             'func': func,
                             'help': chelp,
                             'privs': privs,
-                            'alias': alias
+                            'alias': alias,
+                            'pparam': privsparameter
                         }
-        # TODO: Make commands work
-        # TODO: Finish user/privs system to make commands work
     
-    def getSetting(self, key, channel=None):
+    def getSetting(self, key, channel=None, default=None):
         # 1 - Try to read channel config
         if channel is not "1":
             try:
@@ -199,9 +240,10 @@ class Server:
         
         # 4 - Try to read the config from the file
         try:
-            self.config.get("servers.{0}.{1}".format(self.sid, key))
+            
+            return self.config.get("servers.{0}.{1}".format(self.sid, key))
         except:
-            raise  # Whoops! value not found
+            return default  # Whoops! value not found
                             
         
 
@@ -241,22 +283,3 @@ class Server:
                     self.logger.warning("Exception when calling handler"
                         " for module '{0}' (event: '{1}'): {2}".format(
                         module, event.type, e))
-
-
-    # Deprecated!
-    def writeConf(self, key, value, chan=None):
-        key = key.replace("network", "irc." + str(self.sid))
-        if chan is not None:
-            key = key.replace("channel.", "irc." + str(self.sid) + ".channels."
-                                                        + chan.lower() + ".")
-        # D:!!
-
-        try:
-            value2 = value.replace("'", "\"")
-            value = json.loads(value2)
-        except:
-            pass
-        self.config.put(key, value)
-        dump = self.config.export('json', indent=4)
-        open("pycobot.conf", "w").write(dump)
-        return True

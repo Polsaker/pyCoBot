@@ -7,4 +7,5 @@ class example:
     
     @Handler("welcome")
     def testcommand(self, bot, cli, ev):
-        print("WOOOOOOOOOOOOO IT WOORKS")
+        print("PO TA TO ES")
+        print(_("WOOOOOOOOOOOOO IT WOORKS"))

@@ -7,6 +7,7 @@
 from .network import Server
 import logging
 import time
+import gettext
 
 logger = logging.getLogger('pyCoBot')
 

@@ -19,14 +19,12 @@ if __name__ == "__main__":
         elif arg == "--help" or arg == "-h":
             print(("pyCoBot v{0} ({1})\n".format(pycobot.VERSION,
                                                  pycobot.CODENAME)))
-            print("Parámetros:")
-            print("    -h --help:          Muestra este texto.")
-            print("    -s --stop:          Detiene el demonio.")
-            print("    -r --restart:       Reinicia el demonio.")
-            print("    -f --foreground     Inicia al bot normalmente (no como "
-                                                                "demonio")
-            print("       --pid <archivo>  Inicia el bot utilizando otro"
-                                                                " pidfile")
-            print("    Sin parámetros:     Inicia el demonio")
+            print("Parameters:")
+            print("    -h --help:          Shows this help.")
+            print("    -s --stop:          Stops the daemon.")
+            print("    -r --restart:       Restarts the daemon.")
+            print("    -f --foreground     Prevents the bot from forking in the background")
+            print("       --pid <archivo>  Start the bot with other pidfile")
+            print("    Without parameters: Starts the daemon.")
     except IndexError:
         pyco.start()

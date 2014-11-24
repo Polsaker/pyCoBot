@@ -4,13 +4,18 @@
     [ ] IRCd-specific compatibility
     [ ] Services-specific compatibility
     [ ] Adapt with the bot (channel configuration)
-[-] pyCoBot
+[/] pyCoBot
     [X] Connect to the IRC
-    [-] Module loading
+    [X] Module loading
         [X] Register handlers/commands with decorators
         [X] Handlers
-        [/] Command handlers
+        [X] Command handlers
     [X] Database access
     [X] New config system with four levels (file, global, network, channel)
     [ ] User system
     [ ] Privilege system
+    [-] i18n ...
+        [ ] Make it work
+        [X] ... in modules
+        [X] ... in the core
+        [ ] i18n command aliases

@@ -307,6 +307,82 @@ class IRCClient(object):
 
     def whois(self, targets):
         self.send("WHOIS " + targets)
+    
+    def privmsg(self, target, msg, nonewmsg=False):
+        maxlen = 440 - len("PRIVMSG {0} :".format(target.encode('utf-8')))
+        if len(msg.encode('utf-8')) > maxlen:
+            words = msg.split()
+            avail = maxlen
+            footer = " …"
+            result = ['']
+            k = 0
+            for word in words:
+                word += " "
+                if len(word.encode('utf-8')) > maxlen:
+                    while len(word.encode('utf-8')) > avail: # ?!
+                        result[k] += word[:-maxlen]
+                        word = word[maxlen:]
+                        result[k] += footer
+                        result.append("")
+                        k += 1
+                
+                if len(word.encode('utf-8')) > avail:
+                    result[k] += footer
+                    result.append("")
+                    k += 1
+                    avail = maxlen
+                    
+                result[k] += word
+                avail = avail - len(word.encode('utf-8'))
+            
+            for msg in result:
+                self._privmsg(target, msg)
+        else:
+            self._privmsg(target, msg)
+
+    def _privmsg(self, target, text):
+        """Send a PRIVMSG command."""
+        self.send("PRIVMSG %s :%s" % (target, text))
+    
+    def notice(self, target, msg, nonewmsg=False):
+        maxlen = 440 - len("NOTICE {0} :".format(target.encode('utf-8')))
+        if len(msg.encode('utf-8')) > maxlen:
+            words = msg.split()
+            avail = maxlen
+            footer = " …"
+            result = ['']
+            k = 0
+            for word in words:
+                word += " "
+                if len(word.encode('utf-8')) > maxlen:
+                    while len(word.encode('utf-8')) > avail: # ?!
+                        # Palabra mas larga que el limite!? Cortar la palabra
+                        result[k] += word[:-maxlen]
+                        word = word[maxlen:]
+                        result[k] += footer
+                        result.append("")
+                        k += 1
+                
+                if len(word.encode('utf-8')) > avail:
+                    result[k] += footer
+                    result.append("")
+                    k += 1
+                    avail = maxlen
+                    
+                result[k] += word
+                avail = avail - len(word.encode('utf-8'))
+            
+            for msg in result:
+                self._notice(target, msg)
+        else:
+            self._notice(target, msg)
+
+    def _notice(self, target, text):
+        """Send a NOTICE command."""
+        # Should limit len(text) here!
+        self.send("NOTICE %s :%s" % (target, text))
+
+
 
     # Internal handlers
 
@@ -315,7 +391,6 @@ class IRCClient(object):
             # We just joined a channel, let's add it to the list
             self.channels[event.target] = Channel(self, event.target)
         else:
-            #print(self.channels)
             self.channels[event.target].users[event.source.nick] = User(
                 event.source.nick, event.source.user, event.source.host,
                 "", "")
@@ -517,8 +592,9 @@ class Event(object):
     def __init__(self, type, source, target, arguments=None):
         self.type = type
         self.source = source
-        self.source2 = source
+        self._source = source
         self.target = target
+        self._target = target
         if arguments is None:
             arguments = []
         self.arguments = arguments
