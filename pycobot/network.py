@@ -114,10 +114,24 @@ class Server:
     # [Internal] Help command
     def _help(self, event):
         try:
-            if not event.splitd[0]:
+            if event.splitd[0] == "":
                 raise # :D
-            # TODO: Command help
-        except:
+            if event.splitd[0] == "help" or event.splitd[0] == "ayuda": 
+                self.msg(event.target, self._("Help of \002{0}\002: {1}".format("help", self._("Returns the list of commands or gives the help for a specific command. Usage: help [command]"))))
+            elif event.splitd[0] == "auth" or event.splitd[0] == "id" or event.splitd[0] == "identify":
+                self.msg(event.target, self._("Help of \002{0}\002: {1}".format("auth", self._("Authenticates a user with the bot. Usage: auth <user> <password>"))))
+            else:
+                try:
+                    chelp = self.commands[event.splitd[0]]['help']
+                except:
+                    self.msg(event.target, self._("That command doesn't exist or has no help."))
+                    return
+                try:
+                    a = self.commands[event.splitd[0]]['aliasof']
+                    self.msg(event.target, self._("Help of \002{0}\002 (Alias of \002{1}\002): {2}").format(event.splitd[0], a, chelp))
+                except:
+                    self.msg(event.target, self._("Help of \002{0}\002: {1}").format(event.splitd[0], chelp))
+        except IndexError:
             # List all the commands
             comms = ['help', 'auth']
             for i in self.commands:
@@ -220,6 +234,14 @@ class Server:
                             'privs': privs,
                             'alias': alias,
                             'pparam': privsparameter
+                        }
+        for i in alias:
+            self.commands[i] = {
+                            'func': func,
+                            'help': chelp,
+                            'privs': privs,
+                            'pparam': privsparameter,
+                            'aliasof': command
                         }
     
     def getSetting(self, key, channel=None, default=None):
