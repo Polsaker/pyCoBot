@@ -63,15 +63,25 @@ class Server:
                     for i in prefix: # :(
                         if event.splitd[0][:len(i)] == i:
                             command = event.splitd[0][len(i):]
+                            del event.splitd[0]
                             break
                 else:
                     if event.splitd[0][:len(prefix)] == prefix:
                         command = event.splitd[0][len(prefix):]
-        
+                        del event.splitd[0]
+            if not command:
+                try:
+                    if self.connection.nickname in event.splitd[0]:
+                        command = event.splitd[1]
+                        del event.splitd[0]
+                        del event.splitd[0]
+                except:
+                    pass
+
         if not command:
             return
         
-        del event.splitd[0]
+        
         
         # Valid order prefix for the bot! Check if the command exists
         if command == "auth" or command == "id" or command == "identify":
@@ -104,7 +114,8 @@ class Server:
     # [Internal] Help command
     def _help(self, event):
         try:
-            event.splitd[0]
+            if not event.splitd[0]:
+                raise # :D
             # TODO: Command help
         except:
             # List all the commands
@@ -112,9 +123,10 @@ class Server:
             for i in self.commands:
                 comms.append(i)
             comms.sort()
-            self.msg(event.target, self._("\002CoBot {0} ({1})\002").format(
-                        pycobot.VERSION, pycobot.CODENAME))
-            # TODO
+            self.msg(event.target, self._("\002CoBot {0} ({1})\002. The "
+                            "command prefix is \002{2}\002.", event.target).format(
+                                    pycobot.VERSION, pycobot.CODENAME, self.getSetting("prefix", event.target, self.connection.nickname + ", ")))
+            self.msg(event.target, self._("Commands: {0}", event.target).format(" ".join(comms)))
         
     # Function to send a PRIVMSG/NOTICE using the bot settings
     # --->   USE THIS FUNCTION AND NOT client.privmsg OR  <---
@@ -130,9 +142,16 @@ class Server:
         for chan in self.config.get("servers.{0}.autojoin".format(self.sid)):
             conn.join(chan)
     
-    def _(self, string):
+    def _(self, string, channel=None):
         # TODO: Determine the language and return the translated string
-        return string
+        lang = self.getSetting("language", channel, "en")
+        if lang == "en":
+            return string
+        else:
+            try:
+                return self.pycobot.daemon.langs[lang][string]
+            except:
+                return string
             
     # Loads a module locally.
     # Returns:
