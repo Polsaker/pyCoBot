@@ -2,6 +2,7 @@
 import logging
 import _thread
 import socket
+import traceback
 import re
 import time
 from . import numerics
@@ -232,9 +233,9 @@ class IRCClient(object):
                         i['callback'](self, event)
                     else:
                         _thread.start_new_thread(i['callback'], (self, event))
-                except BaseException as e:
+                except:
                     self.logger.error("Calling {0} handler raised exception:"
-                                    "{1}".format(event.type, e))
+                                    "{1}".format(event.type, traceback.format_exc()))
         except KeyError:
             pass
 

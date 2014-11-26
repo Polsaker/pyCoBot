@@ -79,7 +79,7 @@ class bot(Daemon):
                         except:
                             langstuff[file.split(".")[0]] = {}
                         l = json.load(open(os.path.join(subdir, file), 'r'))
-                        z = dict(list(langstuff[file.split(".")[0]].items()) + list(l.items()))
+                        langstuff = dict(list(langstuff[file.split(".")[0]].items()) + list(l.items()))
         
         self.langs = langstuff
         

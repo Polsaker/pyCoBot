@@ -13,17 +13,20 @@ import sys
 import inspect
 import ast
 import pycobot
+import builtins
+import traceback
 
 class Server:
-    config = None
-    sid = None
-    pycobot = None
+    config = None  # Kaptan instance
+    sid = None  # Server ID (name in the config)
+    pycobot = None  # Parent pyCoBot instance (from pycobot.py)
     logger = None
-    connection = None
+    connection = None # Instance of the IRC client
 
-    modules = {}
-    handlers = {}
-    commands = {}
+    modules = {}  # Loaded modules
+    handlers = {}  # Registered handlers
+    commands = {}  # Registered commands
+    configs = {}  # Configuration value definitions
     
     _rhandlers = []  # :(
     def __init__(self, pycobot, sid):
@@ -31,6 +34,7 @@ class Server:
         self.config = pycobot.config
         self.pycobot = pycobot
         self.sid = sid
+        self.configs = json.loads(open("pycobot/configs.json", 'r').read())
 
         self.connection = client.IRCClient(sid)
         self.connection.addhandler("privmsg", self._processCommands)
@@ -43,7 +47,8 @@ class Server:
 
     def connect(self):
         self.logger.info("Conectando...")
-        print(self.loadModule("example")) # TODO: Read the config file/database for modules
+        for i in self.getSetting("modules"):
+            self.loadModule(i)
 
         self.connection.connect()
         
@@ -152,12 +157,10 @@ class Server:
             self.connection.notice(target, message)
             
     def _autojoin(self, conn, event):
-        # TODO: Also read the database for autojoins
-        for chan in self.config.get("servers.{0}.autojoin".format(self.sid)):
+        for chan in self.getSetting("autojoin"):
             conn.join(chan)
     
     def _(self, string, channel=None):
-        # TODO: Determine the language and return the translated string
         lang = self.getSetting("language", channel, "en")
         if lang == "en":
             return string
@@ -210,6 +213,13 @@ class Server:
                     ModuleName, e))
             return -4  # Meep, error calling the class
         
+        # Load configuration definitions
+        try:
+            configs = json.loads(open("modules/{0}/configs.json".format(ModuleName), 'r').read())
+            self.configs = dict(list(self.configs.items()) + list(configs.items()))
+        except:
+            pass  # Meh
+        
         # Load all the (command)handlers
         funcs = inspect.getmembers(p, predicate=inspect.isfunction)
         for func in funcs:
@@ -245,8 +255,17 @@ class Server:
                         }
     
     def getSetting(self, key, channel=None, default=None):
+        config = {}
+        config['scope'] = "channel"
+        config['type'] = "str"
+        config['concatenate'] = False
+        try:
+            config = dict(list(config.items()) + list(self.configs[key].items()))
+        except KeyError:
+            self.logger.warning("Trying to read undefined configuration value {0}, using default settings".format(key))
+        resl = []
         # 1 - Try to read channel config
-        if channel is not "1":
+        if channel is not None and config['scope'] == "channel":
             try:
                 s = Settings.get(Settings.channel == channel, Settings.network == self.sid,
                     Settings.type == "channel", Settings.name == key)
@@ -254,20 +273,33 @@ class Server:
                     s = ast.literal_eval(s.value)
                 except:
                     pass
-                return s.value
+                if type(s.value) != getattr(builtins, config['type']):
+                    self.logger.warning("Channel config {0} (Channel: {1}) has the wrong type, expected '{2}', got '{3}'".format(
+                                        key, channel, config['type'], type(s.value)))
+                if type(s.value) == 'list' and config['concatenate'] is True:
+                    resl = resl + s.value 
+                else:
+                     return s.value 
             except:
                 pass
         # 2 - Try to read network config
-        try:
-            s = Settings.get(Settings.network == self.sid,
-                    Settings.type == "network", Settings.name == key)
+        if config['scope'] != "global": 
             try:
-                s = ast.literal_eval(s.value)
+                s = Settings.get(Settings.network == self.sid,
+                        Settings.type == "network", Settings.name == key)
+                try:
+                    s = ast.literal_eval(s.value)
+                except:
+                    pass
+                if type(s.value) != getattr(builtins, config['type']):
+                    self.logger.warning("Network config {0} has the wrong type, expected '{1}', got '{2}'".format(
+                                        key, config['type'], type(s.value)))
+                if type(s.value) == 'list' and config['concatenate'] is True:
+                    resl = resl + s.value 
+                else:
+                     return s.value 
             except:
                 pass
-            return s.value
-        except:
-            pass
         # 3 - Try to read the global config
         try:
             s = Settings.get(Settings.type == "global", Settings.name == key)
@@ -275,16 +307,30 @@ class Server:
                 s = ast.literal_eval(s.value)
             except:
                 pass
-            return s.value
+            if type(s.value) != getattr(builtins, config['type']):
+                self.logger.warning("Global config {0} has the wrong type, expected '{1}', got '{2}'".format(
+                                    key, config['type'], type(s.value)))
+            if type(s.value) == 'list' and config['concatenate'] is True:
+                resl = resl + s.value 
+            else:
+                 return s.value 
         except:
             pass
         
         # 4 - Try to read the config from the file
         try:
             
-            return self.config.get("servers.{0}.{1}".format(self.sid, key))
-        except:
+            value = self.config.get("servers.{0}.{1}".format(self.sid, key))
+            if type(value) != getattr(builtins, config['type']):
+                self.logger.warning("Config from the file (key: {0}) has the wrong type, expected '{1}', got '{2}'".format(
+                                    key, config['type'], type(value)))
+            if type(value) == 'list' and config['concatenate'] is True:
+                resl = resl + value 
+            else:
+                 return value 
+        except KeyError:
             return default  # Whoops! value not found
+        return resl
                             
         
 
@@ -320,7 +366,7 @@ class Server:
             for handler in self.handlers[module][event.type]:
                 try:
                     handler(self.modules[module], self, cli, event)
-                except Exception as e:
-                    self.logger.warning("Exception when calling handler"
+                except:
+                    self.logger.error("Exception when calling handler"
                         " for module '{0}' (event: '{1}'): {2}".format(
-                        module, event.type, e))
+                        module, event.type, traceback.format_exc()))

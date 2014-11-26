@@ -1,0 +1,19 @@
+{
+  "autojoin":{
+    "type": "list",
+    "concatenate": true,
+    "scope": "network"
+  },
+  "nonotice":{
+    "type": "bool",
+    "scope": "channel"
+  },
+  "modules":{
+    "type": "list",
+    "concatenate": true,
+    "scope": "network"
+  },
+  "language":{
+    "type": "string"
+  }
+}
