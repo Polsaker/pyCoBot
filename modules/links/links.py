@@ -127,7 +127,10 @@ class links:
             m = "0" + str(m)
         if len(h) < 2:
             h = "0" + str(h)
-        rank = round((int(likes) / (int(likes) + int(dislikes))) * 100)
+        try:
+            rank = round((int(likes) / (int(likes) + int(dislikes))) * 100)
+        except ZeroDivisionError:
+            rank = 0
         resp = "\2%s\2 \00310Duración:\003 %s:%s:%s \00310Visto\003 \2%s" \
             "\2 veces, con \00303%s \2Me gusta\2\003, \00305%s \2No me " \
             "gusta\2\003 (%s%%) y %s \2comentarios\2" % (vtitle, h, m, s,
