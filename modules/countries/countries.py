@@ -37,6 +37,9 @@ class countries:
         for i in resp['languages']:
             langs.append(self.getlangs()[i])
         
+        if resp['timezones'] == None:
+            resp['timezones'] = ['N/A']
+
         resp['region'] = self.getregion(resp['region'])
         
         wd = urllib.request.urlopen("https://www.wikidata.org/w/api.php?action=wbgetentities&sites=eswiki&titles={0}&languages=es&normalize=&props=claims&format=json".format(urllib.parse.quote_plus(self.countryfromcode()[p.upper()]))).read().decode('utf-8', 'replace')
@@ -44,6 +47,7 @@ class countries:
         presi = ""
         gobi = ""
         e = wd['entities'][list(wd['entities'].keys())[0]]
+        presimark = "Presidente"
         for i in e['claims']:
 
             if i == "P30":
@@ -54,18 +58,27 @@ class countries:
                 prop = e['claims']['P35'][0]['mainsnak']['datavalue']['value']['numeric-id']
                 wprop = urllib.request.urlopen("https://www.wikidata.org/w/api.php?action=wbgetentities&ids=Q{0}&languages=es&props=labels&format=json".format(prop)).read().decode('utf-8', 'replace')
                 presi = json.loads(wprop)["entities"]["Q" + str(prop)]['labels']['es']['value']
+                try:
+                    prop = e['claims']['P35'][0]['qualifiers']['P39'][0]['datavalue']['value']['numeric-id']
+                except:
+                    continue
+                wprop = urllib.request.urlopen("https://www.wikidata.org/w/api.php?action=wbgetentities&ids=Q{0}&languages=es&props=labels&format=json".format(prop)).read().decode('utf-8', 'replace')
+                presimark = json.loads(wprop)["entities"]["Q" + str(prop)]['labels']['es']['value']
             elif i == "P122":
                 prop = e['claims']['P122'][0]['mainsnak']['datavalue']['value']['numeric-id']
                 wprop = urllib.request.urlopen("https://www.wikidata.org/w/api.php?action=wbgetentities&ids=Q{0}&languages=es&props=labels&format=json".format(prop)).read().decode('utf-8', 'replace')
                 gobi = json.loads(wprop)["entities"]["Q" + str(prop)]['labels']['es']['value']
-
+            elif i == "P1082":
+                resp['population'] = int(e['claims']['P1082'][0]['mainsnak']['datavalue']['value']['amount'][1:])
+            else:
+                pass
             
         send = "\002{1}\002: Continente: \002{0}\002, Capital: \002{2}\002, moneda: \002{3}\002, población: \002{4}\002".format(resp['region'], resp['translations']['es'], resp['capital'], ", ".join(currs), "{0:,}".format(resp['population']).replace(",", "."))
         send = send + ", superficie: \002{0}\002 km²".format("{0:,}".format(resp['area']).replace(",", "."))
         send = send + ", idiomas: \002{0}\002, zonas horarias: \002{1}\002".format(", ".join(langs), ", ".join(resp['timezones']))
         send = send + ", código telefónico: \002{0}\002".format(", ".join(resp['callingCodes']))
         if presi != "":
-            send = send + ", Presidente: \002{0}\002".format(presi)
+            send = send + ", {1}: \002{0}\002".format(presi, presimark)
         
         if gobi != "":
             send = send + ", Forma de gobierno: \002{0}\002".format(gobi)
