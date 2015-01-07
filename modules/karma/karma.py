@@ -2,6 +2,7 @@ import re
 from pycobot.pycobot import BaseModel
 from peewee.peewee import CharField, IntegerField
 import time
+import irc.client
 
 
 class karma:
@@ -39,12 +40,12 @@ class karma:
             except:
                 self.lasttime[ev.target] = {}
             try:
-                self.lasttime[ev.target][ev.source.host]
+                self.lasttime[ev.target][ev.source2.host]
             except:
-                self.lasttime[ev.target][ev.source.host] = {}
+                self.lasttime[ev.target][ev.source2.host] = {}
             try:
                 if (time.time() -
-                self.lasttime[ev.target][ev.source.host][l.group(1).lower()]) < 900:
+                self.lasttime[ev.target][ev.source2.host][l.group(1).lower()]) < 900:
                     return 0  # >:D
             except:
                 pass
@@ -61,7 +62,7 @@ class karma:
             else:
                 user.karma -= 1
             user.save()
-            self.lasttime[ev.target][ev.source.host][l.group(1).lower()] = time.time()
+            self.lasttime[ev.target][ev.source2.host][l.group(1).lower()] = time.time()
 
 
 class Karma(BaseModel):
