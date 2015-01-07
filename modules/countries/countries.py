@@ -67,7 +67,7 @@ class countries:
         if presi != "":
             send = send + ", Presidente: \002{0}\002".format(presi)
         
-        if presi != "":
+        if gobi != "":
             send = send + ", Forma de gobierno: \002{0}\002".format(gobi)
         cli.msg(ev.target, send)
     
