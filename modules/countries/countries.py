@@ -41,7 +41,6 @@ class countries:
             resp['timezones'] = ['N/A']
 
         resp['region'] = self.getregion(resp['region'])
-        
         wd = urllib.request.urlopen("https://www.wikidata.org/w/api.php?action=wbgetentities&sites=eswiki&titles={0}&languages=es&normalize=&props=claims&format=json".format(urllib.parse.quote_plus(self.countryfromcode()[p.upper()]))).read().decode('utf-8', 'replace')
         wd = json.loads(wd)
         presi = ""
@@ -72,7 +71,7 @@ class countries:
                 resp['population'] = int(e['claims']['P1082'][0]['mainsnak']['datavalue']['value']['amount'][1:])
             else:
                 pass
-            
+                            
         send = "\002{1}\002: Continente: \002{0}\002, Capital: \002{2}\002, moneda: \002{3}\002, población: \002{4}\002".format(resp['region'], resp['translations']['es'], resp['capital'], ", ".join(currs), "{0:,}".format(resp['population']).replace(",", "."))
         send = send + ", superficie: \002{0}\002 km²".format("{0:,}".format(resp['area']).replace(",", "."))
         send = send + ", idiomas: \002{0}\002, zonas horarias: \002{1}\002".format(", ".join(langs), ", ".join(resp['timezones']))
@@ -1179,7 +1178,7 @@ class countries:
             "KP": "corea del norte",
             "SO": "somalia",
             "SN": "senegal",
-            "SM": "san marino",
+            "SM": "San Marino",
             "SL": "sierra leona",
             "SC": "seychelles",
             "SB": "islas salomon",
@@ -1188,7 +1187,7 @@ class countries:
             "MM": "birmania",
             "SE": "suecia",
             "SD": "sudán",
-            "DO": "republica dominicana",
+            "DO": "Republica Dominicana",
             "DM": "dominica",
             "DJ": "yibuti",
             "DK": "dinamarca",
