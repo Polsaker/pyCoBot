@@ -85,7 +85,7 @@ class Server:
 
         if not command:
             return
-        
+        print(self.commands)
         
         
         # Valid order prefix for the bot! Check if the command exists
@@ -101,17 +101,18 @@ class Server:
         except:
             return # 404 command not found
         
-        if self.commands[command]['privs'] != 0:
+        if self.commands[command]['privs'] != 0 and self.commands[command]['privs'] != '':
             # TODO: Command privilege system
-            if self.commands[command]['pparam'] is not None:
-                if client.is_channel(event.splitd[self.commands[command]['pparam'] + 1]):
-                    channel = event.splitd[self.commands[command]['pparam'] + 1]
-                else:
-                    if event.type == "pubmsg":
-                        channel = event.target
-                    else:
-                        channel = None
             return
+            
+        if self.commands[command]['pparam'] is not None:
+            if client.is_channel(event.splitd[self.commands[command]['pparam'] + 1]):
+                channel = event.splitd[self.commands[command]['pparam'] + 1]
+            else:
+                if event.type == "pubmsg":
+                    channel = event.target
+                else:
+                    channel = None
         
         # Call the function
         self.commands[command]['func'](self, self.connection, event)
@@ -133,9 +134,9 @@ class Server:
                     return
                 try:
                     a = self.commands[event.splitd[0]]['aliasof']
-                    self.msg(event.target, self._("Help of \002{0}\002 (Alias of \002{1}\002): {2}").format(event.splitd[0], a, chelp))
+                    self.msg(event.target, self._("Help of \002{0}\002 (Alias of \002{1}\002): {2}").format(event.splitd[0], a, self._(chelp)))
                 except:
-                    self.msg(event.target, self._("Help of \002{0}\002: {1}").format(event.splitd[0], chelp))
+                    self.msg(event.target, self._("Help of \002{0}\002: {1}").format(event.splitd[0], self._(chelp)))
         except IndexError:
             # List all the commands
             comms = ['help', 'auth']
@@ -144,12 +145,12 @@ class Server:
             comms.sort()
             self.msg(event.target, self._("\002CoBot {0} ({1})\002. The "
                             "command prefix is \002{2}\002.", event.target).format(
-                                    pycobot.VERSION, pycobot.CODENAME, self.getSetting("prefix", event.target, self.connection.nickname + ", ")))
+                                    pycobot.VERSION, pycobot.CODENAME, self.getSetting("prefix", event.target, self.connection.nickname + ", ", returnfirstitem=True)))
             self.msg(event.target, self._("Commands: {0}", event.target).format(" ".join(comms)))
         
     # Function to send a PRIVMSG/NOTICE using the bot settings
-    # --->   USE THIS FUNCTION AND NOT client.privmsg OR  <---
-    # --->   client.notice EXTREMELY NECESSARY.           <---
+    # --->   USE THIS FUNCTION AND NOT client.privmsg OR     <---
+    # --->   client.notice UNLESS IT IS EXTREMELY NECESSARY. <---
     def msg(self, target, message):
         if self.getSetting("nonotice", target, False) is True:
             self.connection.privmsg(target, message)
@@ -177,6 +178,7 @@ class Server:
     #  -3: The module is already loaded!
     #  -4: Error loading the module (the class doesn't exist or there is a problem on the __init__?)
     def loadModule(self, ModuleName):
+        self.logger.info("Loading local module {0}".format(ModuleName))
         try:
             # Check if the module is loaded
             self.modules[ModuleName]
@@ -189,6 +191,7 @@ class Server:
             # Get the module
             p = getattr(modulesa, "{0}".format(ModuleName))
         except ImportError:
+            self.logger.warning("Tried to load a non-existent module {0}".format(ModuleName))
             return -1  # Meep, the module is not there
         del modulesa
         
@@ -197,6 +200,7 @@ class Server:
             p = getattr(p, "{0}".format(ModuleName))
             p._ = self._
         except ImportError:
+            self.logger.warning("Can't find the main class for module {0}".format(ModuleName))
             return -2  # Meep, There is no module file
         
         try:
@@ -225,7 +229,8 @@ class Server:
         for func in funcs:
             try:
                 # YAY! We found a command handler there
-                self.registerCommand(func[1].iamachandler, func[1], ModuleName,
+                self.logger.debug("Found commandhandler {0} in {1}".format(func[1].iamachandler, ModuleName))
+                self.registerCommand(func[1].iamachandler, getattr(self.modules[ModuleName], func[1].__name__), ModuleName,
                         func[1].chelp, func[1].cprivs, func[1].calias, func[1].cprivspar)
             except AttributeError:
                 pass
@@ -254,7 +259,7 @@ class Server:
                             'aliasof': command
                         }
     
-    def getSetting(self, key, channel=None, default=None):
+    def getSetting(self, key, channel=None, default=None, returnfirstitem=False):
         config = {}
         config['scope'] = "channel"
         config['type'] = "str"
@@ -279,7 +284,10 @@ class Server:
                 if type(s.value) == 'list' and config['concatenate'] is True:
                     resl = resl + s.value 
                 else:
-                     return s.value 
+                    if not returnfirstitem:
+                        return s.value 
+                    else:
+                        return s.value[0]
             except:
                 pass
         # 2 - Try to read network config
@@ -297,7 +305,10 @@ class Server:
                 if type(s.value) == 'list' and config['concatenate'] is True:
                     resl = resl + s.value 
                 else:
-                     return s.value 
+                    if not returnfirstitem:
+                        return s.value 
+                    else:
+                        return s.value[0] 
             except:
                 pass
         # 3 - Try to read the global config
@@ -313,7 +324,10 @@ class Server:
             if type(s.value) == 'list' and config['concatenate'] is True:
                 resl = resl + s.value 
             else:
-                 return s.value 
+                if not returnfirstitem:
+                    return s.value 
+                else:
+                    return s.value[0]
         except:
             pass
         
@@ -329,7 +343,11 @@ class Server:
             else:
                  return value 
         except KeyError:
-            return default  # Whoops! value not found
+            if default is None:
+                return config['default']
+            else:
+                return default
+
         return resl
                             
         

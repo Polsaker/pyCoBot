@@ -63,26 +63,30 @@ class bot(Daemon):
         # For the core translations..
         for subdir, dirs, files in os.walk("pycobot/lang"):
             for file in files:
+                langcode = file.split(".")[0]
                 try:
-                    langstuff[file.split(".")[0]]
+                    langstuff[langcode]
                 except:
-                    langstuff[file.split(".")[0]] = {}
+                    langstuff[langcode] = {}
                 l = json.load(open(os.path.join(subdir, file), 'r'))
-                z = dict(list(langstuff[file.split(".")[0]].items()) + list(l.items()))
-        
+                for q in l:
+                    langstuff[langcode][q] = l[q]
+                
+
         for subdir, dirs, files in os.walk("modules"):
             if "/lang" in subdir:
                 for subdir, dirs, files in os.walk(subdir):
                     for file in files:
+                        langcode = file.split(".")[0]
                         try:
-                            langstuff[file.split(".")[0]]
+                            langstuff[langcode]
                         except:
-                            langstuff[file.split(".")[0]] = {}
+                            langstuff[langcode] = {}
                         l = json.load(open(os.path.join(subdir, file), 'r'))
-                        langstuff = dict(list(langstuff[file.split(".")[0]].items()) + list(l.items()))
-        
+                        for q in l:
+                            langstuff[langcode][q] = l[q]
+                            
         self.langs = langstuff
-        
         self.pycobot = pyCoBot(self)
 
     def run(self):
@@ -124,3 +128,7 @@ def CommandHandler(*args, **kwargs):
     return call_fn
 
 Command = CommandHandler
+
+class Module(object):
+    def __init__(self, bot):
+        pass
