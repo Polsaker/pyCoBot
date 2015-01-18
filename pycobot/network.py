@@ -317,62 +317,65 @@ class Server:
         # 1 - Try to read channel config
         if channel is not None and config['scope'] == "channel":
             try:
-                s = Settings.get(Settings.channel == channel, Settings.network == self.sid,
-                    Settings.type == "channel", Settings.name == key)
+                #s = Settings.get(Settings.channel == channel, Settings.network == self.sid,
+                #    Settings.type == "channel", Settings.name == key)
+                s = self.pycobot.getSettingFromCache("channel", key, self.sid, channel)
                 try:
-                    s = ast.literal_eval(s.value)
+                    s = ast.literal_eval(s)
                 except:
                     pass
-                if type(s.value) != getattr(builtins, config['type']):
+                if type(s) != getattr(builtins, config['type']):
                     self.logger.warning("Channel config {0} (Channel: {1}) has the wrong type, expected '{2}', got '{3}'".format(
-                                        key, channel, config['type'], type(s.value)))
-                if type(s.value) == 'list' and config['concatenate'] is True:
-                    resl = resl + s.value 
+                                        key, channel, config['type'], type(s)))
+                if type(s) == 'list' and config['concatenate'] is True:
+                    resl = resl + s 
                 else:
                     if not returnfirstitem:
-                        return s.value 
+                        return s 
                     else:
-                        return s.value[0]
+                        return s[0]
             except:
                 pass
         # 2 - Try to read network config
         if config['scope'] != "global": 
             try:
-                s = Settings.get(Settings.network == self.sid,
-                        Settings.type == "network", Settings.name == key)
+                #s = Settings.get(Settings.network == self.sid,
+                #        Settings.type == "network", Settings.name == key)
+                s = self.pycobot.getSettingFromCache("network", key, self.sid)
                 try:
-                    s = ast.literal_eval(s.value)
+                    s = ast.literal_eval(s)
                 except:
                     pass
-                if type(s.value) != getattr(builtins, config['type']):
+                if type(s) != getattr(builtins, config['type']):
                     self.logger.warning("Network config {0} has the wrong type, expected '{1}', got '{2}'".format(
-                                        key, config['type'], type(s.value)))
-                if type(s.value) == 'list' and config['concatenate'] is True:
-                    resl = resl + s.value 
+                                        key, config['type'], type(s)))
+                if type(s) == 'list' and config['concatenate'] is True:
+                    resl = resl + s 
                 else:
                     if not returnfirstitem:
-                        return s.value 
+                        return s 
                     else:
-                        return s.value[0] 
+                        return s[0] 
             except:
                 pass
         # 3 - Try to read the global config
         try:
-            s = Settings.get(Settings.type == "global", Settings.name == key)
+            #s = Settings.get(Settings.type == "global", Settings.name == key)
+            s = self.pycobot.getSettingFromCache("global", key)
             try:
-                s = ast.literal_eval(s.value)
+                s = ast.literal_eval(s)
             except:
                 pass
-            if type(s.value) != getattr(builtins, config['type']):
+            if type(s) != getattr(builtins, config['type']):
                 self.logger.warning("Global config {0} has the wrong type, expected '{1}', got '{2}'".format(
-                                    key, config['type'], type(s.value)))
-            if type(s.value) == 'list' and config['concatenate'] is True:
-                resl = resl + s.value 
+                                    key, config['type'], type(s)))
+            if type(s) == 'list' and config['concatenate'] is True:
+                resl = resl + s 
             else:
                 if not returnfirstitem:
-                    return s.value 
+                    return s 
                 else:
-                    return s.value[0]
+                    return s[0]
         except:
             pass
         

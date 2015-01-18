@@ -3,6 +3,7 @@ from .network import Server
 import logging
 import time
 import gettext
+from .database import Settings
 
 logger = logging.getLogger('pyCoBot')
 
@@ -15,6 +16,7 @@ class pyCoBot:
 
     def __init__(self, daemon):
         logger.info("Starting.")
+        self.refreshSettingsCache()
         self.config = daemon.config
         self.daemon = daemon
 
@@ -36,3 +38,39 @@ class pyCoBot:
                                      self.servers[i].connection.reconncount <= \
                                           self.servers[i].connection.reconnects:
                     alive = True
+    
+    def refreshSettingsCache(self):
+        self.settingscache = {'global': {}, 'network': {}, 'channel': {}}
+        table = Settings.select()
+        
+        for setting in table:
+            if setting.type == "channel":
+                try:
+                    self.settingscache['channel'][setting.network]
+                except:
+                    self.settingscache['channel'][setting.network] = {}
+                
+                try:
+                    self.settingscache['channel'][setting.network][setting.channel]
+                except:
+                    self.settingscache['channel'][setting.network][setting.channel] = {}
+                
+                self.settingscache['channel'][setting.network][setting.channel][setting.name] = setting.value
+            elif setting.type == 'network':
+                try:
+                    self.settingscache['network'][setting.network]
+                except:
+                    self.settingscache['network'][setting.network] = {}
+                
+                self.settingscache['network'][setting.network][setting.name] = setting.value
+            elif setting.type == 'global':
+                self.settingscache['global'][setting.name] = setting.value
+                
+                
+    def getSettingFromCache(self, stype, name, network=None, channel=None):
+        if stype == "channel":
+            return self.settingscache['channel'][network][channel][name]
+        elif stype == "network":
+            return self.settingscache['channel'][network][name]
+        elif stype == "global":
+            return self.settingscache['channel'][name]
