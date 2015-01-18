@@ -14,3 +14,7 @@ class example:
     @Command("test", help="Comando de ejemplo")
     def testcmd(self, bot, cli, ev):
         bot.msg(ev.target, "Hola mundo")
+    
+    @Command("awesometest", help="Comando de ejemplo fabuloso", privs=10)
+    def testcmd(self, bot, cli, ev):
+        bot.msg(ev.target, "Hola mundo!!!")

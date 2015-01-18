@@ -9,6 +9,7 @@ from .peewee import peewee
 from . import database
 import os
 import json
+import hashlib
 
 VERSION = "2.1"
 CODENAME = "Dors"
@@ -30,11 +31,12 @@ class bot(Daemon):
             user = input("Username: ").lower()
             passw = input("Password: ")
             
-            database.User.create(username=user, password=hashlib.sha224(passw.encode()).hexdigest())
-            database.UserPriv.create(uid=1, priv=10, module="*", channel="*") # First user... id 1, no?
-            
-            # TODO: Make a file with global/network/channel settings and fill the settings table here.
-        except:
+            e = database.User.create(username=user, password=hashlib.sha256(passw.encode()).hexdigest())
+            e.save()
+            e = database.UserPriv.create(uid=1, priv=10, module="*", channel="*") # First user... id 1, no?
+            e.save()
+            print("OK")
+        except peewee.OperationalError:
             pass  # Tables already created, all OK
 
         try:

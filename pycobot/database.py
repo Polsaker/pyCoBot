@@ -9,11 +9,11 @@ class BaseModel(peewee.Model):
 
 class User(BaseModel):
     username = peewee.CharField(unique=True)
-    password = peewee.CharField()
+    password = peewee.CharField() # password (sha256)
 
 class UserPriv(BaseModel):
-    uid = peewee.IntegerField()
-    priv = peewee.IntegerField()
+    uid = peewee.IntegerField() # User ID (from the User table)
+    priv = peewee.IntegerField() # 1-10 (privs)
     module = peewee.CharField()
     channel = peewee.CharField()
     

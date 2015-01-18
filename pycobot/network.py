@@ -8,6 +8,8 @@ import json
 import logging
 from .irc import client
 from .database import Settings
+from .database import User
+from .database import UserPriv
 import imp
 import sys
 import inspect
@@ -15,6 +17,7 @@ import ast
 import pycobot
 import builtins
 import traceback
+import hashlib
 
 class Server:
     config = None  # Kaptan instance
@@ -27,6 +30,8 @@ class Server:
     handlers = {}  # Registered handlers
     commands = {}  # Registered commands
     configs = {}  # Configuration value definitions
+    
+    users = {} # Identified users
     
     _rhandlers = []  # :(
     def __init__(self, pycobot, sid):
@@ -55,7 +60,8 @@ class Server:
     def _processCommands(self, conn, event):
         command = None
         if event.type == "privmsg":
-            cmd = event.splitd[0]
+            command = event.splitd[0]
+            del event.splitd[0]
         else:
             prefix = None
             try:
@@ -84,14 +90,11 @@ class Server:
                     pass
 
         if not command:
-            return
-        print(self.commands)
-        
+            return        
         
         # Valid order prefix for the bot! Check if the command exists
         if command == "auth" or command == "id" or command == "identify":
-            # TODO: Core command 'auth'
-            return
+            self._auth(event)
         elif command == "help" or command == "ayuda": # TODO: command i18n?
             self._help(event)
             return
@@ -101,9 +104,11 @@ class Server:
         except:
             return # 404 command not found
         
-        if self.commands[command]['privs'] != 0 and self.commands[command]['privs'] != '':
-            # TODO: Command privilege system
-            return
+        if self.commands[command]['privs'] != '':
+            # TODO: More specific channel privileges
+            if self._checkprivs(event, self.commands[command]['privs'], event.target, self.commands[command]['module']) is False:
+                self.msg(event.target, self._("\00304Error\003: You're not authorized to use this command"))
+                return
             
         if self.commands[command]['pparam'] is not None:
             if client.is_channel(event.splitd[self.commands[command]['pparam'] + 1]):
@@ -117,7 +122,45 @@ class Server:
         # Call the function
         self.commands[command]['func'](self, self.connection, event)
     
-    # [Internal] Help command
+    def _checkprivs(self, ev, privs, chan="*", module="*"):
+        try:
+            self.users[ev.source.userhost]
+            if privs == 0:
+                return True
+        except:
+            return False
+        
+        for privset in self.users[ev.source.userhost]:
+            if privset['priv'] >= privs and (privset['channel'] == chan or privset['channel'] == "*") \
+                and (privset['module'] == module or privset['module'] == "*"):
+                    return True
+        
+        return False
+    
+    # auth command
+    def _auth(self, event):
+        if event.type == "pubmsg":
+            self.msg(event.target, self._("This command must be used via private messages. Try \002/msg {0} auth <user> <password>".format(self.connection.nickname)))
+            return
+        
+        if len(event.splitd) < 2:
+            self.msg(event.target, self._("Not enough parameters. Try \002auth <user> <password>"))
+            return
+        
+        passwd = hashlib.sha256(event.splitd[1].encode()).hexdigest()
+        try:
+            u = User.get(User.username == event.splitd[0], User.password == passwd)
+            self.msg(event.target, self._("Successfully logged in"))
+            self.users[event.source.userhost] = []
+        except:
+            self.msg(event.target, self._("Invalid user/password"))
+            return
+        
+        pu = UserPriv.select().where(UserPriv.uid == u.id)
+        for priv in pu:
+            self.users[event.source.userhost].append({'module': priv.module, 'priv': priv.priv, 'channel': priv.channel})
+    
+    # Help command
     def _help(self, event):
         try:
             if event.splitd[0] == "":
@@ -245,6 +288,7 @@ class Server:
     def registerCommand(self, command, func, module, chelp='', privs=0, alias=[], privsparameter=None):
         self.commands[command] = {
                             'func': func,
+                            'module': module,
                             'help': chelp,
                             'privs': privs,
                             'alias': alias,
@@ -253,6 +297,7 @@ class Server:
         for i in alias:
             self.commands[i] = {
                             'func': func,
+                            'module': module,
                             'help': chelp,
                             'privs': privs,
                             'pparam': privsparameter,

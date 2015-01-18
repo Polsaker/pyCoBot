@@ -12,8 +12,10 @@
         [X] Command handlers
     [X] Database access
     [X] New config system with four levels (file, global, network, channel)
-    [ ] User system
-    [ ] Privilege system
+    [X] User system
+    [/] Privilege system
+        [ ] Check for channel privs using a module function
+    [ ] Database cache
     [/] i18n ...
         [X] Make it work
         [X] ... in modules

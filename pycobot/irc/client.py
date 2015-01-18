@@ -603,8 +603,6 @@ class Event(object):
         == "ctcp" or type == "pubnotice" or type == "privnotice":
             if not is_channel(target):
                 self.target = parse_nick(source)[1]
-            if not is_channel(source):
-                self.source = parse_nick(source)[1]
             self.splitd = arguments[0].split()
 
 
