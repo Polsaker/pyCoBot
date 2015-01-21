@@ -105,10 +105,14 @@ class Server:
             return # 404 command not found
         
         if self.commands[command]['privs'] != '':
-            # TODO: More specific channel privileges
-            if self._checkprivs(event, self.commands[command]['privs'], event.target, self.commands[command]['module']) is False:
+            if self.commands[command]['pfunc'] is not None:
+                if self.commands[command]['pfunc'](self, self.connection, event) is not True:
+                    self.msg(event.target, self._("\00304Error\003: You're not authorized to use this command"))
+                    return
+            elif self._checkprivs(event, self.commands[command]['privs'], event.target, self.commands[command]['module']) is False:
                 self.msg(event.target, self._("\00304Error\003: You're not authorized to use this command"))
                 return
+            
             
         if self.commands[command]['pparam'] is not None:
             if client.is_channel(event.splitd[self.commands[command]['pparam'] + 1]):
@@ -274,7 +278,7 @@ class Server:
                 # YAY! We found a command handler there
                 self.logger.debug("Found commandhandler {0} in {1}".format(func[1].iamachandler, ModuleName))
                 self.registerCommand(func[1].iamachandler, getattr(self.modules[ModuleName], func[1].__name__), ModuleName,
-                        func[1].chelp, func[1].cprivs, func[1].calias, func[1].cprivspar)
+                        func[1].chelp, func[1].cprivs, func[1].calias, func[1].privfunc)
             except AttributeError:
                 pass
             
@@ -285,14 +289,14 @@ class Server:
                 pass
     
     # Register a command with the bot
-    def registerCommand(self, command, func, module, chelp='', privs=0, alias=[], privsparameter=None):
+    def registerCommand(self, command, func, module, chelp='', privs=0, alias=[], privfunc=None):
         self.commands[command] = {
                             'func': func,
                             'module': module,
                             'help': chelp,
                             'privs': privs,
                             'alias': alias,
-                            'pparam': privsparameter
+                            'pfunc': privfunc
                         }
         for i in alias:
             self.commands[i] = {
@@ -300,7 +304,7 @@ class Server:
                             'module': module,
                             'help': chelp,
                             'privs': privs,
-                            'pparam': privsparameter,
+                            'pfunc': privfunc,
                             'aliasof': command
                         }
     

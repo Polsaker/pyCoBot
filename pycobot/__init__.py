@@ -122,9 +122,9 @@ def CommandHandler(*args, **kwargs):
         except:
             fn.calias = []
         try:
-            fn.cprivspar = kwargs['chanprivparam']
+            fn.cprivfunc = kwargs['privfunc']
         except:
-            fn.cprivspar = None
+            fn.cprivfunc = None
         fn.module = fn.__init__.__self__.__class__.__name__
         return fn
     return call_fn

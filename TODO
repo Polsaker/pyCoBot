@@ -1,9 +1,9 @@
 [-] IRC library (mustached-ironman)
     [X] Connect to the IRC
     [/] Channel tracking
+    [ ] SSL
     [ ] IRCd-specific compatibility
     [ ] Services-specific compatibility
-    [ ] Adapt with the bot (channel configuration)
 [/] pyCoBot
     [X] Connect to the IRC
     [X] Module loading
@@ -13,8 +13,8 @@
     [X] Database access
     [X] New config system with four levels (file, global, network, channel)
     [X] User system
-    [/] Privilege system
-        [ ] Check for channel privs using a module function
+    [X] Privilege system
+        [X] Check for channel privs using a module function
     [/] Database cache
     [/] i18n ...
         [X] Make it work
