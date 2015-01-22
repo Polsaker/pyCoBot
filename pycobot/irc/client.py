@@ -13,28 +13,20 @@ _rfc_1459_command_regexp = re.compile("^(:(?P<prefix>[^ ]+) +)?(?P<command>[" +
 
 
 class IRCClient(object):
-    # Defaults..
-    server = None    # Dirección del servidor IRC
-    port = 6667      # Puerto al que se conectará
-    nickname = "Groo"    # Nick
-    ident = nickname
-    gecos = "-"      # "Nombre real"
-    ssl = False
-    msgdelay = 0.5   # Demora en el envío de mensajes (para no caer por flood)
-    reconnects = 10  # Intentos de reconectarse desde la ultima conexion fallida
-    reconncount = 0  # Números de intentos de reconección realizados.
-
-    features = None
-    ibuffer = None
-    connected = False
-    logger = None
-    socket = None
-    handlers = {}
-    queue = []
-    channels = {}
-    users = {}
-
     def __init__(self, sid):
+        # Defaults..
+        self.server = None
+        
+        self.features = None
+        self.ibuffer = None
+        self.connected = False
+        self.logger = None
+        self.socket = None
+        self.handlers = {}
+        self.queue = []
+        self.channels = {}
+        self.users = {}
+        
         self.logger = logging.getLogger('bearded-potato-' + sid)
         self.ibuffer = LineBuffer()
         self.features = features.FeatureSet()
@@ -55,8 +47,8 @@ class IRCClient(object):
         self.addhandler("banlist", self._on_banlist)
         self.addhandler("kick", self._on_quietlist)
 
-    def configure(self, server=server, port=port, nick=nickname, ident=nickname,
-                gecos=gecos, ssl=ssl, msgdelay=msgdelay, reconnects=reconnects):
+    def configure(self, server, port=6667, nick="Groo", ident="Groo",
+                gecos="-", ssl=False, msgdelay=0.5, reconnects=10):
         self.server = server
         self.port = port
         self.nickname = nick
@@ -67,6 +59,10 @@ class IRCClient(object):
 
     def connect(self):
         """ Connects to the IRC server. """
+        if self.server is None:
+            self.logger.error("Client not configured!")
+            return
+            
         self.logger.info("Conectando a {0}:{1}".format(self.server, self.port))
         try:
             self.socket = socket.create_connection((self.server, self.port))
