@@ -8,6 +8,5 @@
   "\u000304Error\u0003: The module is not loaded!": "\u000304Error\u0003: El módulo no está cargado!",
   "Error loading the module (the class doesn't exist or there is a problem on the __init__ function)": "Error cargando el módulo (La clase principal no existe o hay algún problema en su __init__)",
   "Module {0} loaded": "Se ha cargado el módulo {0}",
-  "Module {0} unloaded": "Se ha des-cargado el módulo {0}",
-  
+  "Module {0} unloaded": "Se ha des-cargado el módulo {0}"
 }
