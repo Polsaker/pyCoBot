@@ -1,2 +1,13 @@
 {
+  "Loads a module. Usage: loadmod <module>": "Carga un módulo. Uso: loadmod <módulo>",
+  "Unloads a module. Usage: loadmod <module>": "Des-carga un módulo. Uso: unloadmod <módulo>",
+  "Unloads and then loads a module. Usage: reloadmod <module>": "Des-carga y carga un módulo. Uso: reloadmod <módulo>",
+  "\u000304Error\u0003: The module does not exist.": "\u000304Error\u0003: El módulo no existe",
+  "\u000304Error\u0003: The module's main file does not exist.": "\u000304Error\u0003: El archivo principal del módulo no existe",
+  "\u000304Error\u0003: The module is already loaded!": "\u000304Error\u0003: El módulo ya está cargado!",
+  "\u000304Error\u0003: The module is not loaded!": "\u000304Error\u0003: El módulo no está cargado!",
+  "Error loading the module (the class doesn't exist or there is a problem on the __init__ function)": "Error cargando el módulo (La clase principal no existe o hay algún problema en su __init__)",
+  "Module {0} loaded": "Se ha cargado el módulo {0}",
+  "Module {0} unloaded": "Se ha des-cargado el módulo {0}",
+  
 }
