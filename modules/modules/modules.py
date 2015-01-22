@@ -2,7 +2,7 @@
 from pycobot import Command
 from pycobot import Module
 
-class example(Module):        
+class modules(Module):        
     @Command("loadmod", help="Loads a module. Usage: loadmod <module>", privs=10)
     def loadmod(self, bot, cli, ev):
         result = bot.loadModule(ev.splitd[0])
