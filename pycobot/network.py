@@ -288,6 +288,26 @@ class Server:
             except AttributeError:
                 pass
     
+    def unloadModule(self, ModuleName):
+        try:
+            # Check if the module is loaded
+            self.modules[ModuleName]
+        except KeyError:
+            return -1  # Meep, the module is not loaded
+        
+        # Remove commands
+        for i in self.commands:
+            if self.commands[i]['module'] == ModuleName:
+                del self.commands[i]
+        # Remove handlers
+        del self.handlers[module]
+        
+        # Call the __unload__ function
+        self.modules[ModuleName].__unload__(self)
+        
+        # TODO: Delete config definitions?
+        del self.modules[ModuleName]
+    
     # Register a command with the bot
     def registerCommand(self, command, func, module, chelp='', privs=0, alias=[], privfunc=None):
         self.commands[command] = {

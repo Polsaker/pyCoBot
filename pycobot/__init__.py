@@ -134,3 +134,6 @@ Command = CommandHandler
 class Module(object):
     def __init__(self, bot):
         pass
+    
+    def __unload__(self, bot):
+        pass
