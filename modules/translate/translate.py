@@ -105,6 +105,9 @@ class translate:
                 ev.target, ev.source)
 
     def translate(self, text, OUT, IN, cli, to, source):
+        if IN == OUT:
+            cli.msg(to, "\00304Error\003: NOPE NOPE NOPE NOPE")
+            return
         try:
             if IN != "auto":
                 self.langs[IN]
