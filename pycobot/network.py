@@ -278,8 +278,8 @@ class Server:
                 # YAY! We found a command handler there
                 self.logger.debug("Found commandhandler {0} in {1}".format(func[1].iamachandler, ModuleName))
                 self.registerCommand(func[1].iamachandler, getattr(self.modules[ModuleName], func[1].__name__), ModuleName,
-                        func[1].chelp, func[1].cprivs, func[1].calias, func[1].privfunc)
-            except AttributeError:
+                        func[1].chelp, func[1].cprivs, func[1].calias, func[1].cprivfunc)
+            except AttributeError as a:
                 pass
             
             try:

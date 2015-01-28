@@ -26,6 +26,7 @@ class IRCClient(object):
         self.queue = []
         self.channels = {}
         self.users = {}
+        self.reconncount = 0
         
         self.logger = logging.getLogger('bearded-potato-' + sid)
         self.ibuffer = LineBuffer()
@@ -56,6 +57,7 @@ class IRCClient(object):
         self.gecos = gecos
         self.ssl = ssl
         self.msgdelay = msgdelay
+        self.reconnects = reconnects
 
     def connect(self):
         """ Connects to the IRC server. """
