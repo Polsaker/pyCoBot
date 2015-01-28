@@ -112,16 +112,6 @@ class Server:
             elif self._checkprivs(event, self.commands[command]['privs'], event.target, self.commands[command]['module']) is False:
                 self.msg(event.target, self._("\00304Error\003: You're not authorized to use this command"))
                 return
-            
-            
-        if self.commands[command]['pparam'] is not None:
-            if client.is_channel(event.splitd[self.commands[command]['pparam'] + 1]):
-                channel = event.splitd[self.commands[command]['pparam'] + 1]
-            else:
-                if event.type == "pubmsg":
-                    channel = event.target
-                else:
-                    channel = None
         
         # Call the function
         self.commands[command]['func'](self, self.connection, event)
