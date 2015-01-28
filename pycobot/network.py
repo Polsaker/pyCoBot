@@ -188,7 +188,8 @@ class Server:
             # List all the commands
             comms = ['help', 'auth']
             for i in self.commands:
-                comms.append(i)
+                if self._checkprivs(event, self.commands[i]['privs'], event.target, self.commands[i]['module']):
+                    comms.append(i)
             comms.sort()
             self.msg(event.target, self._("\002CoBot {0} ({1})\002. The "
                             "command prefix is \002{2}\002.", event.target).format(
