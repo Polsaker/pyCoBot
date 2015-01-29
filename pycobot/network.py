@@ -18,6 +18,7 @@ import pycobot
 import builtins
 import traceback
 import hashlib
+import copy
 
 class Server:
     config = None  # Kaptan instance
@@ -117,6 +118,8 @@ class Server:
         self.commands[command]['func'](self, self.connection, event)
     
     def _checkprivs(self, ev, privs, chan="*", module="*"):
+        if privs == '':
+            return True
         try:
             self.users[ev.source.userhost]
             if privs == 0:
@@ -287,11 +290,11 @@ class Server:
             return -1  # Meep, the module is not loaded
         
         # Remove commands
-        for i in self.commands:
+        for i in copy.copy(self.commands):
             if self.commands[i]['module'] == ModuleName:
                 del self.commands[i]
         # Remove handlers
-        del self.handlers[module]
+        del self.handlers[ModuleName]
         
         # Call the __unload__ function
         self.modules[ModuleName].__unload__(self)
