@@ -26,7 +26,7 @@ class modules(Module):
             bot.msg(ev.target, _("Module {0} unloaded").format(ev.splitd[0]))
     
     @Command("reloadmod", help="Unloads and then loads a module. Usage: reloadmod <module>", privs=10)
-    def unloadmod(self, bot, cli, ev):
+    def reloadmod(self, bot, cli, ev):
         # ;D
         self.unloadmod(bot, cli, ev)
         self.loadmod(bot, cli, ev)
