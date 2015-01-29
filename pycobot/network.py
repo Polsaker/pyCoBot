@@ -289,12 +289,19 @@ class Server:
         except KeyError:
             return -1  # Meep, the module is not loaded
         
-        # Remove commands
-        for i in copy.copy(self.commands):
-            if self.commands[i]['module'] == ModuleName:
-                del self.commands[i]
-        # Remove handlers
-        del self.handlers[ModuleName]
+        try:
+            # Remove commands
+            for i in copy.copy(self.commands):
+                if self.commands[i]['module'] == ModuleName:
+                    del self.commands[i]
+        except:
+            pass
+        
+        try:
+            # Remove handlers
+            del self.handlers[ModuleName]
+        except:
+            pass
         
         # Call the __unload__ function
         self.modules[ModuleName].__unload__(self)
