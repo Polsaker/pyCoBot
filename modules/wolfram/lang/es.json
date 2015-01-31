@@ -1,0 +1,7 @@
+{
+    "Wolfram Alpha calculator. \u000304Usage:\u0003 wa <question>. \u000304Example:\u0003 wa sun mass / earth mass": "Calculadora Wolfram Alpha. \u000304Uso:\u0003 wa <pregunta>. \u000304Ejemplo:\u0003 wa sun mass / earth mass",
+    "\u000304Error:\u0003 I need a search term": "\u000304Error:\u0003 Necesito un término de búsqueda",
+    "\u000304Error:\u0003 {0}": "\u000304Error:\u0003 {0}",
+    "\u000304Error:\u0003 Couldn't display answer, please try http://www.wolframalpha.com/input/?i={0}": "\u000304Error:\u0003 No puedo mostrar la respuesta, por favor intenta http://www.wolframalpha.com/input/?i={0}",
+    "Sorry, I can't get results for that expression.": "Lo siento, no pude obtener resultados para esa expresión"
+}
