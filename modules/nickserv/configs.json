@@ -1,0 +1,10 @@
+{
+  "nickserv.user":{
+    "type": "str"
+    "scope": "network"
+  },
+  "nickserv.password":{
+    "type": "str"
+    "scope": "network"
+  }
+}
