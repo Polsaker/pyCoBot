@@ -62,7 +62,10 @@ class countries:
                 except:
                     continue
                 wprop = urllib.request.urlopen("https://www.wikidata.org/w/api.php?action=wbgetentities&ids=Q{0}&languages=es&props=labels&format=json".format(prop)).read().decode('utf-8', 'replace')
-                presimark = json.loads(wprop)["entities"]["Q" + str(prop)]['labels']['es']['value']
+                try:
+                    presimark = json.loads(wprop)["entities"]["Q" + str(prop)]['labels']['es']['value']
+                except:
+                    presimark = "Presidente"
             elif i == "P122":
                 prop = e['claims']['P122'][0]['mainsnak']['datavalue']['value']['numeric-id']
                 wprop = urllib.request.urlopen("https://www.wikidata.org/w/api.php?action=wbgetentities&ids=Q{0}&languages=es&props=labels&format=json".format(prop)).read().decode('utf-8', 'replace')
