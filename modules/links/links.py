@@ -83,7 +83,7 @@ class links:
         r = urllib.request.urlopen(uri).read().decode('utf-8', 'replace')
         parser = HTMLParser()
         r = parser.unescape(r)
-        yr = re.compile(".*<title[^>]*>([^<]+)</title>.*")
+        yr = re.compile('<title>(.*?)</title>', re.IGNORECASE|re.DOTALL)
         title = yr.search(r)
         if title is None:
             return 1
