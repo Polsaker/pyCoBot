@@ -76,7 +76,7 @@ class countries:
                 pass
                             
         send = "\002{1}\002: Continente: \002{0}\002, Capital: \002{2}\002, moneda: \002{3}\002, población: \002{4}\002".format(resp['region'], resp['translations']['es'], resp['capital'], ", ".join(currs), "{0:,}".format(resp['population']).replace(",", "."))
-        send = send + ", superficie: \002{0}\002 km²".format("{0:,}".format(resp['area']).replace(",", "."))
+        send = send + ", superficie: \002{0}\002 km²".format("{0:,}".format(int(resp['area'])).replace(",", "."))
         send = send + ", idiomas: \002{0}\002, zonas horarias: \002{1}\002".format(", ".join(langs), ", ".join(resp['timezones']))
         send = send + ", código telefónico: \002{0}\002".format(", ".join(resp['callingCodes']))
         if presi != "":
