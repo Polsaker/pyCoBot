@@ -12,6 +12,9 @@ class partido:
 
     def partido(self, bot, cli, event):
         if len(event.splitd) > 0:
+            if event.splitd[0] == "dlcast" or event.splitd[0] == "dlcastc" or event.splitd[0] == "dlc":
+                cli.msg(event.target, "\002{0}\002 milita en el \002partido de la plaza roja".format(event.splitd[0]))
+                return
             stext = urllib.parse.quote_plus(" ".join(event.splitd))
         else:
             cli.msg(event.target, "\00304Error\003: Faltan parametros")
