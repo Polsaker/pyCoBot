@@ -198,7 +198,7 @@ class games:
         c = GameChannel.get(GameChannel.channel == ev.target)
         if c is False:
             return 1  # "Los juegos no están habilitados en este canal.."
-        com = ev.arguments[0][1:]
+        com = ev.arguments[0][1:].split(" ")[0]
         try:
             if ev.splitd[0][0] == "!":
                 del ev.splitd[0][0]
@@ -216,7 +216,7 @@ class games:
                 return 3  # "Esta cuenta esta congelada"
             elif u.congelado == 2:
                 return 4  # "Esta cuenta esta hipercongelada"
-
+        print(com)
         # Comandos....
         if com == "alta":
             self.alta(cli, ev)
@@ -264,9 +264,11 @@ class games:
                 "\2 para empezar a jugar!")
 
     def dinero(self, usr, cli, ev):
-        if len(ev.splitd) == 0:
-            user = usr
-        elif ev.splitd[0] == "banco":
+        if len(ev.splitd) >= 1:
+            user = ev.source
+        else:
+            user = ev.splitd[1]
+        if ev.splitd[0] == "banco":
             user = False
             bank = GameBank.get(GameBank.bid == 1)
             resp = ("En el banco hay $\2{0:,}\2. Flags: [\002\00302B\003\002"
@@ -274,7 +276,7 @@ class games:
             self.msg(ev, resp)
             return 1
         else:
-            user = GameUser.get(GameUser.nick == ev.splitd[0])
+            user = GameUser.get(GameUser.nick == user)
 
         resp = "En la cuenta de \2%s\2 hay $\2{0:,}\2. Flags: " \
             " [\2Lvl\2 %s] ".format(user.dinero) % (user.nick, user.nivel)
