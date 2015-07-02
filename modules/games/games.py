@@ -497,6 +497,7 @@ class games:
         self.msg(ev, r)
 
     def lvlp(self, cli, ev):
+        del ev.splitd[0]
         if len(ev.splitd) == 0:
             self.msg(ev, "Faltan parámetros", True)
             return 1
