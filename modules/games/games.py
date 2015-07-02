@@ -41,15 +41,11 @@ class games:
         chelp="Congela una cuenta del juego. Sintaxis: congelar <nick> [hiper]")
         core.addCommandHandler("descongelar", self, cpriv=5,
         chelp="Descongela una cuenta del juego. Sintaxis: descongelar <nick>")
-        core.addCommandHandler("impuesto", self, cpriv=7,
-        chelp="Cobra impuestos")
         core.addCommandHandler("changemoney", self, cpriv=6,
         chelp="Cambia la cantidad de dinero almacenado en una cuenta. Sintaxis"
         ": changemoney <nick> <dinero>")
 
     ## Comandos
-    def impuesto(self, bot, cli, event):
-        pass
         
     def changemoney(self, bot, cli, event):
         if len(event.splitd) < 2:
