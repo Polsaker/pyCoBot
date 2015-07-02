@@ -527,6 +527,7 @@ class games:
             self.rcnt += 1
 
     def prestamo(self, user, cli, ev):
+        del ev.splitd[0]
         i = 0
         tot = 500
         while i != user.nivel:
