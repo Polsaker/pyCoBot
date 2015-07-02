@@ -272,7 +272,7 @@ class games:
                 "\2 para empezar a jugar!")
 
     def dinero(self, usr, cli, ev):
-        if len(ev.splitd) >= 2:
+        if len(ev.splitd) == 1:
             user = ev.source
         else:
             user = ev.splitd[1]
