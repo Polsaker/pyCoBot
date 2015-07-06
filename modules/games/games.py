@@ -240,6 +240,9 @@ class games:
             self.top(cli, ev, 10)
         elif com == "lvltop":
             self.top(cli, ev, 5, "nivel")
+        elif com == "lvltop10":
+            self.top(cli, ev, 5, "nivel")
+
         elif com == "tragamonedas" or com == "tragaperras":
             self.tragamonedas(u, cli, ev)
         elif com == "rueda":
@@ -341,7 +344,7 @@ class games:
     def top(self, cli, ev, cant, column="dinero"):
         users = GameUser.select().where(GameUser.congelado == 0)
         c = getattr(GameUser, column)
-        users = users.order_by(c.desc()).order_by(GameUser.dinero.desc()).limit(cant)
+        users = users.order_by(c.desc(), GameUser.dinero.desc()).limit(cant)
         self.msg(ev, "\00306    NICK                NIVEL  DINERO")
         i = 1
         for user in users:
