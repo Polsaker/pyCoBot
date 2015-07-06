@@ -241,7 +241,7 @@ class games:
         elif com == "lvltop":
             self.top(cli, ev, 5, "nivel")
         elif com == "lvltop10":
-            self.top(cli, ev, 5, "nivel")
+            self.top(cli, ev, 10, "nivel")
 
         elif com == "tragamonedas" or com == "tragaperras":
             self.tragamonedas(u, cli, ev)
