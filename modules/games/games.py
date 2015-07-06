@@ -341,7 +341,7 @@ class games:
     def top(self, cli, ev, cant, column="dinero"):
         users = GameUser.select().where(GameUser.congelado == 0)
         c = getattr(GameUser, column)
-        users = users.order_by(c.desc()).limit(cant)
+        users = users.order_by(c.desc()).order_by(GameUser.dinero.desc()).limit(cant)
         self.msg(ev, "\00306    NICK                NIVEL  DINERO")
         i = 1
         for user in users:
@@ -536,6 +536,7 @@ class games:
             i += 1
         if user.deuda != 0:
             tot -= user.deuda
+        tot = round(tot)
         if len(ev.splitd) == 0:
             self.msg(ev, "\2{0}\2: Puedes pedir hasta $\2{1}\2".format(
                 user.nick, tot))
