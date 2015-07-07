@@ -234,13 +234,13 @@ class games:
             self.dinero(u, cli, ev)
         elif com == "lvlup" or com == "nivel":
             self.lvlup(u, cli, ev)
-        elif com == "top":
+        elif com == "dtop":
             self.top(cli, ev, 5)
-        elif com == "top10":
+        elif com == "dtop10":
             self.top(cli, ev, 10)
-        elif com == "lvltop":
+        elif com == "top":
             self.top(cli, ev, 5, "nivel")
-        elif com == "lvltop10":
+        elif com == "top10":
             self.top(cli, ev, 10, "nivel")
 
         elif com == "tragamonedas" or com == "tragaperras":
