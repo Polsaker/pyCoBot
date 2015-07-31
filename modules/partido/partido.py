@@ -41,6 +41,7 @@ class partido:
         
         if not partido:
             cli.privmsg(event.target, "\00304Error\003: No se pudo obtener la información de la afiliación política de esa persona!")
-            return
-            
-        cli.msg(event.target, "\002{0}\002 milita en el \002{1}".format(nombre, partido))
+        elif partido.startswith("Partido") == True:
+            cli.msg(event.target, "\002{0}\002 milita en el \002(1)".format(nombre,partido))
+        else:
+            cli.msg("\002{0}\002 milita en \002{1}".format(nombre,partido))
