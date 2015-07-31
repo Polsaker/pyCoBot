@@ -509,6 +509,7 @@ class IRCConnection(object):
             self.send_stuff(raw)
 
     def send_stuff(self, stuff):
+        stuff = stuff.replace("\n", "")
         bytes_ = stuff.encode('utf-8') + b'\r\n'
         if len(bytes_) > 512:
             logger.warning("Se ha intentado enviar un mensaje muy largo!")

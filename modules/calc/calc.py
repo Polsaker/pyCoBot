@@ -69,9 +69,9 @@ class calc:
 
     def calculate(self, expr, q, bot, ev):
         def safe_eval(expr, symbols={}):
-            if expr.find("_") != -1:
+            if expr.find("_") != -1 or expr.find("=") != -1 or expr.find("'") != -1 or expr.find("\"") != -1:
                 return None
-            if expr.find("sys.") != -1 or expr.find("lambda") != -1:
+            if expr.find("sys.") != -1 or expr.find("lambda") != -1 or expr.find("os.") != -1 or expr.find("import") != -1:
                 return "u h4x0r"
             try:
                 return eval(expr, dict(__builtins__=None), symbols)  # :(

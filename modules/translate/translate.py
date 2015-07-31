@@ -102,19 +102,23 @@ class translate:
             cli.msg(ev.target, "\00304Error\003: Faltan parametros")
             return 0
         self.translate(" ".join(ev.splitd[2:]), ev.splitd[1], ev.splitd[0], cli,
-                ev.target)
+                ev.target, ev.source)
 
-    def translate(self, text, OUT, IN, cli, to):
+    def translate(self, text, OUT, IN, cli, to, source):
+        if IN == OUT:
+            cli.msg(to, "\00304Error\003: NOPE NOPE NOPE NOPE")
+            return
         try:
             if IN != "auto":
                 self.langs[IN]
             self.langs[OUT]
         except KeyError:
-            resp = "\00304Error\003: Ha ingresado un idioma inválido. Los idio"
-            resp += "mas disponibles son: "
+            resp = "\00304Error\003: Ha ingresado un idioma inválido. "
+            presp = resp + "Los idiomas disponibles son: "
             for c, n in self.langs.items():
-                resp += n + " (" + c + "), "
-            cli.msg(to, resp[0:len(resp) - 2])
+                presp += n + " (" + c + "), "
+            cli.notice(source, presp[0:len(presp) - 2])
+            cli.msg(to, resp)
             return 0
         text = urllib.parse.quote(text)
         conn = http.client.HTTPConnection("translate.google.com")
@@ -135,8 +139,8 @@ class translate:
                     src = self.langs[trs['src']]
                 except KeyError:
                     src = trs['src']
-                
-                
+
+
             resp = "Traducido del \2{0}\2 al \2{1}\2: {2}".format(src,
                                                         self.langs[OUT], translatd)
             if translit != "":

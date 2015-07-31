@@ -41,11 +41,16 @@ class games:
         chelp="Congela una cuenta del juego. Sintaxis: congelar <nick> [hiper]")
         core.addCommandHandler("descongelar", self, cpriv=5,
         chelp="Descongela una cuenta del juego. Sintaxis: descongelar <nick>")
+        core.addCommandHandler("evento", self, cpriv=7,
+        chelp="Acciona un evento")
         core.addCommandHandler("changemoney", self, cpriv=6,
         chelp="Cambia la cantidad de dinero almacenado en una cuenta. Sintaxis"
         ": changemoney <nick> <dinero>")
 
     ## Comandos
+    def evento(self, bot, cli, event):
+        self.th30min(bot, cli)
+        
     def changemoney(self, bot, cli, event):
         if len(event.splitd) < 2:
             self.msg(event, "Faltan parametros", True)
@@ -133,7 +138,10 @@ class games:
         users = GameUser.select()
         for user in users:
             user.deuda += (user.deuda * 5 / 100)
-            user.save()
+            try:
+                user.save()
+            except:
+                pass
 
         if self.lastuser is not False:
             user = GameUser.get(GameUser.nick == self.lastuser)
@@ -198,7 +206,7 @@ class games:
         c = GameChannel.get(GameChannel.channel == ev.target)
         if c is False:
             return 1  # "Los juegos no están habilitados en este canal.."
-        com = ev.arguments[0][1:]
+        com = ev.arguments[0][1:].split(" ")[0]
         try:
             if ev.splitd[0][0] == "!":
                 del ev.splitd[0][0]
@@ -216,7 +224,7 @@ class games:
                 return 3  # "Esta cuenta esta congelada"
             elif u.congelado == 2:
                 return 4  # "Esta cuenta esta hipercongelada"
-
+        print(com)
         # Comandos....
         if com == "alta":
             self.alta(cli, ev)
@@ -226,12 +234,15 @@ class games:
             self.dinero(u, cli, ev)
         elif com == "lvlup" or com == "nivel":
             self.lvlup(u, cli, ev)
-        elif com == "top":
+        elif com == "dtop":
             self.top(cli, ev, 5)
-        elif com == "top10":
+        elif com == "dtop10":
             self.top(cli, ev, 10)
-        elif com == "lvltop":
+        elif com == "top":
             self.top(cli, ev, 5, "nivel")
+        elif com == "top10":
+            self.top(cli, ev, 10, "nivel")
+
         elif com == "tragamonedas" or com == "tragaperras":
             self.tragamonedas(u, cli, ev)
         elif com == "rueda":
@@ -264,9 +275,11 @@ class games:
                 "\2 para empezar a jugar!")
 
     def dinero(self, usr, cli, ev):
-        if len(ev.splitd) == 0:
-            user = usr
-        elif ev.splitd[0] == "banco":
+        if len(ev.splitd) == 1:
+            user = ev.source
+        else:
+            user = ev.splitd[1]
+        if ev.splitd[0] == "banco":
             user = False
             bank = GameBank.get(GameBank.bid == 1)
             resp = ("En el banco hay $\2{0:,}\2. Flags: [\002\00302B\003\002"
@@ -274,7 +287,7 @@ class games:
             self.msg(ev, resp)
             return 1
         else:
-            user = GameUser.get(GameUser.nick == ev.splitd[0])
+            user = GameUser.get(GameUser.nick == user)
 
         resp = "En la cuenta de \2%s\2 hay $\2{0:,}\2. Flags: " \
             " [\2Lvl\2 %s] ".format(user.dinero) % (user.nick, user.nivel)
@@ -331,7 +344,7 @@ class games:
     def top(self, cli, ev, cant, column="dinero"):
         users = GameUser.select().where(GameUser.congelado == 0)
         c = getattr(GameUser, column)
-        users = users.order_by(c.desc()).limit(cant)
+        users = users.order_by(c.desc(), GameUser.dinero.desc()).limit(cant)
         self.msg(ev, "\00306    NICK                NIVEL  DINERO")
         i = 1
         for user in users:
@@ -487,6 +500,7 @@ class games:
         self.msg(ev, r)
 
     def lvlp(self, cli, ev):
+        del ev.splitd[0]
         if len(ev.splitd) == 0:
             self.msg(ev, "Faltan parámetros", True)
             return 1
@@ -517,6 +531,7 @@ class games:
             self.rcnt += 1
 
     def prestamo(self, user, cli, ev):
+        del ev.splitd[0]
         i = 0
         tot = 500
         while i != user.nivel:
@@ -524,6 +539,7 @@ class games:
             i += 1
         if user.deuda != 0:
             tot -= user.deuda
+        tot = round(tot)
         if len(ev.splitd) == 0:
             self.msg(ev, "\2{0}\2: Puedes pedir hasta $\2{1}\2".format(
                 user.nick, tot))
