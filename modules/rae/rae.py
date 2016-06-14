@@ -6,6 +6,8 @@ import urllib.parse
 import re
 from html.parser import HTMLParser
 
+BASE_URL = "http://dle.rae.es/srv/"
+
 class rae:
 
     abbr_regex = re.compile('<abbr .*?title=\"(.+?)\">.+?<\/abbr>', re.IGNORECASE)
@@ -37,73 +39,44 @@ class rae:
         if len(event.splitd)  == 0:
             cli.msg(event.target, "\00304Error\003: Faltan parametros")
             return 0
-        buffer = BytesIO()
 
         palabra = urllib.parse.quote_plus(event.splitd[0].lower())
-        
-        c = pycurl.Curl()
-        c.setopt(c.URL, 'http://dle.rae.es/srv/search?w='+palabra)
-        c.setopt(c.WRITEDATA, buffer)
-        c.setopt(c.USERAGENT, "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.85 Safari/537.36")
-        c.perform()
-        
-        body = buffer.getvalue().decode()
-        
+        url = BASE_URL + 'search?w='+palabra
+        body = retrieve_website(url)
+
+        p = None
+        if "<article" in body:
+            # If an article, parse it
+            p = self.parse_article(palabra, body)
+
+        elif "<ul" in body:
+            # If a link page, follow the first link
+            parser = LinkParser()
+            parser.feed(body)
+
+            if len(parser.links) > 0:
+                body = retrieve_website(BASE_URL + parser.links[0])
+                p = self.parse_article(palabra, body)
+
+        if p:
+            cli.msg(event.target, self.strip_tags(self.ircify(p))[:400] + "…")
+            cli.msg(event.target, "\00310" + 'http://dle.rae.es/?w='+palabra)
+        else:
+            cli.msg(event.target, "La palabra {} no está en el Diccionario".format(palabra))
+
+    def parse_article(self, palabra, body):
         t1 = body.split("<article ")[1].split("</article>")[0]
-        did = t1.split("\n")[0].replace("id=\"", '').replace("\">", '')
+        # did = t1.split("\n")[0].replace("id=\"", '').replace("\">", '')
 
         defs = t1.split("\n")[2:-1]
 
-        p = "\002{0}\002:".format(event.splitd[0].lower())
+        p = "\002{0}\002:".format(palabra)
 
         for defi in defs:            
             df = self.mark_regex.sub("", defi)
             p += " " + df
-        
-        cli.msg(event.target, self.strip_tags(self.ircify(p))[:800] + "…")
-        cli.msg(event.target, "\00310" + 'http://dle.rae.es/?w='+palabra)
-        
-        
-    def oldrae(self, bot, cli, event):
-        if len(event.splitd)  == 0:
-            cli.msg(event.target, "\00304Error\003: Faltan parametros")
-            return 0
-        palabra = urllib.parse.quote_plus(event.splitd[0])
-        buffer = BytesIO()
 
-        c = pycurl.Curl()
-        c.setopt(c.URL, 'http://lema.rae.es/drae/srv/search?key='+palabra)
-        c.setopt(c.WRITEDATA, buffer)
-        c.perform()
-
-        body = buffer.getvalue()
-        l = body.decode().split("<script>")[1].split("</script>")[1].replace('<script type="text/javascript">', '').replace('document.forms[0].elements[1].value=', 'return ')
-        ctx = execjs.compile(l)
-        chall = ctx.call("challenge")
-        pdata = "&".join(body.decode().split("<body")[1].replace("/>", "\n").split("\n")[1:-1]).replace('<input type="hidden" name="', '').replace('" value="', '=').replace('"','').replace('TS014dfc77_cr=', 'TS014dfc77_cr=' + urllib.parse.quote_plus(chall))
-
-        buffer = BytesIO()
-
-        c = pycurl.Curl()
-        c.setopt(c.URL, 'http://lema.rae.es/drae/srv/search?key='+palabra)
-        c.setopt(c.WRITEDATA, buffer)
-        c.setopt(pycurl.HTTPHEADER, ["Referer: http://lema.rae.es/drae/srv/search?key=hola",
-        "Cache-Control: max-age=0",
-        "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-        "Origin: http://lema.rae.es",
-        "User-Agent: Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/39.0.2171.65 Chrome/39.0.2171.65 Safari/537.36"
-        ])
-        c.setopt(pycurl.VERBOSE, 1)
-        c.setopt(c.POSTFIELDS, pdata)
-        c.perform()
-        body = buffer.getvalue().decode()
-        
-        ht = self.strip_tags(self.ircify(body))
-#        print(ht.split("(function")[0].split("\n\n\n\n"))
-#        p = self.strip_tags(ht).split("Real Academia")[1].split("\n\n\n\n")[1]
-        p = ht.split("(function")[0].split("\n\n\n\n")[2].replace("Real Academia Española © Todos los derechos reservados\n", '').replace('\n', '')       
-        cli.msg(event.target, p[:800] + "…")
-        cli.msg(event.target, "\00310" + 'http://lema.rae.es/drae/srv/search?key='+palabra)
+        return p
 
 
 class MLStripper(HTMLParser):
@@ -118,4 +91,28 @@ class MLStripper(HTMLParser):
         return ''.join(self.fed)
     def handle_entityref(self, name):
         self.fed.append('&%s;' % name)
+
+
+class LinkParser(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.links = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "a":
+            for (key, val) in attrs:
+                if key == 'href':
+                    self.links.append(val)
+
+    handle_startendtag = handle_starttag
+
+
+def retrieve_website(website):
+    buffer = BytesIO()
+    c = pycurl.Curl()
+    c.setopt(c.URL, website)
+    c.setopt(c.WRITEDATA, buffer)
+    c.setopt(c.USERAGENT, "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.85 Safari/537.36")
+    c.perform()
+    return buffer.getvalue().decode()
 
