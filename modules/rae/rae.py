@@ -2,28 +2,30 @@
 import pycurl
 from io import BytesIO
 import urllib.parse
-import execjs
+#import execjs
 import re
 from html.parser import HTMLParser
 
 class rae:
-    _spanb_regex = re.compile('<span class\=\"d\"([^<]+?)?>')
-    _spang_regex = re.compile('<span class\=\"g\"([^<]+?)?>')
-    _spank_regex = re.compile('<span class\=\"k\"([^<]+?)?>')
-    _spana_regex = re.compile('<span class\=\"a\"([^<]+?)?>')
 
+    abbr_regex = re.compile('<abbr .*?title=\"(.+?)\">.+?<\/abbr>', re.IGNORECASE)
+    mark_regex = re.compile('<\/?mark ?.*?>', re.IGNORECASE)
+    green_regex = re.compile('<p class=\"n(2|3)\">(.+?)<\/p>', re.IGNORECASE)
+    red_regex = re.compile('<p class=\"k.?\".*?>(.+?)<\/p>', re.IGNORECASE)
+    
+    numberdot = re.compile('(\d\.)')
+    
     def __init__(self, core, client):
         core.addCommandHandler("rae", self, alias=['drae', 'def', 'ety'], chelp=
         "Busca una palabra en el diccionario de la Real Academia Española. Uso: rae <palabra>")
 
     def ircify(self, html):
-        html = html.replace("<B>", "\002").replace("</B>", "\002")
-        html = html.replace("<I>", "\026").replace("</I>", "\026")
-        html = html.replace("</span>", "\003")
-        html = self._spanb_regex.sub('\00302', html)
-        html = self._spang_regex.sub('\00314', html)
-        html = self._spana_regex.sub('\00303', html)
-        html = self._spank_regex.sub('\00305', html)
+        html = html.replace("<em>", "\002").replace("</em>", "\002")
+        html = self.green_regex.sub("(\\2) ", html)
+        html = self.red_regex.sub("\002\00305\\1\003\002 ", html)
+        html = self.abbr_regex.sub("\00302\\1\003", html)
+        
+        html = self.numberdot.sub("\002\\1\002", html)
         return html
     
     def strip_tags(self, html):
@@ -32,6 +34,37 @@ class rae:
         return s.get_data()
 
     def rae(self, bot, cli, event):
+        if len(event.splitd)  == 0:
+            cli.msg(event.target, "\00304Error\003: Faltan parametros")
+            return 0
+        buffer = BytesIO()
+
+        palabra = urllib.parse.quote_plus(event.splitd[0].lower())
+        
+        c = pycurl.Curl()
+        c.setopt(c.URL, 'http://dle.rae.es/srv/search?w='+palabra)
+        c.setopt(c.WRITEDATA, buffer)
+        c.setopt(c.USERAGENT, "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.85 Safari/537.36")
+        c.perform()
+        
+        body = buffer.getvalue().decode()
+        
+        t1 = body.split("<article ")[1].split("</article>")[0]
+        did = t1.split("\n")[0].replace("id=\"", '').replace("\">", '')
+
+        defs = t1.split("\n")[2:-1]
+
+        p = "\002{0}\002:".format(event.splitd[0].lower())
+
+        for defi in defs:            
+            df = self.mark_regex.sub("", defi)
+            p += " " + df
+        
+        cli.msg(event.target, self.strip_tags(self.ircify(p))[:800] + "…")
+        cli.msg(event.target, "\00310" + 'http://dle.rae.es/?w='+palabra)
+        
+        
+    def oldrae(self, bot, cli, event):
         if len(event.splitd)  == 0:
             cli.msg(event.target, "\00304Error\003: Faltan parametros")
             return 0
