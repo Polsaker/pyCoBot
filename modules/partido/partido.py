@@ -8,7 +8,7 @@ class partido:
 
     def __init__(self, core, client):
         core.addCommandHandler("partido", self, chelp=
-        "Muestra la afiliación política de una persona. Uso: partido <nombre completo>")
+        "Muestra la afiliación política de una persona. Uso: partido <nombre completo> (Salve pyderechibot.)")
 
     def partido(self, bot, cli, event):
         if len(event.splitd) > 0:
