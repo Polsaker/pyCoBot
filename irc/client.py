@@ -558,7 +558,7 @@ class IRCConnection(object):
     def privmsg(self, target, msg, nonewmsg=False):
         maxlen = 440 - len("NOTICE {0} :".format(target.encode('utf-8')))
         if len(msg.encode('utf-8')) > maxlen:
-            words = msg.split()
+            words = msg.split(" ")
             avail = maxlen
             footer = " …"
             result = ['']
